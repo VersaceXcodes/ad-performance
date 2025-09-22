@@ -1,0 +1,15 @@
+{
+  "timestamp": 1758581663575,
+  "operation": {
+    "id": "db:schemas:zod"
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/backend/schema.ts",
+      "type": "text",
+      "size": 49348,
+      "dependencies": false
+    }
+  ]
+}

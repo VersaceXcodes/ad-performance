@@ -1,0 +1,4701 @@
+openapi: 3.0.0
+info:
+  title: PulseDeck API
+  description: Cross-Channel Ad Performance Analytics Platform API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        email_verified:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - email
+        - name
+        - email_verified
+        - created_at
+        - updated_at
+    Workspace:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        default_currency:
+          type: string
+        default_revenue_per_conversion:
+          type: number
+          nullable: true
+        timezone:
+          type: string
+        data_retention_days:
+          type: integer
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - name
+        - default_currency
+        - timezone
+        - data_retention_days
+        - created_at
+        - updated_at
+    Membership:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        workspace_id:
+          type: string
+        role:
+          type: string
+          enum:
+            - owner
+            - admin
+            - member
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - pending
+        invited_by:
+          type: string
+          nullable: true
+        invitation_token:
+          type: string
+          nullable: true
+        invitation_expires:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - user_id
+        - workspace_id
+        - role
+        - status
+        - created_at
+        - updated_at
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        platform:
+          type: string
+          enum:
+            - facebook
+            - google
+            - tiktok
+            - snapchat
+            - linkedin
+            - twitter
+        account_id:
+          type: string
+        account_name:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - paused
+        currency:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - platform
+        - account_id
+        - status
+        - created_at
+        - updated_at
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: string
+        account_id:
+          type: string
+        campaign_id:
+          type: string
+        campaign_name:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - archived
+        objective:
+          type: string
+          nullable: true
+        buying_type:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - account_id
+        - campaign_id
+        - status
+        - created_at
+        - updated_at
+    AdSet:
+      type: object
+      properties:
+        id:
+          type: string
+        campaign_id:
+          type: string
+        adset_id:
+          type: string
+        adset_name:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - archived
+        bid_strategy:
+          type: string
+          nullable: true
+        optimization_goal:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - campaign_id
+        - adset_id
+        - status
+        - created_at
+        - updated_at
+    Ad:
+      type: object
+      properties:
+        id:
+          type: string
+        adset_id:
+          type: string
+        ad_id:
+          type: string
+        ad_name:
+          type: string
+          nullable: true
+        creative_name:
+          type: string
+          nullable: true
+        creative_thumb_url:
+          type: string
+          nullable: true
+        creative_tags:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - archived
+        ad_format:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - adset_id
+        - ad_id
+        - status
+        - created_at
+        - updated_at
+    MetricsDaily:
+      type: object
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+        platform:
+          type: string
+          enum:
+            - facebook
+            - google
+            - tiktok
+            - snapchat
+            - linkedin
+            - twitter
+        account_id:
+          type: string
+        campaign_id:
+          type: string
+          nullable: true
+        adset_id:
+          type: string
+          nullable: true
+        ad_id:
+          type: string
+          nullable: true
+        spend:
+          type: number
+          nullable: true
+        impressions:
+          type: integer
+          nullable: true
+        clicks:
+          type: integer
+          nullable: true
+        conversions:
+          type: integer
+          nullable: true
+        revenue:
+          type: number
+          nullable: true
+        ctr:
+          type: number
+          nullable: true
+        cpm:
+          type: number
+          nullable: true
+        cpc:
+          type: number
+          nullable: true
+        cpa:
+          type: number
+          nullable: true
+        cvr:
+          type: number
+          nullable: true
+        roas:
+          type: number
+          nullable: true
+        frequency:
+          type: number
+          nullable: true
+        reach:
+          type: integer
+          nullable: true
+        video_views:
+          type: integer
+          nullable: true
+        video_view_rate:
+          type: number
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - date
+        - platform
+        - account_id
+        - created_at
+        - updated_at
+    UploadJob:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        filename:
+          type: string
+        original_filename:
+          type: string
+        file_size:
+          type: integer
+        platform:
+          type: string
+          enum:
+            - facebook
+            - google
+            - tiktok
+            - snapchat
+            - linkedin
+            - twitter
+        status:
+          type: string
+          enum:
+            - queued
+            - processing
+            - completed
+            - failed
+        progress:
+          type: integer
+        rows_processed:
+          type: integer
+        rows_total:
+          type: integer
+        rows_success:
+          type: integer
+        rows_error:
+          type: integer
+        error_text:
+          type: string
+          nullable: true
+        error_log_url:
+          type: string
+          nullable: true
+        mapping_template_id:
+          type: string
+          nullable: true
+        date_from:
+          type: string
+          nullable: true
+        date_to:
+          type: string
+          nullable: true
+        started_at:
+          type: string
+          nullable: true
+        completed_at:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - user_id
+        - filename
+        - original_filename
+        - file_size
+        - platform
+        - status
+        - progress
+        - rows_processed
+        - rows_total
+        - rows_success
+        - rows_error
+        - created_at
+        - updated_at
+    MappingTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        name:
+          type: string
+        platform:
+          type: string
+          enum:
+            - facebook
+            - google
+            - tiktok
+            - snapchat
+            - linkedin
+            - twitter
+        mapping:
+          type: object
+        is_default:
+          type: boolean
+        is_shared:
+          type: boolean
+        created_by:
+          type: string
+        usage_count:
+          type: integer
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - name
+        - platform
+        - mapping
+        - is_default
+        - is_shared
+        - created_by
+        - usage_count
+        - created_at
+        - updated_at
+    AlertRule:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        created_by:
+          type: string
+        name:
+          type: string
+        metric:
+          type: string
+          enum:
+            - spend
+            - impressions
+            - clicks
+            - conversions
+            - revenue
+            - ctr
+            - cpm
+            - cpc
+            - cpa
+            - cvr
+            - roas
+        condition:
+          type: string
+          enum:
+            - greater_than
+            - less_than
+            - percentage_increase
+            - percentage_decrease
+        threshold:
+          type: number
+          nullable: true
+        threshold_percentage:
+          type: number
+          nullable: true
+        time_window:
+          type: string
+          enum:
+            - hourly
+            - daily
+            - weekly
+        platform_filter:
+          type: object
+          nullable: true
+        account_filter:
+          type: object
+          nullable: true
+        campaign_filter:
+          type: object
+          nullable: true
+        severity:
+          type: string
+          enum:
+            - info
+            - warning
+            - critical
+        is_active:
+          type: boolean
+        notification_email:
+          type: boolean
+        notification_in_app:
+          type: boolean
+        cooldown_minutes:
+          type: integer
+        last_triggered_at:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - created_by
+        - name
+        - metric
+        - condition
+        - time_window
+        - severity
+        - is_active
+        - notification_email
+        - notification_in_app
+        - cooldown_minutes
+        - created_at
+        - updated_at
+    AlertTrigger:
+      type: object
+      properties:
+        id:
+          type: string
+        alert_rule_id:
+          type: string
+        workspace_id:
+          type: string
+        triggered_at:
+          type: string
+        metric_value:
+          type: number
+        threshold_value:
+          type: number
+        condition_met:
+          type: string
+        affected_entity_type:
+          type: string
+          enum:
+            - account
+            - campaign
+            - adset
+            - ad
+        affected_entity_id:
+          type: string
+        affected_entity_name:
+          type: string
+          nullable: true
+        platform:
+          type: string
+          enum:
+            - facebook
+            - google
+            - tiktok
+            - snapchat
+            - linkedin
+            - twitter
+        details:
+          type: object
+          nullable: true
+        is_resolved:
+          type: boolean
+        resolved_at:
+          type: string
+          nullable: true
+        resolved_by:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+      required:
+        - id
+        - alert_rule_id
+        - workspace_id
+        - triggered_at
+        - metric_value
+        - threshold_value
+        - condition_met
+        - affected_entity_type
+        - affected_entity_id
+        - platform
+        - is_resolved
+        - created_at
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        workspace_id:
+          type: string
+        type:
+          type: string
+          enum:
+            - alert
+            - system
+            - info
+            - warning
+        title:
+          type: string
+        message:
+          type: string
+        alert_trigger_id:
+          type: string
+          nullable: true
+        related_entity_type:
+          type: string
+          nullable: true
+        related_entity_id:
+          type: string
+          nullable: true
+        is_read:
+          type: boolean
+        read_at:
+          type: string
+          nullable: true
+        priority:
+          type: string
+          enum:
+            - low
+            - normal
+            - high
+            - urgent
+        action_url:
+          type: string
+          nullable: true
+        expires_at:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+      required:
+        - id
+        - user_id
+        - workspace_id
+        - type
+        - title
+        - message
+        - is_read
+        - priority
+        - created_at
+    UserPreferences:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        email_notifications:
+          type: boolean
+        in_app_notifications:
+          type: boolean
+        email_frequency:
+          type: string
+          enum:
+            - immediate
+            - daily
+            - weekly
+        reduced_motion:
+          type: boolean
+        date_format:
+          type: string
+          enum:
+            - YYYY-MM-DD
+            - MM/DD/YYYY
+            - DD/MM/YYYY
+        number_format:
+          type: string
+          enum:
+            - US
+            - EU
+            - UK
+        default_dashboard_view:
+          type: string
+          enum:
+            - overview
+            - campaigns
+            - creatives
+            - analytics
+        theme_preference:
+          type: string
+          enum:
+            - light
+            - dark
+            - auto
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - user_id
+        - email_notifications
+        - in_app_notifications
+        - email_frequency
+        - reduced_motion
+        - date_format
+        - number_format
+        - default_dashboard_view
+        - theme_preference
+        - created_at
+        - updated_at
+    SharedLink:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        created_by:
+          type: string
+        link_token:
+          type: string
+        link_type:
+          type: string
+          enum:
+            - dashboard
+            - report
+            - chart
+        dashboard_config:
+          type: object
+          nullable: true
+        access_level:
+          type: string
+          enum:
+            - read_only
+            - view_only
+        password_protected:
+          type: boolean
+        password_hash:
+          type: string
+          nullable: true
+        expires_at:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        view_count:
+          type: integer
+        last_accessed_at:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - created_by
+        - link_token
+        - link_type
+        - access_level
+        - password_protected
+        - is_active
+        - view_count
+        - created_at
+        - updated_at
+    ExportJob:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        export_type:
+          type: string
+          enum:
+            - metrics
+            - campaigns
+            - creative_performance
+            - alerts
+        format:
+          type: string
+          enum:
+            - csv
+            - xlsx
+            - pdf
+        filters:
+          type: object
+          nullable: true
+        date_from:
+          type: string
+          nullable: true
+        date_to:
+          type: string
+          nullable: true
+        platforms:
+          type: array
+          items:
+            type: string
+          nullable: true
+        accounts:
+          type: array
+          items:
+            type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - queued
+            - processing
+            - completed
+            - failed
+        progress:
+          type: integer
+        file_url:
+          type: string
+          nullable: true
+        file_size:
+          type: integer
+          nullable: true
+        row_count:
+          type: integer
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        expires_at:
+          type: string
+          nullable: true
+        started_at:
+          type: string
+          nullable: true
+        completed_at:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - user_id
+        - export_type
+        - format
+        - status
+        - progress
+        - created_at
+        - updated_at
+    AnomalyDetection:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        entity_type:
+          type: string
+          enum:
+            - account
+            - campaign
+            - adset
+            - ad
+        entity_id:
+          type: string
+        metric:
+          type: string
+          enum:
+            - spend
+            - impressions
+            - clicks
+            - conversions
+            - revenue
+            - ctr
+            - cpm
+            - cpc
+            - cpa
+            - cvr
+            - roas
+        platform:
+          type: string
+          enum:
+            - facebook
+            - google
+            - tiktok
+            - snapchat
+            - linkedin
+            - twitter
+        date:
+          type: string
+        current_value:
+          type: number
+        expected_value:
+          type: number
+        z_score:
+          type: number
+        deviation_percentage:
+          type: number
+        anomaly_type:
+          type: string
+          enum:
+            - spike
+            - drop
+            - pattern_break
+        severity:
+          type: string
+          enum:
+            - low
+            - medium
+            - high
+            - critical
+        is_reviewed:
+          type: boolean
+        reviewed_by:
+          type: string
+          nullable: true
+        reviewed_at:
+          type: string
+          nullable: true
+        review_notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - entity_type
+        - entity_id
+        - metric
+        - platform
+        - date
+        - current_value
+        - expected_value
+        - z_score
+        - deviation_percentage
+        - anomaly_type
+        - severity
+        - is_reviewed
+        - created_at
+    CreativePerformance:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        creative_name:
+          type: string
+        creative_thumb_url:
+          type: string
+          nullable: true
+        creative_tags:
+          type: string
+          nullable: true
+        ad_format:
+          type: string
+          nullable: true
+        platforms:
+          type: array
+          items:
+            type: string
+        total_spend:
+          type: number
+        total_impressions:
+          type: integer
+        total_clicks:
+          type: integer
+        total_conversions:
+          type: integer
+        total_revenue:
+          type: number
+        avg_ctr:
+          type: number
+          nullable: true
+        avg_cpm:
+          type: number
+          nullable: true
+        avg_cpc:
+          type: number
+          nullable: true
+        avg_cpa:
+          type: number
+          nullable: true
+        avg_cvr:
+          type: number
+          nullable: true
+        avg_roas:
+          type: number
+          nullable: true
+        campaign_count:
+          type: integer
+        performance_rank:
+          type: string
+          nullable: true
+        first_seen_date:
+          type: string
+        last_seen_date:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - creative_name
+        - platforms
+        - total_spend
+        - total_impressions
+        - total_clicks
+        - total_conversions
+        - total_revenue
+        - campaign_count
+        - first_seen_date
+        - last_seen_date
+        - created_at
+        - updated_at
+    WorkspaceInvitation:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        invited_by:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+            - admin
+            - member
+        invitation_token:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - accepted
+            - declined
+            - expired
+        expires_at:
+          type: string
+        accepted_at:
+          type: string
+          nullable: true
+        accepted_by:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - invited_by
+        - email
+        - role
+        - invitation_token
+        - status
+        - expires_at
+        - created_at
+        - updated_at
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+          nullable: true
+        action:
+          type: string
+        entity_type:
+          type: string
+          nullable: true
+        entity_id:
+          type: string
+          nullable: true
+        details:
+          type: object
+          nullable: true
+        ip_address:
+          type: string
+          nullable: true
+        user_agent:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+      required:
+        - id
+        - workspace_id
+        - action
+        - created_at
+    CreateUserInput:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - name
+        - password
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+        workspace:
+          $ref: "#/components/schemas/Workspace"
+          nullable: true
+      required:
+        - user
+        - token
+    CreateWorkspaceInput:
+      type: object
+      properties:
+        name:
+          type: string
+        default_currency:
+          type: string
+        default_revenue_per_conversion:
+          type: number
+          nullable: true
+        timezone:
+          type: string
+        data_retention_days:
+          type: integer
+      required:
+        - name
+    OverviewMetrics:
+      type: object
+      properties:
+        spend:
+          type: number
+        revenue:
+          type: number
+        roas:
+          type: number
+        cpa:
+          type: number
+        ctr:
+          type: number
+        cpm:
+          type: number
+        cvr:
+          type: number
+        mer:
+          type: number
+        comparison:
+          type: object
+          properties:
+            spend_change:
+              type: number
+            revenue_change:
+              type: number
+            roas_change:
+              type: number
+            cpa_change:
+              type: number
+            ctr_change:
+              type: number
+            cpm_change:
+              type: number
+            cvr_change:
+              type: number
+            mer_change:
+              type: number
+        insights:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              message:
+                type: string
+              severity:
+                type: string
+              entity_type:
+                type: string
+              entity_id:
+                type: string
+      required:
+        - spend
+        - revenue
+        - roas
+        - cpa
+        - ctr
+        - cpm
+        - cvr
+        - mer
+        - comparison
+        - insights
+    PlatformComparison:
+      type: object
+      properties:
+        platform:
+          type: string
+        spend:
+          type: number
+        revenue:
+          type: number
+        roas:
+          type: number
+        cpa:
+          type: number
+        ctr:
+          type: number
+        cpm:
+          type: number
+        cvr:
+          type: number
+        impressions:
+          type: integer
+        clicks:
+          type: integer
+        conversions:
+          type: integer
+        account_count:
+          type: integer
+        campaign_count:
+          type: integer
+      required:
+        - platform
+        - spend
+        - revenue
+        - roas
+        - cpa
+        - ctr
+        - cpm
+        - cvr
+        - impressions
+        - clicks
+        - conversions
+        - account_count
+        - campaign_count
+    TimeSeriesData:
+      type: object
+      properties:
+        date:
+          type: string
+        spend:
+          type: number
+        revenue:
+          type: number
+        roas:
+          type: number
+        cpa:
+          type: number
+        ctr:
+          type: number
+        cpm:
+          type: number
+        cvr:
+          type: number
+        impressions:
+          type: integer
+        clicks:
+          type: integer
+        conversions:
+          type: integer
+        platform:
+          type: string
+          nullable: true
+      required:
+        - date
+        - spend
+        - revenue
+        - roas
+        - cpa
+        - ctr
+        - cpm
+        - cvr
+        - impressions
+        - clicks
+        - conversions
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true
+      required:
+        - error
+        - message
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: {}
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+            total_pages:
+              type: integer
+          required:
+            - page
+            - per_page
+            - total
+            - total_pages
+      required:
+        - data
+        - pagination
+paths:
+  /auth/register:
+    post:
+      operationId: register
+      summary: Register new user account
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserInput"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Invalid registration data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/login:
+    post:
+      operationId: login
+      summary: Authenticate user and return token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Logout user and invalidate token
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      summary: Get current authenticated user
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/verify-email:
+    post:
+      operationId: verifyEmail
+      summary: Verify user email with token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+                - token
+      responses:
+        "200":
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      summary: Request password reset
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+      responses:
+        "200":
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      summary: Reset password with token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+              required:
+                - token
+                - password
+      responses:
+        "200":
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /users/{user_id}:
+    get:
+      operationId: getUser
+      summary: Get user by ID
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    put:
+      operationId: updateUser
+      summary: Update user profile
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /users/{user_id}/preferences:
+    get:
+      operationId: getUserPreferences
+      summary: Get user preferences
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User preferences
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPreferences"
+    put:
+      operationId: updateUserPreferences
+      summary: Update user preferences
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_notifications:
+                  type: boolean
+                in_app_notifications:
+                  type: boolean
+                email_frequency:
+                  type: string
+                  enum:
+                    - immediate
+                    - daily
+                    - weekly
+                reduced_motion:
+                  type: boolean
+                date_format:
+                  type: string
+                  enum:
+                    - YYYY-MM-DD
+                    - MM/DD/YYYY
+                    - DD/MM/YYYY
+                number_format:
+                  type: string
+                  enum:
+                    - US
+                    - EU
+                    - UK
+                default_dashboard_view:
+                  type: string
+                  enum:
+                    - overview
+                    - campaigns
+                    - creatives
+                    - analytics
+                theme_preference:
+                  type: string
+                  enum:
+                    - light
+                    - dark
+                    - auto
+      responses:
+        "200":
+          description: Preferences updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPreferences"
+  /workspaces:
+    get:
+      operationId: getWorkspaces
+      summary: Get user workspaces
+      tags:
+        - Workspaces
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of user workspaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    workspace:
+                      $ref: "#/components/schemas/Workspace"
+                    membership:
+                      $ref: "#/components/schemas/Membership"
+    post:
+      operationId: createWorkspace
+      summary: Create new workspace
+      tags:
+        - Workspaces
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkspaceInput"
+      responses:
+        "201":
+          description: Workspace created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workspace:
+                    $ref: "#/components/schemas/Workspace"
+                  membership:
+                    $ref: "#/components/schemas/Membership"
+  /workspaces/{workspace_id}:
+    get:
+      operationId: getWorkspace
+      summary: Get workspace details
+      tags:
+        - Workspaces
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Workspace details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+    put:
+      operationId: updateWorkspace
+      summary: Update workspace settings
+      tags:
+        - Workspaces
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                default_currency:
+                  type: string
+                default_revenue_per_conversion:
+                  type: number
+                timezone:
+                  type: string
+                data_retention_days:
+                  type: integer
+      responses:
+        "200":
+          description: Workspace updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+    delete:
+      operationId: deleteWorkspace
+      summary: Delete workspace
+      tags:
+        - Workspaces
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Workspace deleted successfully
+  /workspaces/{workspace_id}/members:
+    get:
+      operationId: getWorkspaceMembers
+      summary: Get workspace team members
+      tags:
+        - Team Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: member_filter
+          in: query
+          schema:
+            type: string
+            enum:
+              - owner
+              - admin
+              - member
+      responses:
+        "200":
+          description: List of workspace members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    membership:
+                      $ref: "#/components/schemas/Membership"
+                    user:
+                      $ref: "#/components/schemas/User"
+  /workspaces/{workspace_id}/members/{member_id}:
+    put:
+      operationId: updateWorkspaceMember
+      summary: Update member role
+      tags:
+        - Team Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: member_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum:
+                    - owner
+                    - admin
+                    - member
+              required:
+                - role
+      responses:
+        "200":
+          description: Member updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Membership"
+    delete:
+      operationId: removeWorkspaceMember
+      summary: Remove member from workspace
+      tags:
+        - Team Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: member_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Member removed successfully
+  /workspaces/{workspace_id}/invitations:
+    get:
+      operationId: getWorkspaceInvitations
+      summary: Get pending workspace invitations
+      tags:
+        - Team Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of pending invitations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkspaceInvitation"
+    post:
+      operationId: inviteWorkspaceMember
+      summary: Invite new member to workspace
+      tags:
+        - Team Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                role:
+                  type: string
+                  enum:
+                    - admin
+                    - member
+              required:
+                - email
+                - role
+      responses:
+        "201":
+          description: Invitation sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceInvitation"
+  /workspaces/{workspace_id}/invitations/{invitation_id}:
+    put:
+      operationId: respondToInvitation
+      summary: Accept or decline invitation
+      tags:
+        - Team Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: invitation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - accepted
+                    - declined
+              required:
+                - status
+      responses:
+        "200":
+          description: Invitation response processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceInvitation"
+  /workspaces/{workspace_id}/metrics/overview:
+    get:
+      operationId: getOverviewMetrics
+      summary: Get overview dashboard metrics
+      tags:
+        - Analytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_preset
+          in: query
+          schema:
+            type: string
+            enum:
+              - today
+              - yesterday
+              - last_7_days
+              - last_30_days
+              - last_90_days
+              - mtd
+              - qtd
+              - ytd
+        - name: comparison_mode
+          in: query
+          schema:
+            type: string
+            enum:
+              - vs_previous_period
+              - vs_same_period_last_year
+        - name: platforms
+          in: query
+          schema:
+            type: string
+        - name: accounts
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Overview metrics with KPIs and insights
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverviewMetrics"
+  /workspaces/{workspace_id}/metrics/comparison:
+    get:
+      operationId: getPlatformComparison
+      summary: Get cross-platform performance comparison
+      tags:
+        - Analytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - spend
+              - revenue
+              - roas
+              - cpa
+              - ctr
+              - cpm
+              - cvr
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: efficiency_view
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Platform comparison data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlatformComparison"
+  /workspaces/{workspace_id}/metrics/trends:
+    get:
+      operationId: getMetricsTrends
+      summary: Get time series performance data
+      tags:
+        - Analytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: metrics
+          in: query
+          schema:
+            type: string
+        - name: platforms
+          in: query
+          schema:
+            type: string
+        - name: group_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - date
+              - platform
+              - account
+      responses:
+        "200":
+          description: Time series metrics data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeSeriesData"
+  /workspaces/{workspace_id}/metrics/daily:
+    get:
+      operationId: getDailyMetrics
+      summary: Get detailed daily metrics data
+      tags:
+        - Analytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: platform
+          in: query
+          schema:
+            type: string
+            enum:
+              - facebook
+              - google
+              - tiktok
+              - snapchat
+              - linkedin
+              - twitter
+        - name: account_id
+          in: query
+          schema:
+            type: string
+        - name: campaign_id
+          in: query
+          schema:
+            type: string
+        - name: adset_id
+          in: query
+          schema:
+            type: string
+        - name: ad_id
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - date
+              - spend
+              - impressions
+              - clicks
+              - conversions
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: Daily metrics data with pagination
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/MetricsDaily"
+  /workspaces/{workspace_id}/accounts:
+    get:
+      operationId: getAccounts
+      summary: Get workspace accounts
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: platform
+          in: query
+          schema:
+            type: string
+            enum:
+              - facebook
+              - google
+              - tiktok
+              - snapchat
+              - linkedin
+              - twitter
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - inactive
+              - paused
+        - name: currency
+          in: query
+          schema:
+            type: string
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - account_name
+              - platform
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of accounts with pagination
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Account"
+    post:
+      operationId: createAccount
+      summary: Create new account
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                platform:
+                  type: string
+                  enum:
+                    - facebook
+                    - google
+                    - tiktok
+                    - snapchat
+                    - linkedin
+                    - twitter
+                account_id:
+                  type: string
+                account_name:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - active
+                    - inactive
+                    - paused
+                currency:
+                  type: string
+              required:
+                - platform
+                - account_id
+      responses:
+        "201":
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+  /workspaces/{workspace_id}/accounts/{account_id}:
+    get:
+      operationId: getAccount
+      summary: Get account details
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+    put:
+      operationId: updateAccount
+      summary: Update account settings
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_name:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - active
+                    - inactive
+                    - paused
+                currency:
+                  type: string
+      responses:
+        "200":
+          description: Account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+    delete:
+      operationId: deleteAccount
+      summary: Delete account
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Account deleted successfully
+  /workspaces/{workspace_id}/campaigns:
+    get:
+      operationId: getCampaigns
+      summary: Get workspace campaigns
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: search_query
+          in: query
+          schema:
+            type: string
+        - name: platforms
+          in: query
+          schema:
+            type: string
+        - name: accounts
+          in: query
+          schema:
+            type: string
+        - name: status_filter
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - paused
+              - archived
+        - name: objective
+          in: query
+          schema:
+            type: string
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - campaign_name
+              - status
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of campaigns with pagination
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Campaign"
+  /workspaces/{workspace_id}/campaigns/{campaign_id}:
+    get:
+      operationId: getCampaign
+      summary: Get campaign details with hierarchy
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: campaign_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum:
+              - campaign
+              - adset
+              - ad
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Campaign details with hierarchical data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  campaign:
+                    $ref: "#/components/schemas/Campaign"
+                  adsets:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AdSet"
+                  ads:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Ad"
+                  metrics:
+                    $ref: "#/components/schemas/MetricsDaily"
+    put:
+      operationId: updateCampaign
+      summary: Update campaign settings
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: campaign_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaign_name:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - active
+                    - paused
+                    - archived
+                objective:
+                  type: string
+                buying_type:
+                  type: string
+      responses:
+        "200":
+          description: Campaign updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+  /workspaces/{workspace_id}/campaigns/{campaign_id}/adsets:
+    get:
+      operationId: getCampaignAdSets
+      summary: Get ad sets for campaign
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: campaign_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - paused
+              - archived
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - adset_name
+              - status
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of ad sets with pagination
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/AdSet"
+  /workspaces/{workspace_id}/adsets/{adset_id}:
+    get:
+      operationId: getAdSet
+      summary: Get ad set details
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: adset_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ad set details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdSet"
+    put:
+      operationId: updateAdSet
+      summary: Update ad set settings
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: adset_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                adset_name:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - active
+                    - paused
+                    - archived
+                bid_strategy:
+                  type: string
+                optimization_goal:
+                  type: string
+      responses:
+        "200":
+          description: Ad set updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdSet"
+  /workspaces/{workspace_id}/adsets/{adset_id}/ads:
+    get:
+      operationId: getAdSetAds
+      summary: Get ads for ad set
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: adset_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - paused
+              - archived
+        - name: ad_format
+          in: query
+          schema:
+            type: string
+            enum:
+              - SINGLE_IMAGE
+              - SINGLE_VIDEO
+              - CAROUSEL
+              - COLLECTION
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - ad_name
+              - status
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of ads with pagination
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Ad"
+  /workspaces/{workspace_id}/ads/{ad_id}:
+    get:
+      operationId: getAd
+      summary: Get ad details
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ad_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ad details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ad"
+    put:
+      operationId: updateAd
+      summary: Update ad settings
+      tags:
+        - Campaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: ad_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ad_name:
+                  type: string
+                creative_name:
+                  type: string
+                creative_thumb_url:
+                  type: string
+                creative_tags:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - active
+                    - paused
+                    - archived
+                ad_format:
+                  type: string
+                  enum:
+                    - SINGLE_IMAGE
+                    - SINGLE_VIDEO
+                    - CAROUSEL
+                    - COLLECTION
+      responses:
+        "200":
+          description: Ad updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ad"
+  /workspaces/{workspace_id}/creatives:
+    get:
+      operationId: getCreativePerformance
+      summary: Get creative performance analysis
+      tags:
+        - Creative Performance
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: performance_filter
+          in: query
+          schema:
+            type: string
+            enum:
+              - winners
+              - losers
+              - all
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - creative_name
+              - total_spend
+              - avg_roas
+              - campaign_count
+              - last_seen_date
+        - name: platforms
+          in: query
+          schema:
+            type: string
+        - name: creative_tags
+          in: query
+          schema:
+            type: string
+        - name: ad_format
+          in: query
+          schema:
+            type: string
+            enum:
+              - SINGLE_IMAGE
+              - SINGLE_VIDEO
+              - CAROUSEL
+              - COLLECTION
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: min_spend
+          in: query
+          schema:
+            type: number
+        - name: max_spend
+          in: query
+          schema:
+            type: number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: Creative performance data with pagination
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CreativePerformance"
+  /workspaces/{workspace_id}/creatives/{creative_id}:
+    get:
+      operationId: getCreativeDetails
+      summary: Get detailed creative performance
+      tags:
+        - Creative Performance
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: creative_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Detailed creative performance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreativePerformance"
+  /workspaces/{workspace_id}/uploads:
+    get:
+      operationId: getUploads
+      summary: Get upload history
+      tags:
+        - Upload Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status_filter
+          in: query
+          schema:
+            type: string
+            enum:
+              - queued
+              - processing
+              - completed
+              - failed
+        - name: platform_filter
+          in: query
+          schema:
+            type: string
+            enum:
+              - facebook
+              - google
+              - tiktok
+              - snapchat
+              - linkedin
+              - twitter
+        - name: search_query
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - created_at
+              - status
+              - progress
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: Upload history with pagination
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/UploadJob"
+    post:
+      operationId: createUpload
+      summary: Start new file upload
+      tags:
+        - Upload Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                platform:
+                  type: string
+                  enum:
+                    - facebook
+                    - google
+                    - tiktok
+                    - snapchat
+                    - linkedin
+                    - twitter
+                mapping_template_id:
+                  type: string
+                date_from:
+                  type: string
+                  format: date
+                date_to:
+                  type: string
+                  format: date
+              required:
+                - file
+                - platform
+      responses:
+        "201":
+          description: Upload started successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadJob"
+  /workspaces/{workspace_id}/uploads/{upload_id}:
+    get:
+      operationId: getUpload
+      summary: Get upload details and status
+      tags:
+        - Upload Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: upload_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Upload details and status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadJob"
+    put:
+      operationId: updateUpload
+      summary: Update upload settings
+      tags:
+        - Upload Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: upload_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mapping_template_id:
+                  type: string
+                date_from:
+                  type: string
+                  format: date
+                date_to:
+                  type: string
+                  format: date
+      responses:
+        "200":
+          description: Upload updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadJob"
+    delete:
+      operationId: deleteUpload
+      summary: Cancel or delete upload
+      tags:
+        - Upload Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: upload_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Upload cancelled/deleted successfully
+  /workspaces/{workspace_id}/uploads/{upload_id}/reprocess:
+    post:
+      operationId: reprocessUpload
+      summary: Reprocess failed upload
+      tags:
+        - Upload Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: upload_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Reprocessing started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadJob"
+  /workspaces/{workspace_id}/mapping-templates:
+    get:
+      operationId: getMappingTemplates
+      summary: Get mapping templates
+      tags:
+        - Mapping Templates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: platform
+          in: query
+          schema:
+            type: string
+            enum:
+              - facebook
+              - google
+              - tiktok
+              - snapchat
+              - linkedin
+              - twitter
+        - name: is_default
+          in: query
+          schema:
+            type: boolean
+        - name: is_shared
+          in: query
+          schema:
+            type: boolean
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - name
+              - usage_count
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of mapping templates
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/MappingTemplate"
+    post:
+      operationId: createMappingTemplate
+      summary: Create new mapping template
+      tags:
+        - Mapping Templates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                platform:
+                  type: string
+                  enum:
+                    - facebook
+                    - google
+                    - tiktok
+                    - snapchat
+                    - linkedin
+                    - twitter
+                mapping:
+                  type: object
+                is_default:
+                  type: boolean
+                is_shared:
+                  type: boolean
+              required:
+                - name
+                - platform
+                - mapping
+      responses:
+        "201":
+          description: Mapping template created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MappingTemplate"
+  /workspaces/{workspace_id}/mapping-templates/{template_id}:
+    get:
+      operationId: getMappingTemplate
+      summary: Get mapping template details
+      tags:
+        - Mapping Templates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: template_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Mapping template details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MappingTemplate"
+    put:
+      operationId: updateMappingTemplate
+      summary: Update mapping template
+      tags:
+        - Mapping Templates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: template_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                mapping:
+                  type: object
+                is_default:
+                  type: boolean
+                is_shared:
+                  type: boolean
+      responses:
+        "200":
+          description: Mapping template updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MappingTemplate"
+    delete:
+      operationId: deleteMappingTemplate
+      summary: Delete mapping template
+      tags:
+        - Mapping Templates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: template_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Mapping template deleted successfully
+  /workspaces/{workspace_id}/alert-rules:
+    get:
+      operationId: getAlertRules
+      summary: Get alert rules
+      tags:
+        - Alert Rules
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: metric
+          in: query
+          schema:
+            type: string
+            enum:
+              - spend
+              - impressions
+              - clicks
+              - conversions
+              - revenue
+              - ctr
+              - cpm
+              - cpc
+              - cpa
+              - cvr
+              - roas
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum:
+              - info
+              - warning
+              - critical
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - name
+              - severity
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of alert rules
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/AlertRule"
+    post:
+      operationId: createAlertRule
+      summary: Create new alert rule
+      tags:
+        - Alert Rules
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                metric:
+                  type: string
+                  enum:
+                    - spend
+                    - impressions
+                    - clicks
+                    - conversions
+                    - revenue
+                    - ctr
+                    - cpm
+                    - cpc
+                    - cpa
+                    - cvr
+                    - roas
+                condition:
+                  type: string
+                  enum:
+                    - greater_than
+                    - less_than
+                    - percentage_increase
+                    - percentage_decrease
+                threshold:
+                  type: number
+                threshold_percentage:
+                  type: number
+                time_window:
+                  type: string
+                  enum:
+                    - hourly
+                    - daily
+                    - weekly
+                platform_filter:
+                  type: object
+                account_filter:
+                  type: object
+                campaign_filter:
+                  type: object
+                severity:
+                  type: string
+                  enum:
+                    - info
+                    - warning
+                    - critical
+                is_active:
+                  type: boolean
+                notification_email:
+                  type: boolean
+                notification_in_app:
+                  type: boolean
+                cooldown_minutes:
+                  type: integer
+              required:
+                - name
+                - metric
+                - condition
+      responses:
+        "201":
+          description: Alert rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertRule"
+  /workspaces/{workspace_id}/alert-rules/{rule_id}:
+    get:
+      operationId: getAlertRule
+      summary: Get alert rule details
+      tags:
+        - Alert Rules
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rule_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Alert rule details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertRule"
+    put:
+      operationId: updateAlertRule
+      summary: Update alert rule
+      tags:
+        - Alert Rules
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rule_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                condition:
+                  type: string
+                  enum:
+                    - greater_than
+                    - less_than
+                    - percentage_increase
+                    - percentage_decrease
+                threshold:
+                  type: number
+                threshold_percentage:
+                  type: number
+                time_window:
+                  type: string
+                  enum:
+                    - hourly
+                    - daily
+                    - weekly
+                platform_filter:
+                  type: object
+                account_filter:
+                  type: object
+                campaign_filter:
+                  type: object
+                severity:
+                  type: string
+                  enum:
+                    - info
+                    - warning
+                    - critical
+                is_active:
+                  type: boolean
+                notification_email:
+                  type: boolean
+                notification_in_app:
+                  type: boolean
+                cooldown_minutes:
+                  type: integer
+      responses:
+        "200":
+          description: Alert rule updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertRule"
+    delete:
+      operationId: deleteAlertRule
+      summary: Delete alert rule
+      tags:
+        - Alert Rules
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rule_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Alert rule deleted successfully
+  /workspaces/{workspace_id}/alert-triggers:
+    get:
+      operationId: getAlertTriggers
+      summary: Get alert trigger history
+      tags:
+        - Alert Triggers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: alert_rule_id
+          in: query
+          schema:
+            type: string
+        - name: platform
+          in: query
+          schema:
+            type: string
+            enum:
+              - facebook
+              - google
+              - tiktok
+              - snapchat
+              - linkedin
+              - twitter
+        - name: is_resolved
+          in: query
+          schema:
+            type: boolean
+        - name: affected_entity_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - account
+              - campaign
+              - adset
+              - ad
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - triggered_at
+              - metric_value
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of alert triggers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/AlertTrigger"
+  /workspaces/{workspace_id}/alert-triggers/{trigger_id}:
+    put:
+      operationId: updateAlertTrigger
+      summary: Resolve or update alert trigger
+      tags:
+        - Alert Triggers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: trigger_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_resolved:
+                  type: boolean
+                resolved_at:
+                  type: string
+                resolved_by:
+                  type: string
+      responses:
+        "200":
+          description: Alert trigger updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertTrigger"
+  /workspaces/{workspace_id}/notifications:
+    get:
+      operationId: getNotifications
+      summary: Get user notifications
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum:
+              - alert
+              - system
+              - info
+              - warning
+        - name: is_read
+          in: query
+          schema:
+            type: boolean
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum:
+              - low
+              - normal
+              - high
+              - urgent
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - created_at
+              - priority
+              - is_read
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Notification"
+  /workspaces/{workspace_id}/notifications/{notification_id}:
+    put:
+      operationId: updateNotification
+      summary: Mark notification as read/unread
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_read:
+                  type: boolean
+                read_at:
+                  type: string
+      responses:
+        "200":
+          description: Notification updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+  /workspaces/{workspace_id}/notifications/mark-all-read:
+    put:
+      operationId: markAllNotificationsRead
+      summary: Mark all notifications as read
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All notifications marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  updated_count:
+                    type: integer
+  /workspaces/{workspace_id}/exports:
+    get:
+      operationId: getExports
+      summary: Get export job history
+      tags:
+        - Export Jobs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: export_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - metrics
+              - campaigns
+              - creative_performance
+              - alerts
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - queued
+              - processing
+              - completed
+              - failed
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum:
+              - csv
+              - xlsx
+              - pdf
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - created_at
+              - status
+              - export_type
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of export jobs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ExportJob"
+    post:
+      operationId: createExport
+      summary: Create new export job
+      tags:
+        - Export Jobs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                export_type:
+                  type: string
+                  enum:
+                    - metrics
+                    - campaigns
+                    - creative_performance
+                    - alerts
+                format:
+                  type: string
+                  enum:
+                    - csv
+                    - xlsx
+                    - pdf
+                filters:
+                  type: object
+                date_from:
+                  type: string
+                  format: date
+                date_to:
+                  type: string
+                  format: date
+                platforms:
+                  type: array
+                  items:
+                    type: string
+                accounts:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - export_type
+                - format
+      responses:
+        "201":
+          description: Export job created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportJob"
+  /workspaces/{workspace_id}/exports/{export_id}:
+    get:
+      operationId: getExport
+      summary: Get export job details
+      tags:
+        - Export Jobs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: export_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Export job details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportJob"
+  /workspaces/{workspace_id}/shared-links:
+    get:
+      operationId: getSharedLinks
+      summary: Get shared dashboard links
+      tags:
+        - Shared Links
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: link_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - dashboard
+              - report
+              - chart
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - view_count
+              - created_at
+              - last_accessed_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of shared links
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/SharedLink"
+    post:
+      operationId: createSharedLink
+      summary: Create new shared dashboard link
+      tags:
+        - Shared Links
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                link_type:
+                  type: string
+                  enum:
+                    - dashboard
+                    - report
+                    - chart
+                dashboard_config:
+                  type: object
+                access_level:
+                  type: string
+                  enum:
+                    - read_only
+                    - view_only
+                password_protected:
+                  type: boolean
+                password:
+                  type: string
+                expires_at:
+                  type: string
+              required:
+                - link_type
+      responses:
+        "201":
+          description: Shared link created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedLink"
+  /workspaces/{workspace_id}/shared-links/{link_id}:
+    get:
+      operationId: getSharedLink
+      summary: Get shared link details
+      tags:
+        - Shared Links
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: link_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Shared link details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedLink"
+    put:
+      operationId: updateSharedLink
+      summary: Update shared link settings
+      tags:
+        - Shared Links
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: link_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dashboard_config:
+                  type: object
+                access_level:
+                  type: string
+                  enum:
+                    - read_only
+                    - view_only
+                password_protected:
+                  type: boolean
+                password:
+                  type: string
+                expires_at:
+                  type: string
+                is_active:
+                  type: boolean
+      responses:
+        "200":
+          description: Shared link updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharedLink"
+    delete:
+      operationId: deleteSharedLink
+      summary: Delete shared link
+      tags:
+        - Shared Links
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: link_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Shared link deleted successfully
+  /workspaces/{workspace_id}/anomalies:
+    get:
+      operationId: getAnomalies
+      summary: Get anomaly detection results
+      tags:
+        - Anomaly Detection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entity_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - account
+              - campaign
+              - adset
+              - ad
+        - name: metric
+          in: query
+          schema:
+            type: string
+            enum:
+              - spend
+              - impressions
+              - clicks
+              - conversions
+              - revenue
+              - ctr
+              - cpm
+              - cpc
+              - cpa
+              - cvr
+              - roas
+        - name: platform
+          in: query
+          schema:
+            type: string
+            enum:
+              - facebook
+              - google
+              - tiktok
+              - snapchat
+              - linkedin
+              - twitter
+        - name: anomaly_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - spike
+              - drop
+              - pattern_break
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum:
+              - low
+              - medium
+              - high
+              - critical
+        - name: is_reviewed
+          in: query
+          schema:
+            type: boolean
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - date
+              - severity
+              - z_score
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of anomalies
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/AnomalyDetection"
+  /workspaces/{workspace_id}/anomalies/{anomaly_id}:
+    put:
+      operationId: updateAnomaly
+      summary: Review and update anomaly
+      tags:
+        - Anomaly Detection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: anomaly_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_reviewed:
+                  type: boolean
+                reviewed_by:
+                  type: string
+                reviewed_at:
+                  type: string
+                review_notes:
+                  type: string
+      responses:
+        "200":
+          description: Anomaly updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnomalyDetection"
+  /workspaces/{workspace_id}/audit-logs:
+    get:
+      operationId: getAuditLogs
+      summary: Get workspace audit logs
+      tags:
+        - Audit Logs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workspace_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: entity_type
+          in: query
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum:
+              - action
+              - created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: List of audit logs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/AuditLog"

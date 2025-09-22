@@ -1,0 +1,15 @@
+{
+  "timestamp": 1758581508373,
+  "operation": {
+    "id": "db:postgres"
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/backend/db.sql",
+      "type": "text",
+      "size": 36937,
+      "dependencies": false
+    }
+  ]
+}

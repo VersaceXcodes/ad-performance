@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582977826,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "UV_TeamManagement",
+      "version": "1758582831589"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/UV_TeamManagement.tsx",
+      "type": "text",
+      "size": 44189,
+      "dependencies": false
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582965005,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "UV_DataMapping",
+      "version": "1758582831431"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/UV_DataMapping.tsx",
+      "type": "text",
+      "size": 34285,
+      "dependencies": false
+    }
+  ]
+}

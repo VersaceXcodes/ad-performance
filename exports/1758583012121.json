@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758583012121,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "GV_TopNavigation",
+      "version": "1758582875238"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/GV_TopNavigation.tsx",
+      "type": "text",
+      "size": 35641,
+      "dependencies": false
+    }
+  ]
+}

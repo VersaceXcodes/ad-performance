@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582951030,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "UV_Creatives",
+      "version": "latest"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/UV_Creatives.tsx",
+      "type": "text",
+      "size": 32440,
+      "dependencies": false
+    }
+  ]
+}

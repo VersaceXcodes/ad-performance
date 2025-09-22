@@ -1,0 +1,15 @@
+{
+  "timestamp": 1758582620133,
+  "operation": {
+    "id": "backend:server:main"
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/backend/server.ts",
+      "type": "text",
+      "size": 162983,
+      "dependencies": false
+    }
+  ]
+}

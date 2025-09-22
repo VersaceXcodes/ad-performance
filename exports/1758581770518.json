@@ -1,0 +1,15 @@
+{
+  "timestamp": 1758581770518,
+  "operation": {
+    "id": "backend:specifications:asyncapi"
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/backend/asyncapi.yaml",
+      "type": "text",
+      "size": 44540,
+      "dependencies": false
+    }
+  ]
+}

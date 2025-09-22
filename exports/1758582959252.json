@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582959252,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "UV_Campaigns",
+      "version": "1758582831309"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/UV_Campaigns.tsx",
+      "type": "text",
+      "size": 37003,
+      "dependencies": false
+    }
+  ]
+}

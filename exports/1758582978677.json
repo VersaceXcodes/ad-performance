@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582978677,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "UV_UploadWizard",
+      "version": "1758582831468"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/UV_UploadWizard.tsx",
+      "type": "text",
+      "size": 43682,
+      "dependencies": false
+    }
+  ]
+}

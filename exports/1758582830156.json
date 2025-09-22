@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582830156,
+  "operation": {
+    "id": "webapp:react:root",
+    "refs": {
+      "id": "app",
+      "version": "1758582778914"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/App.tsx",
+      "type": "text",
+      "size": 10823,
+      "dependencies": false
+    }
+  ]
+}

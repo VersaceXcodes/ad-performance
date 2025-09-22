@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582906770,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "GV_Sidebar",
+      "version": "1758582831670"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/GV_Sidebar.tsx",
+      "type": "text",
+      "size": 16396,
+      "dependencies": false
+    }
+  ]
+}

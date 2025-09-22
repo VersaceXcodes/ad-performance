@@ -1,0 +1,21 @@
+{
+  "timestamp": 1758582777646,
+  "operation": {
+    "id": "backend:tests:main"
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/backend/server.test.ts",
+      "type": "text",
+      "size": 30538,
+      "dependencies": false
+    },
+    {
+      "path": "/mnt/data/ad-performance/backend/jest.config.ts",
+      "type": "text",
+      "size": 946,
+      "dependencies": false
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "timestamp": 1758581912502,
+  "operation": {
+    "id": "backend:specifications:openapi"
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/backend/openapi.yaml",
+      "type": "text",
+      "size": 113320,
+      "dependencies": false
+    }
+  ]
+}

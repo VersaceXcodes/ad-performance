@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582739175,
+  "operation": {
+    "id": "webapp:react:store",
+    "refs": {
+      "id": "redux",
+      "version": "1758582659431"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/store/main.tsx",
+      "type": "text",
+      "size": 21961,
+      "dependencies": false
+    }
+  ]
+}

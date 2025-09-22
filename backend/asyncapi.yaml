@@ -1,0 +1,1765 @@
+asyncapi: 2.0.0
+info:
+  title: PulseDeck Realtime Events API
+  version: 1.0.0
+  description: Real-time event streaming for PulseDeck cross-channel ad
+    performance analytics platform
+servers:
+  default:
+    url: http://localhost:3000
+    protocol: socketio
+    description: Development server for real-time events
+channels:
+  upload_events:
+    subscribe:
+      operationId: subscribeUploadEvents
+      message:
+        oneOf:
+          - $ref: "#/components/messages/UploadJobCreated"
+          - $ref: "#/components/messages/UploadJobProgressUpdated"
+          - $ref: "#/components/messages/UploadJobStatusChanged"
+          - $ref: "#/components/messages/UploadJobCompleted"
+          - $ref: "#/components/messages/UploadJobFailed"
+          - $ref: "#/components/messages/MappingValidationResult"
+  alert_events:
+    subscribe:
+      operationId: subscribeAlertEvents
+      message:
+        oneOf:
+          - $ref: "#/components/messages/AlertRuleTriggered"
+          - $ref: "#/components/messages/AlertNotificationCreated"
+          - $ref: "#/components/messages/AnomalyDetected"
+          - $ref: "#/components/messages/PerformanceThresholdBreached"
+  dashboard_events:
+    subscribe:
+      operationId: subscribeDashboardEvents
+      message:
+        oneOf:
+          - $ref: "#/components/messages/MetricsUpdated"
+          - $ref: "#/components/messages/DashboardDataRefreshed"
+          - $ref: "#/components/messages/KpiAnomalyDetected"
+  workspace_events:
+    subscribe:
+      operationId: subscribeWorkspaceEvents
+      message:
+        oneOf:
+          - $ref: "#/components/messages/WorkspaceMemberInvited"
+          - $ref: "#/components/messages/WorkspaceMemberJoined"
+          - $ref: "#/components/messages/WorkspaceMemberLeft"
+          - $ref: "#/components/messages/WorkspaceSettingsUpdated"
+          - $ref: "#/components/messages/WorkspaceDataUpdated"
+  export_events:
+    subscribe:
+      operationId: subscribeExportEvents
+      message:
+        oneOf:
+          - $ref: "#/components/messages/ExportJobCreated"
+          - $ref: "#/components/messages/ExportJobProgressUpdated"
+          - $ref: "#/components/messages/ExportJobCompleted"
+          - $ref: "#/components/messages/ExportJobFailed"
+  session_events:
+    subscribe:
+      operationId: subscribeSessionEvents
+      message:
+        oneOf:
+          - $ref: "#/components/messages/UserSessionExpired"
+          - $ref: "#/components/messages/UserLoggedOutElsewhere"
+          - $ref: "#/components/messages/SessionActivityUpdated"
+  notification_events:
+    subscribe:
+      operationId: subscribeNotificationEvents
+      message:
+        oneOf:
+          - $ref: "#/components/messages/NotificationCreated"
+          - $ref: "#/components/messages/NotificationMarkedRead"
+          - $ref: "#/components/messages/NotificationBulkUpdate"
+components:
+  messages:
+    UploadJobCreated:
+      payload:
+        $ref: "#/components/schemas/UploadJobCreatedEvent"
+    UploadJobProgressUpdated:
+      payload:
+        $ref: "#/components/schemas/UploadJobProgressUpdatedEvent"
+    UploadJobStatusChanged:
+      payload:
+        $ref: "#/components/schemas/UploadJobStatusChangedEvent"
+    UploadJobCompleted:
+      payload:
+        $ref: "#/components/schemas/UploadJobCompletedEvent"
+    UploadJobFailed:
+      payload:
+        $ref: "#/components/schemas/UploadJobFailedEvent"
+    MappingValidationResult:
+      payload:
+        $ref: "#/components/schemas/MappingValidationResultEvent"
+    AlertRuleTriggered:
+      payload:
+        $ref: "#/components/schemas/AlertRuleTriggeredEvent"
+    AlertNotificationCreated:
+      payload:
+        $ref: "#/components/schemas/AlertNotificationCreatedEvent"
+    AnomalyDetected:
+      payload:
+        $ref: "#/components/schemas/AnomalyDetectedEvent"
+    PerformanceThresholdBreached:
+      payload:
+        $ref: "#/components/schemas/PerformanceThresholdBreachedEvent"
+    MetricsUpdated:
+      payload:
+        $ref: "#/components/schemas/MetricsUpdatedEvent"
+    DashboardDataRefreshed:
+      payload:
+        $ref: "#/components/schemas/DashboardDataRefreshedEvent"
+    KpiAnomalyDetected:
+      payload:
+        $ref: "#/components/schemas/KpiAnomalyDetectedEvent"
+    WorkspaceMemberInvited:
+      payload:
+        $ref: "#/components/schemas/WorkspaceMemberInvitedEvent"
+    WorkspaceMemberJoined:
+      payload:
+        $ref: "#/components/schemas/WorkspaceMemberJoinedEvent"
+    WorkspaceMemberLeft:
+      payload:
+        $ref: "#/components/schemas/WorkspaceMemberLeftEvent"
+    WorkspaceSettingsUpdated:
+      payload:
+        $ref: "#/components/schemas/WorkspaceSettingsUpdatedEvent"
+    WorkspaceDataUpdated:
+      payload:
+        $ref: "#/components/schemas/WorkspaceDataUpdatedEvent"
+    ExportJobCreated:
+      payload:
+        $ref: "#/components/schemas/ExportJobCreatedEvent"
+    ExportJobProgressUpdated:
+      payload:
+        $ref: "#/components/schemas/ExportJobProgressUpdatedEvent"
+    ExportJobCompleted:
+      payload:
+        $ref: "#/components/schemas/ExportJobCompletedEvent"
+    ExportJobFailed:
+      payload:
+        $ref: "#/components/schemas/ExportJobFailedEvent"
+    UserSessionExpired:
+      payload:
+        $ref: "#/components/schemas/UserSessionExpiredEvent"
+    UserLoggedOutElsewhere:
+      payload:
+        $ref: "#/components/schemas/UserLoggedOutElsewhereEvent"
+    SessionActivityUpdated:
+      payload:
+        $ref: "#/components/schemas/SessionActivityUpdatedEvent"
+    NotificationCreated:
+      payload:
+        $ref: "#/components/schemas/NotificationCreatedEvent"
+    NotificationMarkedRead:
+      payload:
+        $ref: "#/components/schemas/NotificationMarkedReadEvent"
+    NotificationBulkUpdate:
+      payload:
+        $ref: "#/components/schemas/NotificationBulkUpdateEvent"
+  schemas:
+    UploadJobCreatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - upload_job
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - upload_job_created
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        upload_job:
+          type: object
+          required:
+            - id
+            - filename
+            - original_filename
+            - file_size
+            - platform
+            - status
+            - progress
+          properties:
+            id:
+              type: string
+            filename:
+              type: string
+            original_filename:
+              type: string
+            file_size:
+              type: integer
+            platform:
+              type: string
+              enum:
+                - facebook
+                - google
+                - tiktok
+                - snapchat
+                - linkedin
+                - twitter
+            status:
+              type: string
+              enum:
+                - queued
+                - processing
+                - completed
+                - failed
+            progress:
+              type: integer
+              minimum: 0
+              maximum: 100
+            created_at:
+              type: string
+        timestamp:
+          type: string
+    UploadJobProgressUpdatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - upload_job_id
+        - progress
+        - status
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - upload_job_progress_updated
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        upload_job_id:
+          type: string
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        status:
+          type: string
+          enum:
+            - queued
+            - processing
+            - completed
+            - failed
+        rows_processed:
+          type: integer
+        rows_total:
+          type: integer
+        rows_success:
+          type: integer
+        rows_error:
+          type: integer
+        current_stage:
+          type: string
+          enum:
+            - parsing
+            - mapping
+            - validating
+            - writing
+        estimated_completion:
+          type: string
+        timestamp:
+          type: string
+    UploadJobStatusChangedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - upload_job_id
+        - old_status
+        - new_status
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - upload_job_status_changed
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        upload_job_id:
+          type: string
+        old_status:
+          type: string
+          enum:
+            - queued
+            - processing
+            - completed
+            - failed
+        new_status:
+          type: string
+          enum:
+            - queued
+            - processing
+            - completed
+            - failed
+        reason:
+          type: string
+        timestamp:
+          type: string
+    UploadJobCompletedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - upload_job
+        - processing_summary
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - upload_job_completed
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        upload_job:
+          type: object
+          required:
+            - id
+            - filename
+            - platform
+            - status
+            - rows_processed
+            - rows_total
+            - rows_success
+            - rows_error
+          properties:
+            id:
+              type: string
+            filename:
+              type: string
+            platform:
+              type: string
+              enum:
+                - facebook
+                - google
+                - tiktok
+                - snapchat
+                - linkedin
+                - twitter
+            status:
+              type: string
+              enum:
+                - completed
+            rows_processed:
+              type: integer
+            rows_total:
+              type: integer
+            rows_success:
+              type: integer
+            rows_error:
+              type: integer
+            completed_at:
+              type: string
+        processing_summary:
+          type: object
+          required:
+            - campaigns_created
+            - ad_sets_created
+            - ads_created
+            - metrics_records_created
+          properties:
+            campaigns_created:
+              type: integer
+            ad_sets_created:
+              type: integer
+            ads_created:
+              type: integer
+            metrics_records_created:
+              type: integer
+            duplicates_handled:
+              type: integer
+            data_quality_score:
+              type: number
+        timestamp:
+          type: string
+    UploadJobFailedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - upload_job_id
+        - error_message
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - upload_job_failed
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        upload_job_id:
+          type: string
+        error_message:
+          type: string
+        error_details:
+          type: object
+          properties:
+            error_code:
+              type: string
+            validation_errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  row:
+                    type: integer
+                  column:
+                    type: string
+                  message:
+                    type: string
+            recoverable:
+              type: boolean
+        error_log_url:
+          type: string
+        timestamp:
+          type: string
+    MappingValidationResultEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - upload_job_id
+        - validation_results
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - mapping_validation_result
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        upload_job_id:
+          type: string
+        validation_results:
+          type: object
+          required:
+            - is_valid
+            - mapped_columns
+            - unmapped_columns
+            - validation_errors
+          properties:
+            is_valid:
+              type: boolean
+            confidence_score:
+              type: number
+              minimum: 0
+              maximum: 1
+            mapped_columns:
+              type: array
+              items:
+                type: object
+                properties:
+                  source_column:
+                    type: string
+                  target_field:
+                    type: string
+                  confidence:
+                    type: number
+            unmapped_columns:
+              type: array
+              items:
+                type: string
+            validation_errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+                  severity:
+                    type: string
+                    enum:
+                      - error
+                      - warning
+                      - info
+        timestamp:
+          type: string
+    AlertRuleTriggeredEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - alert_rule
+        - alert_trigger
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - alert_rule_triggered
+        workspace_id:
+          type: string
+        alert_rule:
+          type: object
+          required:
+            - id
+            - name
+            - metric
+            - condition
+            - threshold
+            - severity
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            metric:
+              type: string
+              enum:
+                - spend
+                - impressions
+                - clicks
+                - conversions
+                - revenue
+                - ctr
+                - cpm
+                - cpc
+                - cpa
+                - cvr
+                - roas
+            condition:
+              type: string
+              enum:
+                - greater_than
+                - less_than
+                - percentage_increase
+                - percentage_decrease
+            threshold:
+              type: number
+            threshold_percentage:
+              type: number
+            severity:
+              type: string
+              enum:
+                - info
+                - warning
+                - critical
+        alert_trigger:
+          type: object
+          required:
+            - id
+            - triggered_at
+            - metric_value
+            - threshold_value
+            - condition_met
+            - affected_entity_type
+            - affected_entity_id
+            - platform
+          properties:
+            id:
+              type: string
+            triggered_at:
+              type: string
+            metric_value:
+              type: number
+            threshold_value:
+              type: number
+            condition_met:
+              type: string
+            affected_entity_type:
+              type: string
+              enum:
+                - account
+                - campaign
+                - adset
+                - ad
+            affected_entity_id:
+              type: string
+            affected_entity_name:
+              type: string
+            platform:
+              type: string
+              enum:
+                - facebook
+                - google
+                - tiktok
+                - snapchat
+                - linkedin
+                - twitter
+            details:
+              type: object
+        timestamp:
+          type: string
+    AlertNotificationCreatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - notification
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - alert_notification_created
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        notification:
+          type: object
+          required:
+            - id
+            - type
+            - title
+            - message
+            - priority
+            - is_read
+          properties:
+            id:
+              type: string
+            type:
+              type: string
+              enum:
+                - alert
+                - system
+                - info
+                - warning
+            title:
+              type: string
+            message:
+              type: string
+            alert_trigger_id:
+              type: string
+            related_entity_type:
+              type: string
+            related_entity_id:
+              type: string
+            is_read:
+              type: boolean
+            priority:
+              type: string
+              enum:
+                - low
+                - normal
+                - high
+                - urgent
+            action_url:
+              type: string
+            expires_at:
+              type: string
+            created_at:
+              type: string
+        timestamp:
+          type: string
+    AnomalyDetectedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - anomaly_detection
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - anomaly_detected
+        workspace_id:
+          type: string
+        anomaly_detection:
+          type: object
+          required:
+            - id
+            - entity_type
+            - entity_id
+            - metric
+            - platform
+            - date
+            - current_value
+            - expected_value
+            - z_score
+            - deviation_percentage
+            - anomaly_type
+            - severity
+          properties:
+            id:
+              type: string
+            entity_type:
+              type: string
+              enum:
+                - account
+                - campaign
+                - adset
+                - ad
+            entity_id:
+              type: string
+            metric:
+              type: string
+              enum:
+                - spend
+                - impressions
+                - clicks
+                - conversions
+                - revenue
+                - ctr
+                - cpm
+                - cpc
+                - cpa
+                - cvr
+                - roas
+            platform:
+              type: string
+              enum:
+                - facebook
+                - google
+                - tiktok
+                - snapchat
+                - linkedin
+                - twitter
+            date:
+              type: string
+            current_value:
+              type: number
+            expected_value:
+              type: number
+            z_score:
+              type: number
+            deviation_percentage:
+              type: number
+            anomaly_type:
+              type: string
+              enum:
+                - spike
+                - drop
+                - pattern_break
+            severity:
+              type: string
+              enum:
+                - low
+                - medium
+                - high
+                - critical
+            is_reviewed:
+              type: boolean
+            created_at:
+              type: string
+        timestamp:
+          type: string
+    PerformanceThresholdBreachedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - breach_details
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - performance_threshold_breached
+        workspace_id:
+          type: string
+        breach_details:
+          type: object
+          required:
+            - entity_type
+            - entity_id
+            - metric
+            - current_value
+            - threshold_value
+            - breach_type
+            - platform
+          properties:
+            entity_type:
+              type: string
+              enum:
+                - account
+                - campaign
+                - adset
+                - ad
+            entity_id:
+              type: string
+            entity_name:
+              type: string
+            metric:
+              type: string
+              enum:
+                - spend
+                - impressions
+                - clicks
+                - conversions
+                - revenue
+                - ctr
+                - cpm
+                - cpc
+                - cpa
+                - cvr
+                - roas
+            current_value:
+              type: number
+            threshold_value:
+              type: number
+            previous_value:
+              type: number
+            breach_type:
+              type: string
+              enum:
+                - above_threshold
+                - below_threshold
+                - percentage_change
+            platform:
+              type: string
+              enum:
+                - facebook
+                - google
+                - tiktok
+                - snapchat
+                - linkedin
+                - twitter
+            date_range:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+        timestamp:
+          type: string
+    MetricsUpdatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - updated_metrics
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - metrics_updated
+        workspace_id:
+          type: string
+        updated_metrics:
+          type: object
+          required:
+            - date
+            - platform
+            - account_id
+            - entity_type
+            - entity_id
+            - metrics
+          properties:
+            date:
+              type: string
+            platform:
+              type: string
+              enum:
+                - facebook
+                - google
+                - tiktok
+                - snapchat
+                - linkedin
+                - twitter
+            account_id:
+              type: string
+            entity_type:
+              type: string
+              enum:
+                - account
+                - campaign
+                - adset
+                - ad
+            entity_id:
+              type: string
+            metrics:
+              type: object
+              properties:
+                spend:
+                  type: number
+                impressions:
+                  type: integer
+                clicks:
+                  type: integer
+                conversions:
+                  type: integer
+                revenue:
+                  type: number
+                ctr:
+                  type: number
+                cpm:
+                  type: number
+                cpc:
+                  type: number
+                cpa:
+                  type: number
+                cvr:
+                  type: number
+                roas:
+                  type: number
+        timestamp:
+          type: string
+    DashboardDataRefreshedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - refresh_details
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - dashboard_data_refreshed
+        workspace_id:
+          type: string
+        refresh_details:
+          type: object
+          required:
+            - affected_date_range
+            - affected_platforms
+            - refresh_type
+            - data_freshness
+          properties:
+            affected_date_range:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+            affected_platforms:
+              type: array
+              items:
+                type: string
+                enum:
+                  - facebook
+                  - google
+                  - tiktok
+                  - snapchat
+                  - linkedin
+                  - twitter
+            refresh_type:
+              type: string
+              enum:
+                - manual
+                - scheduled
+                - triggered
+            data_freshness:
+              type: object
+              properties:
+                last_updated:
+                  type: string
+                staleness_minutes:
+                  type: integer
+            summary_stats:
+              type: object
+              properties:
+                total_campaigns:
+                  type: integer
+                total_spend:
+                  type: number
+                total_revenue:
+                  type: number
+                avg_roas:
+                  type: number
+        timestamp:
+          type: string
+    KpiAnomalyDetectedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - kpi_anomaly
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - kpi_anomaly_detected
+        workspace_id:
+          type: string
+        kpi_anomaly:
+          type: object
+          required:
+            - kpi_name
+            - current_value
+            - expected_value
+            - deviation_percentage
+            - anomaly_severity
+            - date_range
+          properties:
+            kpi_name:
+              type: string
+              enum:
+                - spend
+                - revenue
+                - roas
+                - cpa
+                - ctr
+                - cpm
+                - cvr
+                - mer
+            current_value:
+              type: number
+            expected_value:
+              type: number
+            previous_value:
+              type: number
+            deviation_percentage:
+              type: number
+            anomaly_severity:
+              type: string
+              enum:
+                - low
+                - medium
+                - high
+                - critical
+            date_range:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+            contributing_factors:
+              type: array
+              items:
+                type: object
+                properties:
+                  factor:
+                    type: string
+                  impact_percentage:
+                    type: number
+                  platform:
+                    type: string
+        timestamp:
+          type: string
+    WorkspaceMemberInvitedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - invitation
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - workspace_member_invited
+        workspace_id:
+          type: string
+        invitation:
+          type: object
+          required:
+            - id
+            - email
+            - role
+            - invited_by
+            - invitation_token
+            - expires_at
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            role:
+              type: string
+              enum:
+                - admin
+                - member
+            invited_by:
+              type: string
+            invited_by_name:
+              type: string
+            invitation_token:
+              type: string
+            expires_at:
+              type: string
+            created_at:
+              type: string
+        timestamp:
+          type: string
+    WorkspaceMemberJoinedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - member
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - workspace_member_joined
+        workspace_id:
+          type: string
+        member:
+          type: object
+          required:
+            - user_id
+            - email
+            - name
+            - role
+            - status
+          properties:
+            user_id:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            role:
+              type: string
+              enum:
+                - owner
+                - admin
+                - member
+            status:
+              type: string
+              enum:
+                - active
+                - inactive
+                - pending
+            joined_at:
+              type: string
+        timestamp:
+          type: string
+    WorkspaceMemberLeftEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - former_member
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - workspace_member_left
+        workspace_id:
+          type: string
+        former_member:
+          type: object
+          required:
+            - user_id
+            - email
+            - name
+            - role
+            - departure_reason
+          properties:
+            user_id:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            role:
+              type: string
+              enum:
+                - owner
+                - admin
+                - member
+            departure_reason:
+              type: string
+              enum:
+                - removed
+                - left_voluntarily
+                - invitation_expired
+            left_at:
+              type: string
+        timestamp:
+          type: string
+    WorkspaceSettingsUpdatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - updated_by
+        - setting_changes
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - workspace_settings_updated
+        workspace_id:
+          type: string
+        updated_by:
+          type: string
+        setting_changes:
+          type: object
+          properties:
+            name:
+              type: object
+              properties:
+                old_value:
+                  type: string
+                new_value:
+                  type: string
+            default_currency:
+              type: object
+              properties:
+                old_value:
+                  type: string
+                new_value:
+                  type: string
+            default_revenue_per_conversion:
+              type: object
+              properties:
+                old_value:
+                  type: number
+                new_value:
+                  type: number
+            timezone:
+              type: object
+              properties:
+                old_value:
+                  type: string
+                new_value:
+                  type: string
+            data_retention_days:
+              type: object
+              properties:
+                old_value:
+                  type: integer
+                new_value:
+                  type: integer
+        timestamp:
+          type: string
+    WorkspaceDataUpdatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - data_update_summary
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - workspace_data_updated
+        workspace_id:
+          type: string
+        data_update_summary:
+          type: object
+          required:
+            - update_type
+            - affected_entities
+            - date_range
+          properties:
+            update_type:
+              type: string
+              enum:
+                - new_upload
+                - data_refresh
+                - bulk_update
+                - data_cleanup
+            affected_entities:
+              type: object
+              properties:
+                campaigns:
+                  type: integer
+                ad_sets:
+                  type: integer
+                ads:
+                  type: integer
+                metrics_records:
+                  type: integer
+            affected_platforms:
+              type: array
+              items:
+                type: string
+                enum:
+                  - facebook
+                  - google
+                  - tiktok
+                  - snapchat
+                  - linkedin
+                  - twitter
+            date_range:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+            trigger_source:
+              type: string
+              enum:
+                - upload_job
+                - manual_update
+                - scheduled_refresh
+                - api_sync
+        timestamp:
+          type: string
+    ExportJobCreatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - export_job
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - export_job_created
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        export_job:
+          type: object
+          required:
+            - id
+            - export_type
+            - format
+            - status
+            - progress
+          properties:
+            id:
+              type: string
+            export_type:
+              type: string
+              enum:
+                - metrics
+                - campaigns
+                - creative_performance
+                - alerts
+            format:
+              type: string
+              enum:
+                - csv
+                - xlsx
+                - pdf
+            status:
+              type: string
+              enum:
+                - queued
+                - processing
+                - completed
+                - failed
+            progress:
+              type: integer
+              minimum: 0
+              maximum: 100
+            filters:
+              type: object
+            date_from:
+              type: string
+            date_to:
+              type: string
+            platforms:
+              type: array
+              items:
+                type: string
+            accounts:
+              type: array
+              items:
+                type: string
+            created_at:
+              type: string
+        timestamp:
+          type: string
+    ExportJobProgressUpdatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - export_job_id
+        - progress
+        - status
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - export_job_progress_updated
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        export_job_id:
+          type: string
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        status:
+          type: string
+          enum:
+            - queued
+            - processing
+            - completed
+            - failed
+        current_stage:
+          type: string
+          enum:
+            - querying
+            - formatting
+            - generating
+            - uploading
+        estimated_completion:
+          type: string
+        processed_records:
+          type: integer
+        total_records:
+          type: integer
+        timestamp:
+          type: string
+    ExportJobCompletedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - export_job
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - export_job_completed
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        export_job:
+          type: object
+          required:
+            - id
+            - export_type
+            - format
+            - status
+            - file_url
+            - file_size
+            - row_count
+          properties:
+            id:
+              type: string
+            export_type:
+              type: string
+              enum:
+                - metrics
+                - campaigns
+                - creative_performance
+                - alerts
+            format:
+              type: string
+              enum:
+                - csv
+                - xlsx
+                - pdf
+            status:
+              type: string
+              enum:
+                - completed
+            file_url:
+              type: string
+            file_size:
+              type: integer
+            row_count:
+              type: integer
+            expires_at:
+              type: string
+            completed_at:
+              type: string
+        timestamp:
+          type: string
+    ExportJobFailedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - export_job_id
+        - error_message
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - export_job_failed
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        export_job_id:
+          type: string
+        error_message:
+          type: string
+        error_details:
+          type: object
+          properties:
+            error_code:
+              type: string
+            query_timeout:
+              type: boolean
+            insufficient_permissions:
+              type: boolean
+            data_corruption:
+              type: boolean
+        retry_possible:
+          type: boolean
+        timestamp:
+          type: string
+    UserSessionExpiredEvent:
+      type: object
+      required:
+        - event_type
+        - user_id
+        - session_id
+        - expiry_reason
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - user_session_expired
+        user_id:
+          type: string
+        session_id:
+          type: string
+        expiry_reason:
+          type: string
+          enum:
+            - timeout
+            - manual_logout
+            - security_logout
+            - token_refresh_failed
+        grace_period_seconds:
+          type: integer
+        redirect_url:
+          type: string
+        timestamp:
+          type: string
+    UserLoggedOutElsewhereEvent:
+      type: object
+      required:
+        - event_type
+        - user_id
+        - current_session_id
+        - logout_details
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - user_logged_out_elsewhere
+        user_id:
+          type: string
+        current_session_id:
+          type: string
+        logout_details:
+          type: object
+          required:
+            - logout_session_id
+            - logout_ip_address
+            - logout_user_agent
+          properties:
+            logout_session_id:
+              type: string
+            logout_ip_address:
+              type: string
+            logout_user_agent:
+              type: string
+            logout_location:
+              type: string
+        force_logout:
+          type: boolean
+        timestamp:
+          type: string
+    SessionActivityUpdatedEvent:
+      type: object
+      required:
+        - event_type
+        - user_id
+        - session_id
+        - activity_details
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - session_activity_updated
+        user_id:
+          type: string
+        session_id:
+          type: string
+        activity_details:
+          type: object
+          required:
+            - last_activity_at
+            - ip_address
+            - user_agent
+          properties:
+            last_activity_at:
+              type: string
+            ip_address:
+              type: string
+            user_agent:
+              type: string
+            page_visited:
+              type: string
+            workspace_id:
+              type: string
+        timestamp:
+          type: string
+    NotificationCreatedEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - notification
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - notification_created
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        notification:
+          type: object
+          required:
+            - id
+            - type
+            - title
+            - message
+            - priority
+            - is_read
+          properties:
+            id:
+              type: string
+            type:
+              type: string
+              enum:
+                - alert
+                - system
+                - info
+                - warning
+            title:
+              type: string
+            message:
+              type: string
+            alert_trigger_id:
+              type: string
+            related_entity_type:
+              type: string
+            related_entity_id:
+              type: string
+            is_read:
+              type: boolean
+            priority:
+              type: string
+              enum:
+                - low
+                - normal
+                - high
+                - urgent
+            action_url:
+              type: string
+            expires_at:
+              type: string
+            created_at:
+              type: string
+        timestamp:
+          type: string
+    NotificationMarkedReadEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - notification_id
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - notification_marked_read
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        notification_id:
+          type: string
+        read_at:
+          type: string
+        read_from:
+          type: string
+          enum:
+            - web_app
+            - mobile_app
+            - email_link
+            - bulk_action
+        timestamp:
+          type: string
+    NotificationBulkUpdateEvent:
+      type: object
+      required:
+        - event_type
+        - workspace_id
+        - user_id
+        - bulk_action
+        - timestamp
+      properties:
+        event_type:
+          type: string
+          enum:
+            - notification_bulk_update
+        workspace_id:
+          type: string
+        user_id:
+          type: string
+        bulk_action:
+          type: object
+          required:
+            - action_type
+            - affected_count
+          properties:
+            action_type:
+              type: string
+              enum:
+                - mark_all_read
+                - delete_read
+                - clear_all
+            affected_count:
+              type: integer
+            filter_criteria:
+              type: object
+              properties:
+                notification_type:
+                  type: string
+                priority:
+                  type: string
+                date_range:
+                  type: object
+                  properties:
+                    start_date:
+                      type: string
+                    end_date:
+                      type: string
+        timestamp:
+          type: string

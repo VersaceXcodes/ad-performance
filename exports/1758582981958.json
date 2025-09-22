@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582981958,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "UV_Settings",
+      "version": "latest"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/UV_Settings.tsx",
+      "type": "text",
+      "size": 51897,
+      "dependencies": false
+    }
+  ]
+}

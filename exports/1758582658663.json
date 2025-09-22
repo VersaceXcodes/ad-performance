@@ -1,0 +1,21 @@
+{
+  "timestamp": 1758582658663,
+  "operation": {
+    "id": "settings:config:package"
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/backend/package.json",
+      "type": "text",
+      "size": 1425,
+      "dependencies": true
+    },
+    {
+      "path": "/mnt/data/ad-performance/backend/.env",
+      "type": "text",
+      "size": 412,
+      "dependencies": false
+    }
+  ]
+}

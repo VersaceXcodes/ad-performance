@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582892235,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "GV_Footer",
+      "version": "latest"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/GV_Footer.tsx",
+      "type": "text",
+      "size": 12835,
+      "dependencies": false
+    }
+  ]
+}

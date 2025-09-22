@@ -1,0 +1,15 @@
+{
+  "timestamp": 1758582741482,
+  "operation": {
+    "id": "settings:config:package"
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/package.json",
+      "type": "text",
+      "size": 2949,
+      "dependencies": true
+    }
+  ]
+}

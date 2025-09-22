@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582947269,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "UV_EmptyState",
+      "version": "latest"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/UV_EmptyState.tsx",
+      "type": "text",
+      "size": 26080,
+      "dependencies": false
+    }
+  ]
+}

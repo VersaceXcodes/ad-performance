@@ -1,0 +1,19 @@
+{
+  "timestamp": 1758582922475,
+  "operation": {
+    "id": "webapp:react:views",
+    "refs": {
+      "id": "UV_SignUp",
+      "version": "1758582830908"
+    }
+  },
+  "projectId": "ad-performance",
+  "files": [
+    {
+      "path": "/mnt/data/ad-performance/vitereact/src/components/views/UV_SignUp.tsx",
+      "type": "text",
+      "size": 22565,
+      "dependencies": false
+    }
+  ]
+}
