@@ -4750,3 +4750,68 @@ app.put('/api/workspaces/:workspace_id/shared-links/:link_id', authenticateToken
   Deletes shared link
 */
 app.delete('/api/workspaces/:workspace_id/shared-links/:link_id', authenticateToken, validateWorkspaceAccess, async (req, res) => {
+  try {
+    const client = await pool.connect();
+    try {
+      const result = await client.query(`
+        DELETE FROM shared_links 
+        WHERE id = $1 AND workspace_id = $2
+      `, [req.params.link_id, req.params.workspace_id]);
+
+      if (result.rowCount === 0) {
+        return res.status(404).json(createErrorResponse('Shared link not found', null, 'LINK_NOT_FOUND'));
+      }
+
+      res.status(204).send();
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Delete shared link error:', error);
+    res.status(500).json(createErrorResponse('Internal server error', error, 'INTERNAL_SERVER_ERROR'));
+  }
+});
+
+// ================================
+// HEALTH CHECK ROUTE
+// ================================
+
+/*
+  GET /api/health
+  Health check endpoint for monitoring
+*/
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// ================================
+// STATIC FILE SERVING
+// ================================
+
+// Serve React app for all non-API routes
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json(createErrorResponse('API endpoint not found', null, 'ENDPOINT_NOT_FOUND'));
+  }
+  
+  // In production, serve the built React app
+  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json(createErrorResponse('Frontend not built', null, 'FRONTEND_NOT_FOUND'));
+  }
+});
+
+// ================================
+// SERVER STARTUP
+// ================================
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  console.log(`Health check: http://localhost:${port}/api/health`);
+});

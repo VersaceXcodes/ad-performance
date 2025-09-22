@@ -20,7 +20,7 @@ export const userSchema = z.object({
 export const createUserInputSchema = z.object({
   email: z.string().email().min(1).max(255),
   name: z.string().min(1).max(255),
-  password_hash: z.string().min(1),
+  password: z.string().min(6),
   email_verified: z.boolean().default(false),
   email_verification_token: z.string().nullable().optional(),
   password_reset_token: z.string().nullable().optional(),
@@ -41,9 +41,9 @@ export const updateUserInputSchema = z.object({
 export const searchUsersInputSchema = z.object({
   query: z.string().optional(),
   email: z.string().optional(),
-  email_verified: z.boolean().optional(),
-  limit: z.number().int().positive().default(10),
-  offset: z.number().int().nonnegative().default(0),
+  email_verified: z.coerce.boolean().optional(),
+  limit: z.coerce.number().int().positive().default(10),
+  offset: z.coerce.number().int().nonnegative().default(0),
   sort_by: z.enum(['email', 'name', 'created_at']).default('created_at'),
   sort_order: z.enum(['asc', 'desc']).default('desc')
 });
@@ -174,8 +174,8 @@ export const searchAccountsInputSchema = z.object({
   status: z.enum(['active', 'inactive', 'paused']).optional(),
   currency: z.string().optional(),
   query: z.string().optional(),
-  limit: z.number().int().positive().default(10),
-  offset: z.number().int().nonnegative().default(0),
+  limit: z.coerce.number().int().positive().default(10),
+  offset: z.coerce.number().int().nonnegative().default(0),
   sort_by: z.enum(['account_name', 'platform', 'created_at']).default('created_at'),
   sort_order: z.enum(['asc', 'desc']).default('desc')
 });
@@ -380,8 +380,8 @@ export const searchMetricsDailyInputSchema = z.object({
   campaign_id: z.string().optional(),
   adset_id: z.string().optional(),
   ad_id: z.string().optional(),
-  limit: z.number().int().positive().default(10),
-  offset: z.number().int().nonnegative().default(0),
+  limit: z.coerce.number().int().positive().default(10),
+  offset: z.coerce.number().int().nonnegative().default(0),
   sort_by: z.enum(['date', 'spend', 'impressions', 'clicks', 'conversions']).default('date'),
   sort_order: z.enum(['asc', 'desc']).default('desc')
 });
