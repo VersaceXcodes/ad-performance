@@ -44,6 +44,7 @@ interface UploadJob {
   rows_success: number;
   rows_error: number;
   error_text: string | null;
+  error_log_url?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -240,9 +241,9 @@ const UV_UploadWizard: React.FC = () => {
       return response.data;
     },
     enabled: !!uploadJob?.id && !!authToken,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Stop polling if completed or failed
-      if (data?.status === 'completed' || data?.status === 'failed') {
+      if (query?.state?.data?.status === 'completed' || query?.state?.data?.status === 'failed') {
         return false;
       }
       return 2000; // Poll every 2 seconds

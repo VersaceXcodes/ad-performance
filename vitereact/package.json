@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/react": "*",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
@@ -70,9 +71,7 @@
     "use-react-screenshot": "^4.0.0",
     "vaul": "^0.9.3",
     "zod": "^3.23.8",
-    "zustand": "*",
-    "@heroicons/react": "*",
-    "@/store/main": "*"
+    "zustand": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
@@ -90,6 +89,6 @@
     "tailwindcss": "^3.4.8",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.0",
-    "vite": "^5.4.0"
+    "vite": "^5.4.20"
   }
 }

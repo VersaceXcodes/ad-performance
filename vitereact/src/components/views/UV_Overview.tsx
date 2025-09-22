@@ -3,19 +3,19 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@/store/main';
 import axios from 'axios';
-import { 
-  CalendarIcon, 
-  ChartBarIcon, 
-  ExclamationTriangleIcon,
-  ArrowUpIcon,
+import {
+  CalendarIcon,
   ArrowDownIcon,
   PlusIcon,
   ShareIcon,
   DocumentArrowDownIcon,
   BellIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
-  EyeIcon
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  EyeIcon,
+  ExclamationTriangleIcon,
+  ChartBarIcon,
+  ArrowUpIcon
 } from '@heroicons/react/24/outline';
 
 // Types matching the OpenAPI schema
@@ -492,7 +492,7 @@ const UV_Overview: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {kpiConfig.map((kpi) => {
               const value = overviewMetrics?.[kpi.key as keyof OverviewMetrics] as number || 0;
-              const changeKey = `${kpi.key}_change` as keyof typeof overviewMetrics.comparison;
+              const changeKey = `${kpi.key}_change` as keyof NonNullable<typeof overviewMetrics>['comparison'];
               const change = overviewMetrics?.comparison?.[changeKey] || 0;
               const isPositive = change > 0;
               const isNegative = change < 0;
@@ -549,7 +549,7 @@ const UV_Overview: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center space-x-2">
-                    <TrendingUpIcon className="h-4 w-4" />
+                    <ArrowTrendingUpIcon className="h-4 w-4" />
                     <span>Time Series</span>
                   </div>
                 </button>
@@ -612,7 +612,7 @@ const UV_Overview: React.FC = () => {
                   ) : (
                     <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
                       <div className="text-center">
-                        <TrendingUpIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                        <ArrowTrendingUpIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                         <p className="text-sm text-gray-600">
                           Interactive time series chart will be displayed here
                         </p>

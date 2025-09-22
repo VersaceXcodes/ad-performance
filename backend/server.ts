@@ -4799,7 +4799,7 @@ app.get('*', (req, res) => {
   }
   
   // In production, serve the built React app
-  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
+  const indexPath = path.join(__dirname, '../vitereact/public/index.html');
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
