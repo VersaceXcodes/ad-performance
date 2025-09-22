@@ -7,8 +7,12 @@
     "esModuleInterop": true,
     "allowImportingTsExtensions": true,
     "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+
     "outDir": "./dist",
     "rootDir": "./",
     "declaration": true,

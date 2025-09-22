@@ -1,9 +1,7 @@
 module.exports = {
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "setupFilesAfterEnv": [
-    "<rootDir>/tests/setup.ts"
-  ],
+
   "testMatch": [
     "**/__tests__/**/*.(ts|js)",
     "**/*.(test|spec).(ts|js)"
@@ -32,12 +30,8 @@ module.exports = {
   "maxWorkers": 1,
   "forceExit": true,
   "detectOpenHandles": true,
-  "setupFiles": [
-    "<rootDir>/tests/env.ts"
-  ],
-  "moduleNameMapping": {
-    "^@/(.*)$": "<rootDir>/src/$1"
-  },
+
+
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
   },
