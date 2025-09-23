@@ -34,7 +34,8 @@ export default defineConfig({
 		react(),
 	],
 	server: {
-		host: true,
+		host: '0.0.0.0',
+		port: 5173,
 		allowedHosts: ['.launchpulse.ai', '.trycloudflare.com', 'localhost', '123ad-performance.launchpulse.ai'],
 	},
 	resolve: {
