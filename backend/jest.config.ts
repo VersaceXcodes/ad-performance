@@ -1,6 +1,15 @@
 module.exports = {
-  "preset": "ts-jest",
+  "preset": "ts-jest/presets/default-esm",
   "testEnvironment": "node",
+  "extensionsToTreatAsEsm": [".ts"],
+  "globals": {
+    "ts-jest": {
+      "useESM": true
+    }
+  },
+  "moduleNameMapping": {
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
 
   "testMatch": [
     "**/__tests__/**/*.(ts|js)",
@@ -32,7 +41,9 @@ module.exports = {
   "detectOpenHandles": true,
 
   "transform": {
-    "^.+\\.tsx?$": "ts-jest"
+    "^.+\\.tsx?$": ["ts-jest", {
+      "useESM": true
+    }]
   },
   "transformIgnorePatterns": [
     "node_modules/(?!(module-that-needs-to-be-transformed)/)"
