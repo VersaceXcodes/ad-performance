@@ -2,14 +2,9 @@
 > conductor@0.0.0 dev
 > vite
 
+Port 5173 is in use, trying another one...
 
-  VITE v5.4.20  ready in 339 ms
+  VITE v5.4.20  ready in 373 ms
 
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: http://172.20.9.196:5173/
-1:19:39 AM [vite] vite.config.ts changed, restarting server...
-1:19:39 AM [vite] server restarted.
-1:19:53 AM [vite] vite.config.ts changed, restarting server...
-1:19:53 AM [vite] server restarted.
-1:20:22 AM [vite] vite.config.ts changed, restarting server...
-1:20:22 AM [vite] server restarted.
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: http://172.20.9.196:5174/
