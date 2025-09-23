@@ -5,11 +5,12 @@ const http = require('http');
 const https = require('https');
 
 const testEndpoints = [
-  { name: 'Frontend', url: 'http://localhost:5173', method: 'GET' },
-  { name: 'Backend Health', url: 'http://localhost:3000/health', method: 'GET' },
-  { name: 'API Status', url: 'http://localhost:3000/api/status', method: 'GET' },
-  { name: 'API Debug', url: 'http://localhost:3000/api/debug', method: 'GET' },
-  { name: 'API Validation', url: 'http://localhost:3000/api/test/validate', method: 'GET' }
+  { name: 'Production Health', url: 'https://123ad-performance.launchpulse.ai/health', method: 'GET' },
+  { name: 'Production API Status', url: 'https://123ad-performance.launchpulse.ai/api/status', method: 'GET' },
+  { name: 'Production Debug', url: 'https://123ad-performance.launchpulse.ai/api/debug', method: 'GET' },
+  { name: 'Production Validation', url: 'https://123ad-performance.launchpulse.ai/api/test/validate', method: 'GET' },
+  { name: 'Production Browser Test', url: 'https://123ad-performance.launchpulse.ai/api/test/browser', method: 'GET' },
+  { name: 'Production Frontend', url: 'https://123ad-performance.launchpulse.ai/', method: 'GET' }
 ];
 
 function makeRequest(url, method = 'GET', headers = {}) {

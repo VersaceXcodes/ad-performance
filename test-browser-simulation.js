@@ -2,10 +2,12 @@
 
 // Comprehensive browser simulation test
 const http = require('http');
+const https = require('https');
 
 function makeRequest(url, method = 'GET', headers = {}, body = null) {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
+    const client = urlObj.protocol === 'https:' ? https : http;
     
     const options = {
       hostname: urlObj.hostname,
@@ -15,8 +17,8 @@ function makeRequest(url, method = 'GET', headers = {}, body = null) {
       headers: {
         'User-Agent': 'Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test',
         'Accept': 'application/json, text/html, */*',
-        'Origin': 'http://localhost:5173',
-        'Referer': 'http://localhost:5173/',
+        'Origin': 'https://123ad-performance.launchpulse.ai',
+        'Referer': 'https://123ad-performance.launchpulse.ai/',
         'X-Automation': 'true',
         ...headers
       },
@@ -27,7 +29,7 @@ function makeRequest(url, method = 'GET', headers = {}, body = null) {
       options.headers['Content-Length'] = Buffer.byteLength(body);
     }
 
-    const req = http.request(options, (res) => {
+    const req = client.request(options, (res) => {
       let data = '';
       res.on('data', (chunk) => data += chunk);
       res.on('end', () => {

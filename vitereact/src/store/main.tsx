@@ -189,6 +189,18 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
 
+// Add browser testing headers if in test environment
+if (typeof window !== 'undefined' && (
+  window.navigator.userAgent.includes('HeadlessChrome') ||
+  window.navigator.userAgent.includes('PhantomJS') ||
+  window.navigator.userAgent.includes('Selenium') ||
+  window.navigator.userAgent.includes('Playwright') ||
+  window.navigator.userAgent.includes('Puppeteer')
+)) {
+  axios.defaults.headers.common['X-Automation'] = 'true';
+  axios.defaults.headers.common['X-Test-Mode'] = 'browser-testing';
+}
+
 // Request interceptor to add auth token
 axios.interceptors.request.use(
   (config) => {
@@ -249,9 +261,15 @@ axios.interceptors.response.use(
         return Promise.reject(new Error('Server error. Please try again later.'));
       }
       
-      // Handle Cloudflare errors
-      if (status === 502 || status === 503 || status === 504) {
-        return Promise.reject(new Error('Service temporarily unavailable. Please try again in a few moments.'));
+      // Handle Cloudflare and proxy errors
+      if (status === 502) {
+        return Promise.reject(new Error('Bad Gateway - Server connection failed. Please try again.'));
+      }
+      if (status === 503) {
+        return Promise.reject(new Error('Service Unavailable - Server is temporarily down. Please try again.'));
+      }
+      if (status === 504) {
+        return Promise.reject(new Error('Gateway Timeout - Server took too long to respond. Please try again.'));
       }
       
       return Promise.reject(new Error(data?.message || `Request failed with status ${status}`));
@@ -334,7 +352,7 @@ export const useAppStore = create<AppStore>()(
           // First test API connectivity with retry
           await retryRequest(async () => {
             const response = await axios.get(`${getApiBaseUrl()}/api/status`, { timeout: 5000 });
-            if (!response.data.success) {
+            if (!response.data || !response.data.success) {
               throw new Error('API status check failed');
             }
           }, 2, 1000);
@@ -345,8 +363,12 @@ export const useAppStore = create<AppStore>()(
               `${getApiBaseUrl()}/api/auth/login`,
               { email, password },
               { 
-                headers: { 'Content-Type': 'application/json' },
-                timeout: 15000 // 15 second timeout for login
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+                },
+                timeout: 15000, // 15 second timeout for login
+                validateStatus: (status) => status < 500 // Don't retry on 4xx errors
               }
             );
           }, 3, 1000);

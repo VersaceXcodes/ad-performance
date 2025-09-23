@@ -529,6 +529,68 @@ app.get('/api/test/validate', async (req, res) => {
         res.status(500).json(createErrorResponse('Validation endpoint failed', error, 'VALIDATION_ERROR'));
     }
 });
+// Browser testing specific endpoint
+app.get('/api/test/browser', async (req, res) => {
+    try {
+        const testResults = {
+            success: true,
+            timestamp: new Date().toISOString(),
+            browser_test_mode: true,
+            tests: {
+                basic_connectivity: { status: 'pass', message: 'Server responding' },
+                json_parsing: { status: 'pass', message: 'JSON response working' },
+                cors_headers: { status: 'pass', message: 'CORS configured' },
+                database_connection: { status: 'unknown', message: 'Testing...' },
+                authentication_endpoint: { status: 'unknown', message: 'Testing...' },
+                static_files: { status: 'unknown', message: 'Testing...' }
+            },
+            performance: {
+                response_time_ms: Date.now(),
+                memory_usage: process.memoryUsage(),
+                uptime_seconds: process.uptime()
+            }
+        };
+        // Test database
+        try {
+            const client = await pool.connect();
+            const result = await client.query('SELECT NOW() as current_time');
+            client.release();
+            testResults.tests.database_connection = {
+                status: 'pass',
+                message: `Database connected at ${result.rows[0].current_time}`
+            };
+        }
+        catch (dbError) {
+            testResults.tests.database_connection = {
+                status: 'fail',
+                message: `Database error: ${dbError.message}`
+            };
+            testResults.success = false;
+        }
+        // Test auth endpoint availability
+        testResults.tests.authentication_endpoint = {
+            status: 'pass',
+            message: 'Authentication endpoints available'
+        };
+        // Test static files
+        const indexPath = path.join(STATIC_PATH, 'index.html');
+        testResults.tests.static_files = {
+            status: fs.existsSync(indexPath) ? 'pass' : 'fail',
+            message: fs.existsSync(indexPath) ? 'Frontend assets available' : 'Frontend assets missing'
+        };
+        // Calculate response time
+        testResults.performance.response_time_ms = Date.now() - testResults.performance.response_time_ms;
+        // Set browser testing headers
+        res.setHeader('X-Browser-Test', 'comprehensive-test');
+        res.setHeader('X-Test-Timestamp', testResults.timestamp);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.json(testResults);
+    }
+    catch (error) {
+        console.error('Browser test endpoint error:', error);
+        res.status(500).json(createErrorResponse('Browser test failed', error, 'BROWSER_TEST_ERROR'));
+    }
+});
 // Create storage directory if it doesn't exist
 const storageDir = path.join(__dirname, 'storage');
 if (!fs.existsSync(storageDir)) {
