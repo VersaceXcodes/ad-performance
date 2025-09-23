@@ -1,14 +1,9 @@
-export default {
+module.exports = {
     "preset": "ts-jest/presets/default-esm",
     "testEnvironment": "node",
     "extensionsToTreatAsEsm": [".ts"],
     "moduleNameMapper": {
         "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "globals": {
-        "ts-jest": {
-            "useESM": true
-        }
     },
     "testMatch": [
         "**/__tests__/**/*.(ts|js)",
@@ -51,4 +46,5 @@ export default {
         "node_modules/(?!(module-that-needs-to-be-transformed)/)"
     ]
 };
+export {};
 //# sourceMappingURL=jest.config.js.map
