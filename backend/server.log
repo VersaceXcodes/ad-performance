@@ -1,0 +1,11 @@
+Server running on port 3000
+Health check: http://localhost:3000/health
+API status: http://localhost:3000/api/status
+Environment: development
+Database connection successful
+Database connected successfully
+→ GET /health - 127.0.0.1 - curl/7.88.1
+← GET /health - 200 - 8ms - JSON
+← GET /health - 200 - 9ms
+127.0.0.1 - - [23/Sep/2025:02:40:35 +0000] "GET /health HTTP/1.1" 200 429 "-" "curl/7.88.1"
+SIGTERM received, shutting down gracefully
