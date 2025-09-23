@@ -5378,8 +5378,7 @@ app.use('/api/*', (req, res) => {
 // STATIC FILE SERVING
 // ================================
 
-// Serve static files from the vitereact build directory
-app.use(express.static(STATIC_PATH));
+// Static files are already served above with proper headers
 
 // ================================
 // SERVER STARTUP
@@ -5449,9 +5448,7 @@ app.get('*', (req, res) => {
   }
   
   // Serve index.html for all other routes (SPA routing)
-  const indexPath = process.env.NODE_ENV === 'production' 
-    ? path.join(__dirname, 'public/index.html')
-    : path.join(STATIC_PATH, 'index.html');
+  const indexPath = path.join(STATIC_PATH, 'index.html');
   
   if (fs.existsSync(indexPath)) {
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');

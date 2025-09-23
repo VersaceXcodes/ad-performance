@@ -16,6 +16,7 @@ if [ ! -f "/app/backend/public/index.html" ]; then
     echo "Building frontend..."
     cd /app/vitereact
     npm run build
+    mkdir -p /app/backend/public
     cp -r dist/* /app/backend/public/
 fi
 
@@ -29,4 +30,5 @@ fi
 # Start the server
 echo "Starting backend server..."
 cd /app/backend
-exec npm start
+export NODE_ENV=production
+exec node dist/server.js
