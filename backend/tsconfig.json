@@ -5,7 +5,7 @@
     "moduleResolution": "Node16",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
@@ -20,7 +20,7 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
     "types": ["node", "jest"]
   },
   "include": [

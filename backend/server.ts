@@ -190,8 +190,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
+// Global error handler - must be after routes
+const globalErrorHandler = (err, req, res, next) => {
   console.error('Unhandled error:', {
     error: err.message,
     stack: err.stack,
@@ -210,7 +210,7 @@ app.use((err, req, res, next) => {
     process.env.NODE_ENV === 'development' ? err : null,
     'INTERNAL_SERVER_ERROR'
   ));
-});
+};
 
 // CORS Configuration
 const corsOptions = {
@@ -234,11 +234,24 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'X-Forwarded-For'],
-  exposedHeaders: ['Content-Length', 'X-Request-ID'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With', 
+    'Accept', 
+    'Origin', 
+    'Cache-Control', 
+    'X-Forwarded-For',
+    'X-Forwarded-Proto',
+    'X-Real-IP',
+    'User-Agent',
+    'Referer'
+  ],
+  exposedHeaders: ['Content-Length', 'X-Request-ID', 'X-Total-Count'],
   optionsSuccessStatus: 200,
-  preflightContinue: false
+  preflightContinue: false,
+  maxAge: 86400 // 24 hours
 };
 
 // Rate limiting middleware (simple in-memory implementation)
@@ -283,9 +296,47 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors(corsOptions));
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true }));
+
+// JSON parsing with error handling
+app.use(express.json({ 
+  limit: "50mb",
+  verify: (req, res, buf, encoding) => {
+    try {
+      JSON.parse(buf.toString());
+    } catch (err) {
+      console.error('Invalid JSON received:', {
+        error: err.message,
+        body: buf.toString().substring(0, 200),
+        url: req.url,
+        method: req.method,
+        ip: req.ip
+      });
+      throw new Error('Invalid JSON format');
+    }
+  }
+}));
+
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(morgan('combined'));
+
+// JSON parsing error handler
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('JSON parsing error:', {
+      error: err.message,
+      url: req.url,
+      method: req.method,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    return res.status(400).json(createErrorResponse(
+      'Invalid JSON format in request body',
+      null,
+      'INVALID_JSON'
+    ));
+  }
+  next(err);
+});
 
 // Request timeout middleware
 app.use((req, res, next) => {
@@ -331,6 +382,8 @@ app.use(express.static(path.join(__dirname, '../vitereact/dist'), {
   }
 }));
 
+
+
 // Health check endpoint
 app.get('/health', async (req, res) => {
   const healthCheck = {
@@ -344,12 +397,13 @@ app.get('/health', async (req, res) => {
     checks: {
       database: false,
       jwt_secret: false,
-      environment_vars: false
+      environment_vars: false,
+      static_files: false
     }
   };
 
   try {
-    // Test database connection
+    // Test database connection with timeout
     const client = await pool.connect();
     const dbResult = await client.query('SELECT NOW() as current_time, version() as db_version');
     client.release();
@@ -376,6 +430,12 @@ app.get('/health', async (req, res) => {
     healthCheck.checks.environment_vars = true;
   }
 
+  // Check static files
+  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
+  if (fs.existsSync(indexPath)) {
+    healthCheck.checks.static_files = true;
+  }
+
   // Overall health status
   const allChecksPass = Object.values(healthCheck.checks).every(check => check === true);
   if (!allChecksPass) {
@@ -385,23 +445,29 @@ app.get('/health', async (req, res) => {
   const statusCode = healthCheck.status === 'healthy' ? 200 : 
                     healthCheck.status === 'degraded' ? 200 : 503;
 
+  // Set proper headers for health checks
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.status(statusCode).json(healthCheck);
 });
 
 // API status endpoint
 app.get('/api/status', async (req, res) => {
   try {
-    // Test database connection
+    // Test database connection with timeout
     const client = await pool.connect();
     await client.query('SELECT 1');
     client.release();
     
+    res.setHeader('Cache-Control', 'no-cache');
     res.status(200).json({
       success: true,
       message: 'API is running',
       timestamp: new Date().toISOString(),
       version: '1.0.0',
-      database: 'connected'
+      database: 'connected',
+      environment: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
     console.error('API status check failed:', error);
@@ -411,6 +477,30 @@ app.get('/api/status', async (req, res) => {
       timestamp: new Date().toISOString(),
       version: '1.0.0',
       database: 'disconnected',
+      environment: process.env.NODE_ENV || 'development',
+      error: error.message
+    });
+  }
+});
+
+// Readiness probe endpoint
+app.get('/ready', async (req, res) => {
+  try {
+    // Quick database connectivity check
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    
+    res.setHeader('Cache-Control', 'no-cache');
+    res.status(200).json({
+      ready: true,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Readiness check failed:', error);
+    res.status(503).json({
+      ready: false,
+      timestamp: new Date().toISOString(),
       error: error.message
     });
   }
@@ -5289,6 +5379,33 @@ app.get('/api/debug', (req, res) => {
   });
 });
 
+// Add global error handler after all routes
+app.use(globalErrorHandler);
+
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json(createErrorResponse('API endpoint not found', null, 'NOT_FOUND'));
+});
+
+// Catch-all handler for SPA routing - must be last
+app.get('*', (req, res) => {
+  // Serve index.html for all other routes (SPA routing)
+  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
+  
+  if (fs.existsSync(indexPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error serving index.html:', err);
+        res.status(500).json(createErrorResponse('Internal server error', err, 'INTERNAL_SERVER_ERROR'));
+      }
+    });
+  } else {
+    res.status(404).json(createErrorResponse('Page not found', null, 'NOT_FOUND'));
+  }
+});
+
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   process.exit(1);
@@ -5331,22 +5448,6 @@ server.on('error', (error: any) => {
     default:
       throw error;
   }
-});
-
-// Catch-all handler for SPA routing - must be last
-app.get('*', (req, res) => {
-  // Don't serve index.html for API routes
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json(createErrorResponse('API endpoint not found', null, 'NOT_FOUND'));
-  }
-  
-  // Serve index.html for all other routes (SPA routing)
-  res.sendFile(path.join(__dirname, '../vitereact/dist', 'index.html'), (err) => {
-    if (err) {
-      console.error('Error serving index.html:', err);
-      res.status(500).json(createErrorResponse('Internal server error', err, 'INTERNAL_SERVER_ERROR'));
-    }
-  });
 });
 
 // Export for testing
