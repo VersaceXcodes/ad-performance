@@ -19,3 +19,7 @@ Database connection successful
 ← GET /health - 200 - 96ms - JSON
 ← GET /health - 200 - 98ms
 127.0.0.1 - - [23/Sep/2025:01:18:28 +0000] "GET /health HTTP/1.1" 200 429 "-" "curl/7.88.1"
+→ HEAD / - 127.0.0.1 - curl/7.88.1
+← HEAD / - 200 - 18ms
+127.0.0.1 - - [23/Sep/2025:01:20:15 +0000] "HEAD / HTTP/1.1" 200 640 "-" "curl/7.88.1"
+Killed
