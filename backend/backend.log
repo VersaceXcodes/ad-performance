@@ -28,3 +28,4 @@ API status: http://localhost:3000/api/status
 Environment: development
 Database connection successful
 Database connected successfully
+SIGTERM received, shutting down gracefully

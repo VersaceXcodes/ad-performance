@@ -4678,36 +4678,6 @@ app.use('/api/*', (req, res) => {
 // ================================
 // STATIC FILE SERVING
 // ================================
-// Serve React app for all non-API routes
-app.get('*', (req, res) => {
-    // In production, serve the built React app
-    const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
-    if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-    }
-    else {
-        // Fallback to a simple HTML response if frontend not built
-        res.status(200).send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>PulseDeck - Loading</title>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-        </head>
-        <body>
-          <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
-            <div style="text-align: center;">
-              <h1>PulseDeck</h1>
-              <p>Application is starting up...</p>
-              <p>If this persists, please check the server logs.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `);
-    }
-});
 // ================================
 // SERVER STARTUP
 // ================================

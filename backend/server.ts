@@ -391,7 +391,7 @@ app.use((req, res, next) => {
 });
 
 // Serve static files from the 'dist' directory with proper headers
-app.use(express.static(path.join(__dirname, '../vitereact/dist'), {
+app.use(express.static(path.join(__dirname, '../../vitereact/dist'), {
   maxAge: '1d',
   etag: true,
   lastModified: true,
@@ -457,7 +457,7 @@ app.get('/health', async (req, res) => {
   }
 
   // Check static files
-  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
+  const indexPath = path.join(__dirname, '../../vitereact/dist/index.html');
   if (fs.existsSync(indexPath)) {
     healthCheck.checks.static_files = true;
   }
@@ -580,8 +580,8 @@ app.get('/api/test/validate', (req, res) => {
         message: 'Database connection not tested in this endpoint'
       },
       static_files: {
-        status: fs.existsSync(path.join(__dirname, '../vitereact/dist/index.html')) ? 'pass' : 'fail',
-        message: fs.existsSync(path.join(__dirname, '../vitereact/dist/index.html')) ? 'Static files available' : 'Static files missing'
+        status: fs.existsSync(path.join(__dirname, '../../vitereact/dist/index.html')) ? 'pass' : 'fail',
+        message: fs.existsSync(path.join(__dirname, '../../vitereact/dist/index.html')) ? 'Static files available' : 'Static files missing'
       },
       environment: {
         status: 'pass',
@@ -5366,36 +5366,6 @@ app.use('/api/*', (req, res) => {
 // STATIC FILE SERVING
 // ================================
 
-// Serve React app for all non-API routes
-app.get('*', (req, res) => {
-  // In production, serve the built React app
-  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    // Fallback to a simple HTML response if frontend not built
-    res.status(200).send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>PulseDeck - Loading</title>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-        </head>
-        <body>
-          <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
-            <div style="text-align: center;">
-              <h1>PulseDeck</h1>
-              <p>Application is starting up...</p>
-              <p>If this persists, please check the server logs.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `);
-  }
-});
-
 // ================================
 // SERVER STARTUP
 // ================================
@@ -5464,7 +5434,7 @@ app.get('*', (req, res) => {
   }
   
   // Serve index.html for all other routes (SPA routing)
-  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
+  const indexPath = path.join(__dirname, '../../vitereact/dist/index.html');
   
   if (fs.existsSync(indexPath)) {
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');
