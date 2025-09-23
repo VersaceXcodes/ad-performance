@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { app, pool } from './server.js';
+import { app, pool } from './server';
 import jwt from 'jsonwebtoken';
 
 // Test data constants
