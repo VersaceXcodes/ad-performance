@@ -391,7 +391,9 @@ app.use((req, res, next) => {
 });
 
 // Serve static files from the 'dist' directory with proper headers
-app.use(express.static(path.join(__dirname, '../vitereact/dist'), {
+const staticPath = path.join(__dirname, '../../vitereact/dist');
+
+app.use(express.static(staticPath, {
   maxAge: '1d',
   etag: true,
   lastModified: true,
@@ -457,7 +459,7 @@ app.get('/health', async (req, res) => {
   }
 
   // Check static files
-  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
+  const indexPath = path.join(__dirname, '../../vitereact/dist/index.html');
   if (fs.existsSync(indexPath)) {
     healthCheck.checks.static_files = true;
   }
@@ -580,8 +582,8 @@ app.get('/api/test/validate', (req, res) => {
         message: 'Database connection not tested in this endpoint'
       },
       static_files: {
-        status: fs.existsSync(path.join(__dirname, '../vitereact/dist/index.html')) ? 'pass' : 'fail',
-        message: fs.existsSync(path.join(__dirname, '../vitereact/dist/index.html')) ? 'Static files available' : 'Static files missing'
+        status: fs.existsSync(path.join(__dirname, '../../vitereact/dist/index.html')) ? 'pass' : 'fail',
+        message: fs.existsSync(path.join(__dirname, '../../vitereact/dist/index.html')) ? 'Static files available' : 'Static files missing'
       },
       environment: {
         status: 'pass',
@@ -5367,7 +5369,7 @@ app.use('/api/*', (req, res) => {
 // ================================
 
 // Serve static files from the vitereact build directory
-app.use(express.static(path.join(__dirname, '../vitereact/dist')));
+app.use(express.static(path.join(__dirname, '../../vitereact/dist')));
 
 // ================================
 // SERVER STARTUP
@@ -5437,7 +5439,9 @@ app.get('*', (req, res) => {
   }
   
   // Serve index.html for all other routes (SPA routing)
-  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
+  const indexPath = process.env.NODE_ENV === 'production' 
+    ? path.join(__dirname, 'public/index.html')
+    : path.join(__dirname, '../../vitereact/dist/index.html');
   
   if (fs.existsSync(indexPath)) {
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');

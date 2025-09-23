@@ -2,12 +2,7 @@ module.exports = {
   "preset": "ts-jest/presets/default-esm",
   "testEnvironment": "node",
   "extensionsToTreatAsEsm": [".ts"],
-  "globals": {
-    "ts-jest": {
-      "useESM": true
-    }
-  },
-  "moduleNameMapping": {
+  "moduleNameMapper": {
     "^(\\.{1,2}/.*)\\.js$": "$1"
   },
 
@@ -45,6 +40,10 @@ module.exports = {
       "useESM": true
     }]
   },
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "/dist/"
+  ],
   "transformIgnorePatterns": [
     "node_modules/(?!(module-that-needs-to-be-transformed)/)"
   ]

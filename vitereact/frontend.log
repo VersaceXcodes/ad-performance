@@ -1,10 +1,9 @@
 
 > conductor@0.0.0 dev
-> vite --host 0.0.0.0 --port 5173
+> vite
 
-Re-optimizing dependencies because lockfile has changed
 
-  VITE v5.4.20  ready in 486 ms
+  VITE v5.4.20  ready in 202 ms
 
   ➜  Local:   http://localhost:5173/
-  ➜  Network: http://172.20.9.196:5173/
+  ➜  Network: http://172.20.32.32:5173/

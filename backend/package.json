@@ -7,7 +7,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec \"tsx\" server.ts",
+    "start": "node dist/server.js",
+    "start:dev": "nodemon --exec \"tsx\" server.ts",
     "build": "tsc",
     "dev": "tsx server.ts",
     "test": "jest",

@@ -11,43 +11,18 @@ Pipe 3000 is already in use
 [31m[nodemon] app crashed - waiting for file changes before starting...[39m
 [32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] starting `tsx server.ts`[39m
-Server running on port 3000
-Health check: http://localhost:3000/health
-API status: http://localhost:3000/api/status
-Environment: development
-Database connection successful
-Database connected successfully
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:14:59 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ HEAD / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:15:02 +0000] "HEAD / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:15:04 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:15:05 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ HEAD / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:15:06 +0000] "HEAD / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:15:11 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-SIGTERM received, shutting down gracefully
- curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:12:48 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ GET /health - 127.0.0.1 - curl/7.88.1
-← GET /health - 200 - 636ms - JSON
-← GET /health - 200 - 636ms
-127.0.0.1 - - [23/Sep/2025:02:13:19 +0000] "GET /health HTTP/1.1" 200 430 "-" "curl/7.88.1"
-→ GET /api/status - 127.0.0.1 - curl/7.88.1
-← GET /api/status - 200 - 93ms - JSON
-← GET /api/status - 200 - 94ms
-127.0.0.1 - - [23/Sep/2025:02:13:19 +0000] "GET /api/status HTTP/1.1" 200 151 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:13:34 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:14:03 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:14:04 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:14:34 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
+Pipe 3000 is already in use
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `tsx server.ts`[39m
+Pipe 3000 is already in use
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `tsx server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `tsx server.ts`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `tsx server.ts`[39m
 [32m[nodemon] restarting due to changes...[39m
 [32m[nodemon] starting `tsx server.ts`[39m
 Pipe 3000 is already in use
