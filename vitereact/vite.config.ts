@@ -35,7 +35,7 @@ export default defineConfig({
 	],
 	server: {
 		host: true,
-		allowedHosts: ['.launchpulse.ai', '.trycloudflare.com', 'localhost'],
+		allowedHosts: ['.launchpulse.ai', '.trycloudflare.com', 'localhost', '123ad-performance.launchpulse.ai'],
 	},
 	resolve: {
 		alias: {
@@ -45,5 +45,20 @@ export default defineConfig({
 	},
 	build: {
 		outDir: "dist",
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					vendor: ['react', 'react-dom'],
+					ui: ['@radix-ui/react-accordion', '@radix-ui/react-alert-dialog', '@radix-ui/react-avatar', '@radix-ui/react-button', '@radix-ui/react-card', '@radix-ui/react-checkbox', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-form', '@radix-ui/react-input', '@radix-ui/react-label', '@radix-ui/react-popover', '@radix-ui/react-select', '@radix-ui/react-separator', '@radix-ui/react-sheet', '@radix-ui/react-switch', '@radix-ui/react-tabs', '@radix-ui/react-textarea', '@radix-ui/react-toast', '@radix-ui/react-tooltip'],
+					router: ['react-router-dom'],
+					query: ['@tanstack/react-query'],
+					redux: ['@reduxjs/toolkit', 'react-redux', 'redux', 'redux-persist', 'redux-thunk'],
+					charts: ['recharts'],
+					icons: ['lucide-react', '@heroicons/react'],
+					utils: ['axios', 'clsx', 'tailwind-merge', 'date-fns', 'zod']
+				}
+			}
+		},
+		chunkSizeWarningLimit: 1000
 	},
 });
