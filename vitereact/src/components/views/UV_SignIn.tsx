@@ -43,7 +43,7 @@ const UV_SignIn: React.FC = () => {
     if (errorMessage) {
       clearAuthError();
     }
-  }, [credentials.email, credentials.password, clearAuthError]);
+  }, [credentials.email, credentials.password, clearAuthError, errorMessage]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +58,7 @@ const UV_SignIn: React.FC = () => {
       await loginUser(credentials.email, credentials.password);
       // Reset failed attempts on successful login
       setFailedAttempts(0);
-    } catch (error) {
+    } catch {
       // Increment failed attempts for rate limiting display
       setFailedAttempts(prev => prev + 1);
     }

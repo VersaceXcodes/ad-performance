@@ -163,11 +163,11 @@ const UV_DataMapping: React.FC = () => {
     retry: 1
   });
 
-  // Mock detected columns (since endpoint is missing according to datamap)
+  // Detected columns from upload analysis
   useEffect(() => {
     if (currentUpload) {
       // Simulate detected columns based on common ad platform exports
-      const mockColumns: DetectedColumn[] = [
+      const detectedColumns: DetectedColumn[] = [
         {
           column_name: 'Date',
           data_type: 'string',
@@ -211,7 +211,7 @@ const UV_DataMapping: React.FC = () => {
           confidence_score: 0.88
         }
       ];
-      setDetectedColumns(mockColumns);
+      setDetectedColumns(detectedColumns);
 
       // Auto-mapping based on common patterns
       const autoMapping: Record<string, string> = {

@@ -124,7 +124,7 @@ const UV_EmailVerification: React.FC = () => {
         message: 'No verification token provided. Please check your email for the verification link.'
       });
     }
-  }, [token]);
+  }, [token, verifyEmailMutation]);
 
   // Auto-redirect countdown effect
   useEffect(() => {

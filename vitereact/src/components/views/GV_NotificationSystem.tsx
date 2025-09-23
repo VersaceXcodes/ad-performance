@@ -87,10 +87,11 @@ const GV_NotificationSystem: React.FC = () => {
         return <AlertCircle className={`${iconSize} text-red-500`} />;
       case 'warning':
         return <AlertTriangle className={`${iconSize} text-yellow-500`} />;
-      case 'alert':
+      case 'alert': {
         const alertColor = severity === 'urgent' || severity === 'high' ? 'text-red-500' : 
                           severity === 'normal' ? 'text-yellow-500' : 'text-blue-500';
         return <AlertTriangle className={`${iconSize} ${alertColor}`} />;
+      }
       default:
         return <Info className={`${iconSize} text-blue-500`} />;
     }

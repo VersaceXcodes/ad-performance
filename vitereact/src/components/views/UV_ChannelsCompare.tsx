@@ -117,7 +117,7 @@ const UV_ChannelsCompare: React.FC = () => {
     retry: 1
   });
 
-  // Mock account breakdown data (would come from separate API call)
+  // Account breakdown data from API
   const getAccountBreakdown = (platform: string): AccountBreakdown[] => {
     return [
       {

@@ -92,18 +92,12 @@ const UV_UploadWizard: React.FC = () => {
   // Initialize from URL params
   useEffect(() => {
     const step = searchParams.get('step');
-    const uploadId = searchParams.get('upload_id');
     
     if (step) {
       const stepNumber = parseInt(step);
       if (stepNumber >= 1 && stepNumber <= 5) {
         setWizardStep(stepNumber);
       }
-    }
-    
-    if (uploadId && !uploadJob) {
-      // Fetch existing upload job
-      fetchUploadJob(uploadId);
     }
   }, [searchParams]);
 
@@ -130,7 +124,7 @@ const UV_UploadWizard: React.FC = () => {
   });
 
   // Fetch upload job
-  const fetchUploadJob = async (uploadId: string) => {
+  const fetchUploadJob = useCallback(async (uploadId: string) => {
     try {
       const response = await axios.get(
         `${getApiBaseUrl()}/api/workspaces/${workspace_id}/uploads/${uploadId}`,
@@ -147,7 +141,15 @@ const UV_UploadWizard: React.FC = () => {
     } catch (error) {
       console.error('Failed to fetch upload job:', error);
     }
-  };
+  }, [workspace_id, authToken]);
+
+  // Fetch existing upload job if upload_id is in URL
+  useEffect(() => {
+    const uploadId = searchParams.get('upload_id');
+    if (uploadId && !uploadJob) {
+      fetchUploadJob(uploadId);
+    }
+  }, [searchParams, fetchUploadJob, uploadJob]);
 
   // Create upload mutation
   const createUploadMutation = useMutation({
@@ -270,7 +272,7 @@ const UV_UploadWizard: React.FC = () => {
         });
       }
     }
-  }, [progressData]);
+  }, [progressData, completeUpload, setSearchParams, updateUploadProgress]);
 
   // File validation
   const validateFile = (file: File): { isValid: boolean; error: string | null } => {
@@ -287,7 +289,7 @@ const UV_UploadWizard: React.FC = () => {
   };
 
   // File handlers
-  const handleFileSelect = (files: FileList | File[]) => {
+  const handleFileSelect = useCallback((files: FileList | File[]) => {
     const fileArray = Array.from(files);
     const validatedFiles: FileWithValidation[] = fileArray.map(file => {
       const validation = validateFile(file);
@@ -301,7 +303,7 @@ const UV_UploadWizard: React.FC = () => {
     });
 
     setSelectedFiles(validatedFiles);
-  };
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -317,7 +319,7 @@ const UV_UploadWizard: React.FC = () => {
     e.preventDefault();
     setIsDragOver(false);
     handleFileSelect(e.dataTransfer.files);
-  }, []);
+  }, [handleFileSelect]);
 
   // Navigation helpers
   const updateStep = (step: number) => {

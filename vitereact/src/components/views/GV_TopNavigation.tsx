@@ -178,29 +178,33 @@ const GV_TopNavigation: React.FC = () => {
       case 'today':
         dateFrom = dateTo = today.toISOString().split('T')[0];
         break;
-      case 'yesterday':
+      case 'yesterday': {
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         dateFrom = dateTo = yesterday.toISOString().split('T')[0];
         break;
-      case 'last_7_days':
+      }
+      case 'last_7_days': {
         const weekAgo = new Date(today);
         weekAgo.setDate(weekAgo.getDate() - 7);
         dateFrom = weekAgo.toISOString().split('T')[0];
         dateTo = today.toISOString().split('T')[0];
         break;
-      case 'last_30_days':
+      }
+      case 'last_30_days': {
         const monthAgo = new Date(today);
         monthAgo.setDate(monthAgo.getDate() - 30);
         dateFrom = monthAgo.toISOString().split('T')[0];
         dateTo = today.toISOString().split('T')[0];
         break;
-      case 'last_90_days':
+      }
+      case 'last_90_days': {
         const quarterAgo = new Date(today);
         quarterAgo.setDate(quarterAgo.getDate() - 90);
         dateFrom = quarterAgo.toISOString().split('T')[0];
         dateTo = today.toISOString().split('T')[0];
         break;
+      }
       default:
         break;
     }

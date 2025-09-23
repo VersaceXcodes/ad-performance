@@ -173,7 +173,8 @@ const UV_Creatives: React.FC = () => {
     platformFilter.selected_platforms,
     dateRangeFilter.date_from,
     dateRangeFilter.date_to,
-    searchQuery
+    searchQuery,
+    searchParams
   ]);
 
   // React Query
