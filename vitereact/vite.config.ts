@@ -39,11 +39,11 @@ export default defineConfig({
 		allowedHosts: ['.launchpulse.ai', '.trycloudflare.com', 'localhost', '123ad-performance.launchpulse.ai'],
 		proxy: {
 			'/api': {
-				target: 'http://localhost:3001',
+				target: 'http://localhost:3000',
 				changeOrigin: true,
 			},
 			'/health': {
-				target: 'http://localhost:3001',
+				target: 'http://localhost:3000',
 				changeOrigin: true,
 			}
 		}

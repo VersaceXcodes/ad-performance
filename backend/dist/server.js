@@ -4881,40 +4881,45 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     process.exit(1);
 });
-const server = app.listen(port, '0.0.0.0', () => {
-    console.log(`Server running on port ${port}`);
-    console.log(`Health check: http://localhost:${port}/health`);
-    console.log(`API status: http://localhost:${port}/api/status`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    // Test database connection on startup
-    pool.connect()
-        .then(client => {
-        console.log('Database connection successful');
-        client.release();
-    })
-        .catch(err => {
-        console.error('Database connection failed:', err);
+// Only start server if this file is run directly (not imported for testing)
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+let server;
+if (isMainModule) {
+    server = app.listen(port, '0.0.0.0', () => {
+        console.log(`Server running on port ${port}`);
+        console.log(`Health check: http://localhost:${port}/health`);
+        console.log(`API status: http://localhost:${port}/api/status`);
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+        // Test database connection on startup
+        pool.connect()
+            .then(client => {
+            console.log('Database connection successful');
+            client.release();
+        })
+            .catch(err => {
+            console.error('Database connection failed:', err);
+        });
     });
-});
-// Handle server errors
-server.on('error', (error) => {
-    if (error.syscall !== 'listen') {
-        throw error;
-    }
-    const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
-    switch (error.code) {
-        case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
-            process.exit(1);
-            break;
-        case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
-            process.exit(1);
-            break;
-        default:
+    // Handle server errors
+    server.on('error', (error) => {
+        if (error.syscall !== 'listen') {
             throw error;
-    }
-});
+        }
+        const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+        switch (error.code) {
+            case 'EACCES':
+                console.error(bind + ' requires elevated privileges');
+                process.exit(1);
+                break;
+            case 'EADDRINUSE':
+                console.error(bind + ' is already in use');
+                process.exit(1);
+                break;
+            default:
+                throw error;
+        }
+    });
+}
 // Export for testing
 export { app, pool };
 //# sourceMappingURL=server.js.map
