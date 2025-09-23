@@ -113,7 +113,7 @@ const formatNumber = (value: number): string => {
   return new Intl.NumberFormat('en-US').format(value);
 };
 
-const getPerformanceColor = (roas: number | null, cpa: number | null): string => {
+const getPerformanceColor = (roas: number | null): string => {
   if (roas === null) return 'text-gray-500';
   if (roas >= 3.0) return 'text-green-600';
   if (roas >= 2.0) return 'text-yellow-600';
@@ -142,7 +142,6 @@ const UV_Creatives: React.FC = () => {
 
   // Zustand store selectors
   const authToken = useAppStore(state => state.authentication_state.auth_token);
-  const currentWorkspace = useAppStore(state => state.current_workspace);
   const dateRangeFilter = useAppStore(state => state.date_range_filter);
   const platformFilter = useAppStore(state => state.platform_filter);
 
@@ -206,11 +205,7 @@ const UV_Creatives: React.FC = () => {
     updateUrlParam('performance_filter', filter === 'all' ? '' : filter);
   };
 
-  const handleSortChange = (newSortBy: SortBy) => {
-    const newOrder = sortBy === newSortBy && sortOrder === 'desc' ? 'asc' : 'desc';
-    updateUrlParam('sort_by', newSortBy);
-    updateUrlParam('sort_order', newOrder);
-  };
+
 
   const openCreativeModal = (creative: CreativePerformance) => {
     setSelectedCreative(creative);
@@ -407,7 +402,7 @@ const UV_Creatives: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredCreatives.map((creative) => {
                 const performanceRank = getPerformanceRank(creative);
-                const performanceColor = getPerformanceColor(creative.avg_roas, creative.avg_cpa);
+                const performanceColor = getPerformanceColor(creative.avg_roas);
                 
                 return (
                   <div
@@ -608,7 +603,7 @@ const UV_Creatives: React.FC = () => {
                       </div>
                       <div className="bg-gray-50 rounded-lg p-4">
                         <p className="text-sm text-gray-500">ROAS</p>
-                        <p className={`text-xl font-semibold ${getPerformanceColor(selectedCreative.avg_roas, selectedCreative.avg_cpa)}`}>
+                        <p className={`text-xl font-semibold ${getPerformanceColor(selectedCreative.avg_roas)}`}>
                           {selectedCreative.avg_roas ? `${selectedCreative.avg_roas.toFixed(2)}x` : 'N/A'}
                         </p>
                       </div>

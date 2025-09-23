@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@/store/main';
 import axios from 'axios';
@@ -82,7 +82,6 @@ const UV_Alerts: React.FC = () => {
   // Zustand state - individual selectors to prevent infinite loops
   const authToken = useAppStore(state => state.authentication_state.auth_token);
   const currentUser = useAppStore(state => state.authentication_state.current_user);
-  const currentWorkspace = useAppStore(state => state.current_workspace);
   const addToastNotification = useAppStore(state => state.add_toast_notification);
 
   // Local state

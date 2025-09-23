@@ -61,13 +61,10 @@ const ALLOWED_TYPES = ['.csv', '.xlsx'];
 const UV_UploadWizard: React.FC = () => {
   const { workspace_id } = useParams<{ workspace_id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Global state
   const authToken = useAppStore(state => state.authentication_state.auth_token);
-  const currentWorkspace = useAppStore(state => state.current_workspace);
   const addActiveUpload = useAppStore(state => state.add_active_upload);
   const updateUploadProgress = useAppStore(state => state.update_upload_progress);
   const completeUpload = useAppStore(state => state.complete_upload);

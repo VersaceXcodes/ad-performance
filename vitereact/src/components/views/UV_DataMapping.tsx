@@ -73,7 +73,6 @@ const UV_DataMapping: React.FC = () => {
 
   // URL parameters
   const upload_id = searchParams.get('upload_id');
-  const template_id = searchParams.get('template_id');
 
   // Global state
   const authToken = useAppStore(state => state.authentication_state.auth_token);

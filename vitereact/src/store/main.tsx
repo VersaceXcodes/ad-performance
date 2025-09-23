@@ -215,7 +215,7 @@ export const useAppStore = create<AppStore>()(
       // AUTHENTICATION ACTIONS
       // ========================
       login_user: async (email: string, password: string) => {
-        set((state) => ({
+        set(() => ({
           authentication_state: {
             ...state.authentication_state,
             authentication_status: {
@@ -235,7 +235,7 @@ export const useAppStore = create<AppStore>()(
 
           const { user, token, workspace } = response.data;
 
-          set((state) => ({
+          set(() => ({
             authentication_state: {
               current_user: user,
               auth_token: token,
@@ -259,7 +259,7 @@ export const useAppStore = create<AppStore>()(
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || error.message || 'Login failed';
           
-          set((state) => ({
+          set(() => ({
             authentication_state: {
               current_user: null,
               auth_token: null,
@@ -275,7 +275,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       register_user: async (email: string, password: string, name: string) => {
-        set((state) => ({
+        set(() => ({
           authentication_state: {
             ...state.authentication_state,
             authentication_status: {
@@ -295,7 +295,7 @@ export const useAppStore = create<AppStore>()(
 
           const { user, token, workspace } = response.data;
 
-          set((state) => ({
+          set(() => ({
             authentication_state: {
               current_user: user,
               auth_token: token,
@@ -319,7 +319,7 @@ export const useAppStore = create<AppStore>()(
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
           
-          set((state) => ({
+          set(() => ({
             authentication_state: {
               current_user: null,
               auth_token: null,
@@ -339,7 +339,7 @@ export const useAppStore = create<AppStore>()(
         const token = authentication_state.auth_token;
         
         if (!token) {
-          set((state) => ({
+          set(() => ({
             authentication_state: {
               ...state.authentication_state,
               authentication_status: {
@@ -359,7 +359,7 @@ export const useAppStore = create<AppStore>()(
 
           const user = response.data;
           
-          set((state) => ({
+          set(() => ({
             authentication_state: {
               current_user: user,
               auth_token: token,
@@ -376,7 +376,7 @@ export const useAppStore = create<AppStore>()(
 
         } catch (error) {
           // Token is invalid, clear auth state
-          set((state) => ({
+          set(() => ({
             authentication_state: {
               current_user: null,
               auth_token: null,
@@ -395,7 +395,7 @@ export const useAppStore = create<AppStore>()(
         // Disconnect WebSocket before logout
         get().disconnect_websocket();
 
-        set((state) => ({
+        set(() => ({
           authentication_state: {
             current_user: null,
             auth_token: null,
@@ -419,7 +419,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       clear_auth_error: () => {
-        set((state) => ({
+        set(() => ({
           authentication_state: {
             ...state.authentication_state,
             error_message: null,
@@ -428,7 +428,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       update_user_profile: (userData: Partial<User>) => {
-        set((state) => ({
+        set(() => ({
           authentication_state: {
             ...state.authentication_state,
             current_user: state.authentication_state.current_user 
@@ -492,7 +492,7 @@ export const useAppStore = create<AppStore>()(
       // FILTER ACTIONS
       // ========================
       update_date_range: (date_from: string | null, date_to: string | null, preset?: string | null) => {
-        set((state) => ({
+        set(() => ({
           date_range_filter: {
             ...state.date_range_filter,
             date_from,
@@ -503,7 +503,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       update_comparison_mode: (mode: string | null) => {
-        set((state) => ({
+        set(() => ({
           date_range_filter: {
             ...state.date_range_filter,
             comparison_mode: mode,
@@ -512,7 +512,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       update_platform_filter: (platforms: string[], accounts: string[] = []) => {
-        set((state) => ({
+        set(() => ({
           platform_filter: {
             selected_platforms: platforms,
             selected_accounts: accounts,
@@ -544,7 +544,7 @@ export const useAppStore = create<AppStore>()(
           id: generateId(),
         };
 
-        set((state) => ({
+        set(() => ({
           notification_state: {
             ...state.notification_state,
             alerts: [newAlert, ...state.notification_state.alerts],
@@ -558,7 +558,7 @@ export const useAppStore = create<AppStore>()(
           id: generateId(),
         };
 
-        set((state) => ({
+        set(() => ({
           notification_state: {
             ...state.notification_state,
             toast_notifications: [newToast, ...state.notification_state.toast_notifications],
@@ -574,7 +574,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       mark_alert_as_read: (alert_id: string) => {
-        set((state) => ({
+        set(() => ({
           notification_state: {
             ...state.notification_state,
             alerts: state.notification_state.alerts.map(alert =>
@@ -585,7 +585,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       remove_toast_notification: (toast_id: string) => {
-        set((state) => ({
+        set(() => ({
           notification_state: {
             ...state.notification_state,
             toast_notifications: state.notification_state.toast_notifications.filter(
@@ -596,7 +596,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       clear_all_notifications: () => {
-        set((state) => ({
+        set(() => ({
           notification_state: {
             alerts: [],
             toast_notifications: [],
@@ -608,7 +608,7 @@ export const useAppStore = create<AppStore>()(
       // UPLOAD ACTIONS
       // ========================
       add_active_upload: (upload: UploadProgress) => {
-        set((state) => ({
+        set(() => ({
           upload_state: {
             ...state.upload_state,
             active_uploads: [upload, ...state.upload_state.active_uploads],
@@ -617,7 +617,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       update_upload_progress: (upload_id: string, progress: number, status: string) => {
-        set((state) => ({
+        set(() => ({
           upload_state: {
             ...state.upload_state,
             active_uploads: state.upload_state.active_uploads.map(upload =>
@@ -639,7 +639,7 @@ export const useAppStore = create<AppStore>()(
             completed_at: new Date().toISOString(),
           };
 
-          set((state) => ({
+          set(() => ({
             upload_state: {
               active_uploads: state.upload_state.active_uploads.filter(upload => upload.id !== upload_id),
               recent_uploads: [recentUpload, ...state.upload_state.recent_uploads.slice(0, 4)], // Keep last 5
@@ -649,7 +649,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       remove_active_upload: (upload_id: string) => {
-        set((state) => ({
+        set(() => ({
           upload_state: {
             ...state.upload_state,
             active_uploads: state.upload_state.active_uploads.filter(upload => upload.id !== upload_id),
@@ -727,7 +727,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       handle_upload_progress: (data: any) => {
-        const { id, progress, status, filename, platform } = data;
+        const { id, progress, status } = data;
         
         if (status === 'completed' || status === 'failed') {
           get().complete_upload(id, status);

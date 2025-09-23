@@ -38,7 +38,6 @@ const GV_Sidebar: React.FC = () => {
   // Global state - individual selectors to prevent infinite loops
   const currentWorkspace = useAppStore(state => state.current_workspace);
   const authToken = useAppStore(state => state.authentication_state.auth_token);
-  const currentUser = useAppStore(state => state.authentication_state.current_user);
 
   // Determine active page from current route
   const getActivePage = (): string => {
@@ -155,7 +154,7 @@ const GV_Sidebar: React.FC = () => {
 
   // Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = () => {
       if (helpDropdownOpen) {
         setHelpDropdownOpen(false);
       }

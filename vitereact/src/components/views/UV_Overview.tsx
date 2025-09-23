@@ -11,8 +11,6 @@ import {
   DocumentArrowDownIcon,
   BellIcon,
   ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  EyeIcon,
   ExclamationTriangleIcon,
   ChartBarIcon,
   ArrowUpIcon
@@ -186,7 +184,7 @@ const UV_Overview: React.FC = () => {
     staleTime: 5 * 60 * 1000
   });
 
-  const { data: anomalies, isLoading: isLoadingAnomalies } = useQuery({
+  const { data: anomalies } = useQuery({
     queryKey: ['anomalies', workspace_id, queryParams],
     queryFn: async () => {
       const response = await axios.get(

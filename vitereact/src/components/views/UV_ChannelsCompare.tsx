@@ -56,7 +56,6 @@ const UV_ChannelsCompare: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Global state - individual selectors to prevent infinite loops
-  const currentWorkspace = useAppStore(state => state.current_workspace);
   const dateRangeFilter = useAppStore(state => state.date_range_filter);
   const platformFilter = useAppStore(state => state.platform_filter);
   
@@ -230,7 +229,7 @@ const UV_ChannelsCompare: React.FC = () => {
   };
 
   // Get performance badge
-  const getPerformanceBadge = (platform: string, roas: number) => {
+  const getPerformanceBadge = (platform: string) => {
     if (!performanceAnalysis) return null;
     
     if (platform === performanceAnalysis.topPerformer.platform) {
@@ -550,7 +549,7 @@ const UV_ChannelsCompare: React.FC = () => {
                         </td>
                         
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {getPerformanceBadge(platform.platform, platform.roas)}
+                          {getPerformanceBadge(platform.platform)}
                         </td>
                       </tr>
 

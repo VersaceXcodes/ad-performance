@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from '@/store/main';
@@ -53,8 +53,6 @@ const UV_Uploads: React.FC = () => {
 
   // Global state access - individual selectors
   const authToken = useAppStore(state => state.authentication_state.auth_token);
-  const currentUser = useAppStore(state => state.authentication_state.current_user);
-  const currentWorkspace = useAppStore(state => state.current_workspace);
   const globalUploadState = useAppStore(state => state.upload_state);
 
   // Local state

@@ -34,14 +34,7 @@ interface NotificationResponse {
   }>;
 }
 
-interface WorkspaceDetailResponse {
-  id: string;
-  name: string;
-  default_currency: string;
-  timezone: string;
-  created_at: string;
-  updated_at: string;
-}
+
 
 const GV_TopNavigation: React.FC = () => {
   // Local state for dropdown visibility

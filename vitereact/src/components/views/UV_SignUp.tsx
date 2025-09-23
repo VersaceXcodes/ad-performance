@@ -76,7 +76,7 @@ const UV_SignUp: React.FC = () => {
 
       setEmailCheckLoading(true);
       try {
-        const response = await axios.get(
+        await axios.get(
           `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/users/check-email`,
           { params: { email } }
         );

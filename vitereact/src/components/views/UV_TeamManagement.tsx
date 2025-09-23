@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -6,21 +6,16 @@ import { useAppStore } from '@/store/main';
 import { 
   Users, 
   UserPlus, 
-  Settings, 
   Shield, 
   Activity, 
   Mail, 
-  MoreVertical, 
-  Edit3, 
   Trash2, 
   Download, 
-  Filter, 
   Search,
   CheckCircle,
   XCircle,
   Clock,
   AlertTriangle,
-  Eye,
   FileText
 } from 'lucide-react';
 
@@ -79,14 +74,7 @@ interface InvitationFormData {
   };
 }
 
-interface LoadingStates {
-  members: boolean;
-  invitations: boolean;
-  audit_logs: boolean;
-  updating_role: boolean;
-  removing_member: boolean;
-  sending_invitation: boolean;
-}
+
 
 // ========================
 // API FUNCTIONS

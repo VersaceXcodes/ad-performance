@@ -35,7 +35,7 @@ const GV_Footer: React.FC = () => {
   });
 
   // API status check using React Query
-  const { data: apiHealthData, isError: isApiError } = useQuery({
+  const { data: apiHealthData } = useQuery({
     queryKey: ['api-status-check'],
     queryFn: async () => {
       const startTime = performance.now();

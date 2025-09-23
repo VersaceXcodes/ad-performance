@@ -5,36 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle, ExternalLink } from 'lucide-react';
 
-// Interfaces for notification types
-interface ToastNotification {
-  id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  title: string;
-  message: string;
-  duration?: number;
-  auto_dismiss: boolean;
-  actions?: Array<{
-    label: string;
-    action: string;
-  }>;
-}
 
-interface AlertBanner {
-  id: string;
-  type: 'alert' | 'system' | 'info' | 'warning';
-  message: string;
-  severity: 'low' | 'normal' | 'high' | 'urgent';
-  dismissible: boolean;
-  action_url?: string | null;
-}
-
-interface ProcessingIndicator {
-  id: string;
-  type: 'upload' | 'export' | 'processing';
-  message: string;
-  progress: number;
-  estimated_completion?: string | null;
-}
 
 const GV_NotificationSystem: React.FC = () => {
   // Zustand selectors - individual selectors to prevent infinite loops
@@ -73,7 +44,7 @@ const GV_NotificationSystem: React.FC = () => {
   useEffect(() => {
     toastNotifications.forEach(notification => {
       if (notification.auto_dismiss) {
-        const duration = notification.duration || 5000;
+        const duration = 5000;
         const timer = setTimeout(() => {
           removeToastNotification(notification.id);
         }, duration);
@@ -189,28 +160,9 @@ const GV_NotificationSystem: React.FC = () => {
               </div>
               
               <div className="ml-3 flex-1">
-                {notification.title && (
-                  <h4 className="text-sm font-medium text-gray-900 mb-1">
-                    {notification.title}
-                  </h4>
-                )}
                 <p className="text-sm text-gray-600">
                   {notification.message}
                 </p>
-                
-                {notification.actions && notification.actions.length > 0 && (
-                  <div className="mt-3 flex space-x-2">
-                    {notification.actions.map((action, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleNotificationAction(action.action)}
-                        className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded transition-colors duration-200"
-                      >
-                        {action.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
               
               <div className="ml-4 flex-shrink-0">
@@ -256,16 +208,6 @@ const GV_NotificationSystem: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    {alert.action_url && (
-                      <Link
-                        to={alert.action_url}
-                        className="inline-flex items-center text-sm font-medium underline hover:no-underline"
-                      >
-                        View Details
-                        <ExternalLink className="ml-1 h-3 w-3" />
-                      </Link>
-                    )}
-                    
                     <button
                       onClick={() => handleDismissAlert(alert.id)}
                       className="rounded-md inline-flex text-current hover:text-opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-current"
@@ -324,7 +266,7 @@ const GV_NotificationSystem: React.FC = () => {
       )}
 
       {/* Custom CSS for animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes slide-in-right {
           from {
             transform: translateX(100%);

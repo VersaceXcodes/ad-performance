@@ -26,7 +26,6 @@ const UV_Landing: React.FC = () => {
   const navigate = useNavigate();
   
   // Individual Zustand selectors to avoid infinite loops
-  const currentUser = useAppStore(state => state.authentication_state.current_user);
   const authToken = useAppStore(state => state.authentication_state.auth_token);
   
   // Local state for demo creation

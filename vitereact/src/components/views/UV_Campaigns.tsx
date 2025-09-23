@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useCallback } from 'react';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAppStore } from '@/store/main';
@@ -13,12 +13,10 @@ import {
   Play,
   Pause,
   Download,
-  Eye,
   TrendingUp,
   TrendingDown,
   Minus,
-  Plus,
-  X
+  Plus
 } from 'lucide-react';
 
 // Types based on Zod schemas
@@ -101,21 +99,16 @@ interface CampaignsResponse {
 const UV_Campaigns: React.FC = () => {
   const { workspace_id, campaign_id } = useParams<{ workspace_id: string; campaign_id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // Global state selectors - individual selectors to prevent infinite loops
-  const currentUser = useAppStore(state => state.authentication_state.current_user);
   const authToken = useAppStore(state => state.authentication_state.auth_token);
-  const currentWorkspace = useAppStore(state => state.current_workspace);
-  const dateRangeFilter = useAppStore(state => state.date_range_filter);
   const platformFilter = useAppStore(state => state.platform_filter);
   const addToastNotification = useAppStore(state => state.add_toast_notification);
 
   // Local state
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search_query') || '');
   const [expandedCampaigns, setExpandedCampaigns] = useState<Set<string>>(new Set());
-  const [expandedAdSets, setExpandedAdSets] = useState<Set<string>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
 
@@ -166,27 +159,7 @@ const UV_Campaigns: React.FC = () => {
     return response.data;
   };
 
-  const fetchAdSets = async (campaignId: string) => {
-    if (!workspace_id || !authToken) throw new Error('Missing workspace or auth token');
 
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/workspaces/${workspace_id}/campaigns/${campaignId}/adsets`,
-      { headers: { Authorization: `Bearer ${authToken}` } }
-    );
-
-    return response.data;
-  };
-
-  const fetchAds = async (adsetId: string) => {
-    if (!workspace_id || !authToken) throw new Error('Missing workspace or auth token');
-
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/workspaces/${workspace_id}/adsets/${adsetId}/ads`,
-      { headers: { Authorization: `Bearer ${authToken}` } }
-    );
-
-    return response.data;
-  };
 
   // React Query hooks
   const campaignsQuery = useQuery({
@@ -250,18 +223,7 @@ const UV_Campaigns: React.FC = () => {
     });
   }, []);
 
-  // Handle ad set expansion
-  const toggleAdSetExpansion = useCallback((adsetId: string) => {
-    setExpandedAdSets(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(adsetId)) {
-        newSet.delete(adsetId);
-      } else {
-        newSet.add(adsetId);
-      }
-      return newSet;
-    });
-  }, []);
+
 
   // Handle item selection
   const toggleItemSelection = useCallback((itemId: string) => {
