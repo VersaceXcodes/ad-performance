@@ -215,7 +215,7 @@ export const useAppStore = create<AppStore>()(
       // AUTHENTICATION ACTIONS
       // ========================
       login_user: async (email: string, password: string) => {
-        set(() => ({
+        set((state) => ({
           authentication_state: {
             ...state.authentication_state,
             authentication_status: {
@@ -275,7 +275,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       register_user: async (email: string, password: string, name: string) => {
-        set(() => ({
+        set((state) => ({
           authentication_state: {
             ...state.authentication_state,
             authentication_status: {
@@ -339,7 +339,7 @@ export const useAppStore = create<AppStore>()(
         const token = authentication_state.auth_token;
         
         if (!token) {
-          set(() => ({
+          set((state) => ({
             authentication_state: {
               ...state.authentication_state,
               authentication_status: {
@@ -419,7 +419,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       clear_auth_error: () => {
-        set(() => ({
+        set((state) => ({
           authentication_state: {
             ...state.authentication_state,
             error_message: null,
@@ -428,7 +428,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       update_user_profile: (userData: Partial<User>) => {
-        set(() => ({
+        set((state) => ({
           authentication_state: {
             ...state.authentication_state,
             current_user: state.authentication_state.current_user 
@@ -492,7 +492,7 @@ export const useAppStore = create<AppStore>()(
       // FILTER ACTIONS
       // ========================
       update_date_range: (date_from: string | null, date_to: string | null, preset?: string | null) => {
-        set(() => ({
+        set((state) => ({
           date_range_filter: {
             ...state.date_range_filter,
             date_from,
@@ -503,7 +503,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       update_comparison_mode: (mode: string | null) => {
-        set(() => ({
+        set((state) => ({
           date_range_filter: {
             ...state.date_range_filter,
             comparison_mode: mode,
@@ -544,7 +544,7 @@ export const useAppStore = create<AppStore>()(
           id: generateId(),
         };
 
-        set(() => ({
+        set((state) => ({
           notification_state: {
             ...state.notification_state,
             alerts: [newAlert, ...state.notification_state.alerts],
@@ -558,7 +558,7 @@ export const useAppStore = create<AppStore>()(
           id: generateId(),
         };
 
-        set(() => ({
+        set((state) => ({
           notification_state: {
             ...state.notification_state,
             toast_notifications: [newToast, ...state.notification_state.toast_notifications],
@@ -574,7 +574,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       mark_alert_as_read: (alert_id: string) => {
-        set(() => ({
+        set((state) => ({
           notification_state: {
             ...state.notification_state,
             alerts: state.notification_state.alerts.map(alert =>
@@ -585,7 +585,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       remove_toast_notification: (toast_id: string) => {
-        set(() => ({
+        set((state) => ({
           notification_state: {
             ...state.notification_state,
             toast_notifications: state.notification_state.toast_notifications.filter(
@@ -608,7 +608,7 @@ export const useAppStore = create<AppStore>()(
       // UPLOAD ACTIONS
       // ========================
       add_active_upload: (upload: UploadProgress) => {
-        set(() => ({
+        set((state) => ({
           upload_state: {
             ...state.upload_state,
             active_uploads: [upload, ...state.upload_state.active_uploads],
@@ -617,7 +617,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       update_upload_progress: (upload_id: string, progress: number, status: string) => {
-        set(() => ({
+        set((state) => ({
           upload_state: {
             ...state.upload_state,
             active_uploads: state.upload_state.active_uploads.map(upload =>
@@ -639,7 +639,7 @@ export const useAppStore = create<AppStore>()(
             completed_at: new Date().toISOString(),
           };
 
-          set(() => ({
+          set((state) => ({
             upload_state: {
               active_uploads: state.upload_state.active_uploads.filter(upload => upload.id !== upload_id),
               recent_uploads: [recentUpload, ...state.upload_state.recent_uploads.slice(0, 4)], // Keep last 5
@@ -649,7 +649,7 @@ export const useAppStore = create<AppStore>()(
       },
 
       remove_active_upload: (upload_id: string) => {
-        set(() => ({
+        set((state) => ({
           upload_state: {
             ...state.upload_state,
             active_uploads: state.upload_state.active_uploads.filter(upload => upload.id !== upload_id),
@@ -707,7 +707,7 @@ export const useAppStore = create<AppStore>()(
             });
           });
 
-          set(() => ({ socket: newSocket }));
+          set({ socket: newSocket });
 
         } catch (error) {
           console.error('WebSocket connection failed:', error);
@@ -719,10 +719,10 @@ export const useAppStore = create<AppStore>()(
         
         if (socket) {
           socket.disconnect();
-          set(() => ({
+          set({
             socket: null,
             is_connected: false,
-          }));
+          });
         }
       },
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAppStore } from '@/store/main';
 import axios from 'axios';
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAppStore } from '@/store/main';
 import { 
@@ -150,7 +150,6 @@ const exportTeamData = async (workspaceId: string, authToken: string, format: st
 const UV_TeamManagement: React.FC = () => {
   const { workspace_id } = useParams<{ workspace_id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const queryClient = useQueryClient();
 
   // Global state - using individual selectors to prevent infinite loops
   const authToken = useAppStore(state => state.authentication_state.auth_token);

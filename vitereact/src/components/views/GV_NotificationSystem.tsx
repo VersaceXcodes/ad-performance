@@ -1,9 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { useAppStore } from '@/store/main';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { X, CheckCircle, AlertCircle, Info, AlertTriangle, ExternalLink } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
 
 
@@ -18,7 +17,6 @@ const GV_NotificationSystem: React.FC = () => {
   // Zustand actions
   const removeToastNotification = useAppStore(state => state.remove_toast_notification);
   const markAlertAsRead = useAppStore(state => state.mark_alert_as_read);
-  const addToastNotification = useAppStore(state => state.add_toast_notification);
 
   // API mutation for marking notifications as read
   const markNotificationAsReadMutation = useMutation({
@@ -76,23 +74,7 @@ const GV_NotificationSystem: React.FC = () => {
     }
   }, [markAlertAsRead, currentWorkspace, markNotificationAsReadMutation]);
 
-  // Handle notification actions
-  const handleNotificationAction = useCallback((action: string) => {
-    if (action.startsWith('/')) {
-      // It's a route - this would be handled by the parent component or router
-      window.location.href = action;
-    } else if (action.startsWith('http')) {
-      // External URL
-      window.open(action, '_blank');
-    } else {
-      // Custom action - could trigger other store actions
-      addToastNotification({
-        type: 'info',
-        message: `Action triggered: ${action}`,
-        auto_dismiss: true
-      });
-    }
-  }, [addToastNotification]);
+
 
   // Get icon for notification type
   const getNotificationIcon = (type: string, severity?: string) => {
