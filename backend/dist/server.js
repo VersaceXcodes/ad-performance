@@ -11,7 +11,7 @@ import multer from 'multer';
 import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 // Import Zod schemas
-import { createUserInputSchema, createWorkspaceInputSchema, createAccountInputSchema, createMappingTemplateInputSchema, createAlertRuleInputSchema, createExportJobInputSchema } from './schema.ts';
+import { createUserInputSchema, createWorkspaceInputSchema, createAccountInputSchema, createMappingTemplateInputSchema, createAlertRuleInputSchema, createExportJobInputSchema } from './schema.js';
 dotenv.config();
 // ESM workaround for __dirname
 const __filename = fileURLToPath(import.meta.url);
