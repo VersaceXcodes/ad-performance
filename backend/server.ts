@@ -158,9 +158,30 @@ pool.on('error', (err) => {
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Request logging middleware for debugging
+app.use((req, res, next) => {
+  const start = Date.now();
+  const originalSend = res.send;
+  
+  res.send = function(data) {
+    const duration = Date.now() - start;
+    console.log(`${req.method} ${req.url} - ${res.statusCode} - ${duration}ms - ${req.ip} - ${req.get('User-Agent')?.substring(0, 100) || 'No UA'}`);
+    return originalSend.call(this, data);
+  };
+  
+  next();
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
+  console.error('Unhandled error:', {
+    error: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
   
   if (res.headersSent) {
     return next(err);
@@ -195,9 +216,11 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'X-Forwarded-For'],
+  exposedHeaders: ['Content-Length', 'X-Request-ID'],
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 };
 
 // Middleware
