@@ -16,3 +16,4 @@ Database connected successfully
 ← GET /health - 200 - 5ms - JSON
 ← GET /health - 200 - 5ms
 127.0.0.1 - - [23/Sep/2025:02:43:54 +0000] "GET /health HTTP/1.1" 200 429 "-" "curl/7.88.1"
+SIGTERM received, shutting down gracefully

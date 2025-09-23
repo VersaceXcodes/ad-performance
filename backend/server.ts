@@ -5587,7 +5587,12 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
-const server = app.listen(port, '0.0.0.0', () => {
+// Only start server if this file is run directly (not imported for testing)
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+let server: any;
+
+if (isMainModule) {
+  server = app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
   console.log(`Health check: http://localhost:${port}/health`);
   console.log(`API status: http://localhost:${port}/api/status`);
@@ -5604,8 +5609,8 @@ const server = app.listen(port, '0.0.0.0', () => {
     });
 });
 
-// Handle server errors
-server.on('error', (error: any) => {
+  // Handle server errors
+  server.on('error', (error: any) => {
   if (error.syscall !== 'listen') {
     throw error;
   }
@@ -5624,7 +5629,8 @@ server.on('error', (error: any) => {
     default:
       throw error;
   }
-});
+  });
+}
 
 // Export for testing
 export { app, pool };
