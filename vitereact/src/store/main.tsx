@@ -245,7 +245,7 @@ axios.interceptors.response.use(
       if (status === 401) {
         // Unauthorized - clear auth state
         localStorage.removeItem('pulsedeck-app-storage');
-        window.location.href = '/signin';
+        // window.location.href = '/signin';
         return Promise.reject(new Error('Session expired. Please sign in again.'));
       }
       
