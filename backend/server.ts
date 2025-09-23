@@ -34,7 +34,7 @@ import {
   workspaceInvitationSchema, createWorkspaceInvitationInputSchema, updateWorkspaceInvitationInputSchema, searchWorkspaceInvitationsInputSchema,
   auditLogSchema, createAuditLogInputSchema, searchAuditLogsInputSchema,
   userSessionSchema, createUserSessionInputSchema, updateUserSessionInputSchema, searchUserSessionsInputSchema
-} from './schema.ts';
+} from './schema.js';
 
 dotenv.config();
 
