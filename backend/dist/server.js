@@ -129,18 +129,26 @@ const globalErrorHandler = (err, req, res, next) => {
         url: req.url,
         method: req.method,
         ip: req.ip,
-        userAgent: req.get('User-Agent')
+        userAgent: req.get('User-Agent'),
+        timestamp: new Date().toISOString()
     });
     if (res.headersSent) {
         return next(err);
     }
     // Ensure we always return valid JSON
     try {
-        res.status(500).json(createErrorResponse('Internal server error', process.env.NODE_ENV === 'development' ? err : null, 'INTERNAL_SERVER_ERROR'));
+        // Set proper headers for JSON response
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        const errorResponse = createErrorResponse('Internal server error', process.env.NODE_ENV === 'development' ? err : null, 'INTERNAL_SERVER_ERROR');
+        // Validate that the error response is valid JSON
+        const jsonString = JSON.stringify(errorResponse);
+        res.status(500).send(jsonString);
     }
     catch (jsonError) {
-        // Fallback if JSON serialization fails
-        res.status(500).send('Internal server error');
+        console.error('JSON serialization failed:', jsonError);
+        // Fallback minimal JSON response
+        res.status(500).send('{"success":false,"message":"Internal server error","timestamp":"' + new Date().toISOString() + '"}');
     }
 };
 // CORS Configuration
@@ -4851,14 +4859,58 @@ app.get('/api/debug', (req, res) => {
 });
 // Add global error handler after all routes
 app.use(globalErrorHandler);
+// JSON response validation middleware
+const ensureJsonResponse = (req, res, next) => {
+    const originalJson = res.json;
+    const originalSend = res.send;
+    res.json = function (data) {
+        try {
+            // Ensure proper JSON headers
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            // Validate that data can be serialized to JSON
+            const jsonString = JSON.stringify(data);
+            // Call original json method
+            return originalJson.call(this, data);
+        }
+        catch (error) {
+            console.error('JSON response validation failed:', error);
+            // Fallback to error response
+            const errorResponse = createErrorResponse('Invalid response data', null, 'INVALID_RESPONSE');
+            return originalJson.call(this, errorResponse);
+        }
+    };
+    res.send = function (data) {
+        // If it's an API route, ensure JSON response
+        if (req.path.startsWith('/api/') || req.path === '/health' || req.path === '/ready') {
+            try {
+                // Try to parse as JSON to validate
+                if (typeof data === 'string') {
+                    JSON.parse(data);
+                }
+                res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            }
+            catch (error) {
+                console.error('Invalid JSON in send:', error);
+                const errorResponse = createErrorResponse('Invalid response format', null, 'INVALID_RESPONSE');
+                return originalJson.call(this, errorResponse);
+            }
+        }
+        return originalSend.call(this, data);
+    };
+    next();
+};
+// Apply JSON validation middleware to all routes
+app.use(ensureJsonResponse);
 // 404 handler for API routes
 app.use('/api/*', (req, res) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.status(404).json(createErrorResponse('API endpoint not found', null, 'NOT_FOUND'));
 });
 // Catch-all handler for SPA routing - must be last
 app.get('*', (req, res) => {
     // Don't serve index.html for API routes or health endpoints
     if (req.path.startsWith('/api/') || req.path === '/health' || req.path === '/ready') {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
         return res.status(404).json(createErrorResponse('Endpoint not found', null, 'NOT_FOUND'));
     }
     // Serve index.html for all other routes (SPA routing)
@@ -4869,11 +4921,13 @@ app.get('*', (req, res) => {
         res.sendFile(indexPath, (err) => {
             if (err) {
                 console.error('Error serving index.html:', err);
+                res.setHeader('Content-Type', 'application/json; charset=utf-8');
                 res.status(500).json(createErrorResponse('Internal server error', err, 'INTERNAL_SERVER_ERROR'));
             }
         });
     }
     else {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.status(404).json(createErrorResponse('Page not found', null, 'NOT_FOUND'));
     }
 });
