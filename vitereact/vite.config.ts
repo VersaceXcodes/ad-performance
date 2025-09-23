@@ -35,7 +35,7 @@ export default defineConfig({
 	],
 	server: {
 		host: true,
-		allowedHosts: true,
+		allowedHosts: ['.launchpulse.ai', '.trycloudflare.com', 'localhost'],
 	},
 	resolve: {
 		alias: {
