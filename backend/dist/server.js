@@ -16,6 +16,16 @@ dotenv.config();
 // ESM workaround for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// Determine correct static path (works for both tsx and compiled js)
+const getStaticPath = () => {
+    // If running from dist directory (compiled), use ../../vitereact/dist
+    // If running from source directory (tsx), use ../vitereact/dist
+    const staticPath = __dirname.endsWith('/dist')
+        ? path.join(__dirname, '../../vitereact/dist')
+        : path.join(__dirname, '../vitereact/dist');
+    return staticPath;
+};
+const STATIC_PATH = getStaticPath();
 // Helper function to safely cast query parameters to string
 function getQueryParam(param, defaultValue = '') {
     if (typeof param === 'string')

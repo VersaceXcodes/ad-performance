@@ -76,6 +76,18 @@ declare global {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Determine correct static path (works for both tsx and compiled js)
+const getStaticPath = () => {
+  // If running from dist directory (compiled), use ../../vitereact/dist
+  // If running from source directory (tsx), use ../vitereact/dist
+  const staticPath = __dirname.endsWith('/dist') 
+    ? path.join(__dirname, '../../vitereact/dist')
+    : path.join(__dirname, '../vitereact/dist');
+  return staticPath;
+};
+
+const STATIC_PATH = getStaticPath();
+
 // Helper function to safely cast query parameters to string
 function getQueryParam(param: any, defaultValue: string = ''): string {
   if (typeof param === 'string') return param;
@@ -391,9 +403,7 @@ app.use((req, res, next) => {
 });
 
 // Serve static files from the 'dist' directory with proper headers
-const staticPath = path.join(__dirname, '../../vitereact/dist');
-
-app.use(express.static(staticPath, {
+app.use(express.static(STATIC_PATH, {
   maxAge: '1d',
   etag: true,
   lastModified: true,
@@ -459,7 +469,7 @@ app.get('/health', async (req, res) => {
   }
 
   // Check static files
-  const indexPath = path.join(__dirname, '../../vitereact/dist/index.html');
+  const indexPath = path.join(STATIC_PATH, 'index.html');
   if (fs.existsSync(indexPath)) {
     healthCheck.checks.static_files = true;
   }
@@ -582,8 +592,8 @@ app.get('/api/test/validate', (req, res) => {
         message: 'Database connection not tested in this endpoint'
       },
       static_files: {
-        status: fs.existsSync(path.join(__dirname, '../../vitereact/dist/index.html')) ? 'pass' : 'fail',
-        message: fs.existsSync(path.join(__dirname, '../../vitereact/dist/index.html')) ? 'Static files available' : 'Static files missing'
+        status: fs.existsSync(path.join(STATIC_PATH, 'index.html')) ? 'pass' : 'fail',
+        message: fs.existsSync(path.join(STATIC_PATH, 'index.html')) ? 'Static files available' : 'Static files missing'
       },
       environment: {
         status: 'pass',
@@ -5369,7 +5379,7 @@ app.use('/api/*', (req, res) => {
 // ================================
 
 // Serve static files from the vitereact build directory
-app.use(express.static(path.join(__dirname, '../../vitereact/dist')));
+app.use(express.static(STATIC_PATH));
 
 // ================================
 // SERVER STARTUP
@@ -5441,7 +5451,7 @@ app.get('*', (req, res) => {
   // Serve index.html for all other routes (SPA routing)
   const indexPath = process.env.NODE_ENV === 'production' 
     ? path.join(__dirname, 'public/index.html')
-    : path.join(__dirname, '../../vitereact/dist/index.html');
+    : path.join(STATIC_PATH, 'index.html');
   
   if (fs.existsSync(indexPath)) {
     res.setHeader('Content-Type', 'text/html; charset=UTF-8');
