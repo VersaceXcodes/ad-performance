@@ -29,8 +29,8 @@ Database connected successfully
 127.0.0.1 - - [23/Sep/2025:02:15:06 +0000] "HEAD / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
 → GET / - 127.0.0.1 - curl/7.88.1
 127.0.0.1 - - [23/Sep/2025:02:15:11 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-0 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
+SIGTERM received, shutting down gracefully
+ curl/7.88.1
 127.0.0.1 - - [23/Sep/2025:02:12:48 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
 → GET /health - 127.0.0.1 - curl/7.88.1
 ← GET /health - 200 - 636ms - JSON
