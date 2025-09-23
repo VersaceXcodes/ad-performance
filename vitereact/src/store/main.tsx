@@ -164,9 +164,30 @@ const getApiBaseUrl = (): string => {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 };
 
+// Retry mechanism for failed requests
+const retryRequest = async (fn: () => Promise<any>, maxRetries = 3, delay = 1000): Promise<any> => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      const isLastAttempt = i === maxRetries - 1;
+      const shouldRetry = error.response?.status >= 500 || error.code === 'ECONNABORTED' || !error.response;
+      
+      if (isLastAttempt || !shouldRetry) {
+        throw error;
+      }
+      
+      console.warn(`Request failed, retrying in ${delay}ms... (attempt ${i + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, delay * (i + 1))); // Exponential backoff
+    }
+  }
+};
+
 // Configure axios defaults
 axios.defaults.timeout = 30000; // 30 second timeout
 axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.withCredentials = true;
 
 // Request interceptor to add auth token
 axios.interceptors.request.use(
@@ -196,6 +217,15 @@ axios.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.error('API Error:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url,
+      method: error.config?.method
+    });
+
     if (error.response) {
       // Server responded with error status
       const { status, data } = error.response;
@@ -211,14 +241,26 @@ axios.interceptors.response.use(
         return Promise.reject(new Error(data?.message || 'Access denied'));
       }
       
+      if (status === 429) {
+        return Promise.reject(new Error('Too many requests. Please wait a moment and try again.'));
+      }
+      
       if (status >= 500) {
         return Promise.reject(new Error('Server error. Please try again later.'));
       }
       
+      // Handle Cloudflare errors
+      if (status === 502 || status === 503 || status === 504) {
+        return Promise.reject(new Error('Service temporarily unavailable. Please try again in a few moments.'));
+      }
+      
       return Promise.reject(new Error(data?.message || `Request failed with status ${status}`));
     } else if (error.request) {
-      // Network error
-      return Promise.reject(new Error('Network error. Please check your connection.'));
+      // Network error or timeout
+      if (error.code === 'ECONNABORTED') {
+        return Promise.reject(new Error('Request timeout. Please try again.'));
+      }
+      return Promise.reject(new Error('Network error. Please check your connection and try again.'));
     } else {
       // Other error
       return Promise.reject(new Error(error.message || 'An unexpected error occurred'));
@@ -289,21 +331,25 @@ export const useAppStore = create<AppStore>()(
         }));
 
         try {
-          // First test API connectivity
-          try {
-            await axios.get(`${getApiBaseUrl()}/api/status`);
-          } catch {
-            throw new Error('Unable to connect to server. Please try again later.');
-          }
-
-          const response = await axios.post(
-            `${getApiBaseUrl()}/api/auth/login`,
-            { email, password },
-            { 
-              headers: { 'Content-Type': 'application/json' },
-              timeout: 10000 // 10 second timeout for login
+          // First test API connectivity with retry
+          await retryRequest(async () => {
+            const response = await axios.get(`${getApiBaseUrl()}/api/status`, { timeout: 5000 });
+            if (!response.data.success) {
+              throw new Error('API status check failed');
             }
-          );
+          }, 2, 1000);
+
+          // Perform login with retry
+          const response = await retryRequest(async () => {
+            return await axios.post(
+              `${getApiBaseUrl()}/api/auth/login`,
+              { email, password },
+              { 
+                headers: { 'Content-Type': 'application/json' },
+                timeout: 15000 // 15 second timeout for login
+              }
+            );
+          }, 3, 1000);
 
           const { user, token, workspace } = response.data;
 
@@ -334,7 +380,15 @@ export const useAppStore = create<AppStore>()(
 
         } catch (error: any) {
           console.error('Login error:', error);
-          const errorMessage = error.message || 'Login failed';
+          let errorMessage = 'Login failed';
+          
+          if (error.message.includes('Network error') || error.message.includes('timeout')) {
+            errorMessage = 'Connection failed. Please check your internet connection and try again.';
+          } else if (error.message.includes('Service temporarily unavailable')) {
+            errorMessage = 'Service is temporarily unavailable. Please try again in a few moments.';
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
           
           set(() => ({
             authentication_state: {

@@ -152,8 +152,26 @@ const pool = new Pool(
 
 // Handle pool errors
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
+  console.error('Unexpected error on idle client', {
+    error: err.message,
+    stack: err.stack,
+    timestamp: new Date().toISOString()
+  });
 });
+
+// Test database connection on startup
+pool.connect()
+  .then(client => {
+    console.log('Database connected successfully');
+    client.release();
+  })
+  .catch(err => {
+    console.error('Failed to connect to database:', {
+      error: err.message,
+      stack: err.stack,
+      timestamp: new Date().toISOString()
+    });
+  });
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -223,6 +241,46 @@ const corsOptions = {
   preflightContinue: false
 };
 
+// Rate limiting middleware (simple in-memory implementation)
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 100; // requests per window
+
+app.use((req, res, next) => {
+  const clientId = req.ip || 'unknown';
+  const now = Date.now();
+  
+  if (!rateLimitMap.has(clientId)) {
+    rateLimitMap.set(clientId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return next();
+  }
+  
+  const clientData = rateLimitMap.get(clientId);
+  
+  if (now > clientData.resetTime) {
+    // Reset the window
+    rateLimitMap.set(clientId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return next();
+  }
+  
+  if (clientData.count >= RATE_LIMIT_MAX_REQUESTS) {
+    console.log('Rate limit exceeded:', {
+      ip: clientId,
+      count: clientData.count,
+      userAgent: req.get('User-Agent'),
+      url: req.url
+    });
+    return res.status(429).json(createErrorResponse(
+      'Too many requests, please try again later',
+      null,
+      'RATE_LIMIT_EXCEEDED'
+    ));
+  }
+  
+  clientData.count++;
+  next();
+});
+
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" }));
@@ -232,14 +290,31 @@ app.use(morgan('combined'));
 // Request timeout middleware
 app.use((req, res, next) => {
   res.setTimeout(30000, () => {
-    console.error('Request timeout:', req.method, req.url);
-    res.status(408).json(createErrorResponse('Request timeout', null, 'REQUEST_TIMEOUT'));
+    console.error('Request timeout:', {
+      method: req.method,
+      url: req.url,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    if (!res.headersSent) {
+      res.status(408).json(createErrorResponse('Request timeout', null, 'REQUEST_TIMEOUT'));
+    }
   });
   next();
 });
 
-// Serve static files from the 'public' directory with proper headers
-app.use(express.static(path.join(__dirname, 'public'), {
+// Add security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Request-ID', `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  next();
+});
+
+// Serve static files from the 'dist' directory with proper headers
+app.use(express.static(path.join(__dirname, '../vitereact/dist'), {
   maxAge: '1d',
   etag: true,
   lastModified: true,
@@ -258,30 +333,59 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
+  const healthCheck = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    database: 'disconnected',
+    checks: {
+      database: false,
+      jwt_secret: false,
+      environment_vars: false
+    }
+  };
+
   try {
     // Test database connection
     const client = await pool.connect();
-    await client.query('SELECT 1');
+    const dbResult = await client.query('SELECT NOW() as current_time, version() as db_version');
     client.release();
     
-    res.status(200).json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      version: '1.0.0',
-      environment: process.env.NODE_ENV || 'development',
-      database: 'connected'
-    });
+    healthCheck.database = 'connected';
+    healthCheck.checks.database = true;
+    healthCheck.database_info = {
+      current_time: dbResult.rows[0].current_time,
+      version: dbResult.rows[0].db_version.split(' ')[0]
+    };
   } catch (error) {
-    console.error('Health check failed:', error);
-    res.status(503).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      version: '1.0.0',
-      environment: process.env.NODE_ENV || 'development',
-      database: 'disconnected',
-      error: error.message
-    });
+    console.error('Database health check failed:', error);
+    healthCheck.status = 'unhealthy';
+    healthCheck.database_error = error.message;
   }
+
+  // Check JWT secret
+  if (JWT_SECRET && JWT_SECRET !== 'your-secret-key') {
+    healthCheck.checks.jwt_secret = true;
+  }
+
+  // Check environment variables
+  if (process.env.DATABASE_URL || (process.env.PGHOST && process.env.PGDATABASE)) {
+    healthCheck.checks.environment_vars = true;
+  }
+
+  // Overall health status
+  const allChecksPass = Object.values(healthCheck.checks).every(check => check === true);
+  if (!allChecksPass) {
+    healthCheck.status = 'degraded';
+  }
+
+  const statusCode = healthCheck.status === 'healthy' ? 200 : 
+                    healthCheck.status === 'degraded' ? 200 : 503;
+
+  res.status(statusCode).json(healthCheck);
 });
 
 // API status endpoint
@@ -310,6 +414,35 @@ app.get('/api/status', async (req, res) => {
       error: error.message
     });
   }
+});
+
+// Debug endpoint for troubleshooting
+app.get('/api/debug', (req, res) => {
+  res.json({
+    success: true,
+    timestamp: new Date().toISOString(),
+    request_info: {
+      method: req.method,
+      url: req.url,
+      headers: {
+        'user-agent': req.get('User-Agent'),
+        'origin': req.get('Origin'),
+        'referer': req.get('Referer'),
+        'x-forwarded-for': req.get('X-Forwarded-For'),
+        'cf-ray': req.get('CF-Ray'),
+        'cf-connecting-ip': req.get('CF-Connecting-IP')
+      },
+      ip: req.ip,
+      ips: req.ips
+    },
+    server_info: {
+      node_version: process.version,
+      platform: process.platform,
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      env: process.env.NODE_ENV || 'development'
+    }
+  });
 });
 
 // Create storage directory if it doesn't exist
@@ -560,11 +693,19 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json(createErrorResponse('Email and password are required', null, 'MISSING_REQUIRED_FIELDS'));
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json(createErrorResponse('Invalid email format', null, 'INVALID_EMAIL_FORMAT'));
+    }
+
     const client = await pool.connect();
     try {
       // Find user with plain text password comparison for development
       const result = await client.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase().trim()]);
       if (result.rows.length === 0) {
+        // Add delay to prevent timing attacks
+        await new Promise(resolve => setTimeout(resolve, 1000));
         return res.status(400).json(createErrorResponse('Invalid email or password', null, 'INVALID_CREDENTIALS'));
       }
 
@@ -572,6 +713,8 @@ app.post('/api/auth/login', async (req, res) => {
 
       // Direct password comparison for development
       if (password !== user.password_hash) {
+        // Add delay to prevent timing attacks
+        await new Promise(resolve => setTimeout(resolve, 1000));
         return res.status(400).json(createErrorResponse('Invalid email or password', null, 'INVALID_CREDENTIALS'));
       }
 
@@ -593,6 +736,15 @@ app.post('/api/auth/login', async (req, res) => {
         { expiresIn: '7d' }
       );
 
+      // Log successful login
+      console.log('Successful login:', {
+        user_id: user.id,
+        email: user.email,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        timestamp: new Date().toISOString()
+      });
+
       res.json({
         user: {
           id: user.id,
@@ -609,7 +761,13 @@ app.post('/api/auth/login', async (req, res) => {
       client.release();
     }
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', {
+      error: error.message,
+      stack: error.stack,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      timestamp: new Date().toISOString()
+    });
     res.status(500).json(createErrorResponse('Internal server error', error, 'INTERNAL_SERVER_ERROR'));
   }
 });
@@ -5052,7 +5210,7 @@ app.use('/api/*', (req, res) => {
 // Serve React app for all non-API routes
 app.get('*', (req, res) => {
   // In production, serve the built React app
-  const indexPath = path.join(__dirname, 'public/index.html');
+  const indexPath = path.join(__dirname, '../vitereact/dist/index.html');
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
@@ -5100,6 +5258,35 @@ process.on('SIGINT', async () => {
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
   process.exit(1);
+});
+
+// Debug endpoint for troubleshooting
+app.get('/api/debug', (req, res) => {
+  res.json({
+    success: true,
+    timestamp: new Date().toISOString(),
+    request_info: {
+      method: req.method,
+      url: req.url,
+      headers: {
+        'user-agent': req.get('User-Agent'),
+        'origin': req.get('Origin'),
+        'referer': req.get('Referer'),
+        'x-forwarded-for': req.get('X-Forwarded-For'),
+        'cf-ray': req.get('CF-Ray'),
+        'cf-connecting-ip': req.get('CF-Connecting-IP')
+      },
+      ip: req.ip,
+      ips: req.ips
+    },
+    server_info: {
+      node_version: process.version,
+      platform: process.platform,
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      env: process.env.NODE_ENV || 'development'
+    }
+  });
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -5154,7 +5341,7 @@ app.get('*', (req, res) => {
   }
   
   // Serve index.html for all other routes (SPA routing)
-  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+  res.sendFile(path.join(__dirname, '../vitereact/dist', 'index.html'), (err) => {
     if (err) {
       console.error('Error serving index.html:', err);
       res.status(500).json(createErrorResponse('Internal server error', err, 'INTERNAL_SERVER_ERROR'));
