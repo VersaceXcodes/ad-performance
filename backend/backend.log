@@ -2,15 +2,4 @@
 > backend@1.0.0 start
 > node dist/server.js
 
-Server running on port 3000
-Health check: http://localhost:3000/health
-API status: http://localhost:3000/api/status
-Environment: development
-Database connected successfully
-Database connection successful
-→ GET /health - 127.0.0.1 - curl/7.88.1
-← GET /health - 200 - 30ms - JSON
-← GET /health - 200 - 31ms
-127.0.0.1 - - [23/Sep/2025:02:34:44 +0000] "GET /health HTTP/1.1" 200 429 "-" "curl/7.88.1"
-→ GET / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [23/Sep/2025:02:34:52 +0000] "GET / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
+Pipe 3000 is already in use
