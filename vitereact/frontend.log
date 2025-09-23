@@ -1,10 +1,10 @@
 
 > conductor@0.0.0 dev
-> vite
+> vite --host 0.0.0.0 --port 5173
 
-Port 5173 is in use, trying another one...
+Re-optimizing dependencies because lockfile has changed
 
-  VITE v5.4.20  ready in 373 ms
+  VITE v5.4.20  ready in 486 ms
 
-  ➜  Local:   http://localhost:5174/
-  ➜  Network: http://172.20.9.196:5174/
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://172.20.9.196:5173/
