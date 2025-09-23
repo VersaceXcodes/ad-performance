@@ -5366,6 +5366,9 @@ app.use('/api/*', (req, res) => {
 // STATIC FILE SERVING
 // ================================
 
+// Serve static files from the vitereact build directory
+app.use(express.static(path.join(__dirname, '../vitereact/dist')));
+
 // ================================
 // SERVER STARTUP
 // ================================
