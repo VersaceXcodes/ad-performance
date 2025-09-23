@@ -132,7 +132,10 @@ const pool = new Pool(
   DATABASE_URL
     ? { 
         connectionString: DATABASE_URL, 
-        ssl: { rejectUnauthorized: false } 
+        ssl: { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
       }
     : {
         host: PGHOST,
@@ -141,11 +144,34 @@ const pool = new Pool(
         password: PGPASSWORD,
         port: Number(PGPORT),
         ssl: { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
       }
 );
 
+// Handle pool errors
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+});
+
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  
+  if (res.headersSent) {
+    return next(err);
+  }
+  
+  res.status(500).json(createErrorResponse(
+    'Internal server error',
+    process.env.NODE_ENV === 'development' ? err : null,
+    'INTERNAL_SERVER_ERROR'
+  ));
+});
 
 // CORS Configuration
 const corsOptions = {
@@ -177,10 +203,35 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined'));
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Request timeout middleware
+app.use((req, res, next) => {
+  res.setTimeout(30000, () => {
+    console.error('Request timeout:', req.method, req.url);
+    res.status(408).json(createErrorResponse('Request timeout', null, 'REQUEST_TIMEOUT'));
+  });
+  next();
+});
+
+// Serve static files from the 'public' directory with proper headers
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    // Set proper MIME types for assets
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+    } else if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
@@ -5070,6 +5121,22 @@ server.on('error', (error: any) => {
     default:
       throw error;
   }
+});
+
+// Catch-all handler for SPA routing - must be last
+app.get('*', (req, res) => {
+  // Don't serve index.html for API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json(createErrorResponse('API endpoint not found', null, 'NOT_FOUND'));
+  }
+  
+  // Serve index.html for all other routes (SPA routing)
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+    if (err) {
+      console.error('Error serving index.html:', err);
+      res.status(500).json(createErrorResponse('Internal server error', err, 'INTERNAL_SERVER_ERROR'));
+    }
+  });
 });
 
 // Export for testing

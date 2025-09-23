@@ -292,7 +292,7 @@ export const useAppStore = create<AppStore>()(
           // First test API connectivity
           try {
             await axios.get(`${getApiBaseUrl()}/api/status`);
-          } catch (connectError) {
+          } catch {
             throw new Error('Unable to connect to server. Please try again later.');
           }
 
