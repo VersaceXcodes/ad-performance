@@ -1,0 +1,217 @@
+{
+  "generated_at": "2024-01-20T10:30:00Z",
+  "user_structure": {
+    "table_name": "users",
+    "role_field": "role (via memberships table)",
+    "registration_endpoint": "/api/auth/register",
+    "login_endpoint": "/api/auth/login",
+    "password_storage": "plain_text (development only)",
+    "authentication_method": "JWT tokens"
+  },
+  "total_users": 8,
+  "verified_users": 6,
+  "users": [
+    {
+      "id": "user_001",
+      "email": "john.doe@example.com",
+      "password": "password123",
+      "name": "John Doe",
+      "role": "owner",
+      "email_verified": true,
+      "workspaces": ["workspace_001", "workspace_003"],
+      "primary_workspace": "workspace_001",
+      "verified": true,
+      "description": "Owner of Acme Marketing Agency workspace"
+    },
+    {
+      "id": "user_002", 
+      "email": "jane.smith@example.com",
+      "password": "password123",
+      "name": "Jane Smith",
+      "role": "admin",
+      "email_verified": true,
+      "workspaces": ["workspace_001", "workspace_004"],
+      "primary_workspace": "workspace_001", 
+      "verified": true,
+      "description": "Admin user with access to multiple workspaces"
+    },
+    {
+      "id": "user_003",
+      "email": "bob.johnson@example.com", 
+      "password": "admin123",
+      "name": "Bob Johnson",
+      "role": "owner",
+      "email_verified": true,
+      "workspaces": ["workspace_002"],
+      "primary_workspace": "workspace_002",
+      "verified": true,
+      "description": "Owner of Digital Growth Co workspace"
+    },
+    {
+      "id": "user_004",
+      "email": "alice.brown@example.com",
+      "password": "user123", 
+      "name": "Alice Brown",
+      "role": "member",
+      "email_verified": false,
+      "workspaces": ["workspace_002"],
+      "primary_workspace": "workspace_002",
+      "verified": false,
+      "description": "Regular member with unverified email"
+    },
+    {
+      "id": "user_005",
+      "email": "mike.wilson@example.com",
+      "password": "password123",
+      "name": "Mike Wilson", 
+      "role": "owner",
+      "email_verified": true,
+      "workspaces": ["workspace_003"],
+      "primary_workspace": "workspace_003",
+      "verified": true,
+      "description": "Owner of Performance Ads Ltd workspace"
+    },
+    {
+      "id": "user_006",
+      "email": "sarah.davis@example.com",
+      "password": "admin123",
+      "name": "Sarah Davis",
+      "role": "owner", 
+      "email_verified": true,
+      "workspaces": ["workspace_004"],
+      "primary_workspace": "workspace_004",
+      "verified": true,
+      "description": "Owner of Global Media Solutions workspace"
+    },
+    {
+      "id": "user_007",
+      "email": "tom.miller@example.com",
+      "password": "user123",
+      "name": "Tom Miller",
+      "role": "admin",
+      "email_verified": true,
+      "workspaces": ["workspace_004"], 
+      "primary_workspace": "workspace_004",
+      "verified": true,
+      "description": "Admin user in Global Media Solutions"
+    },
+    {
+      "id": "user_008",
+      "email": "emma.garcia@example.com",
+      "password": "password123",
+      "name": "Emma Garcia",
+      "role": "owner",
+      "email_verified": false,
+      "workspaces": ["workspace_005"],
+      "primary_workspace": "workspace_005",
+      "verified": false,
+      "description": "Owner with unverified email"
+    }
+  ],
+  "by_role": {
+    "owner": [
+      {"email": "john.doe@example.com", "password": "password123", "verified": true, "workspace": "Acme Marketing Agency"},
+      {"email": "bob.johnson@example.com", "password": "admin123", "verified": true, "workspace": "Digital Growth Co"},
+      {"email": "mike.wilson@example.com", "password": "password123", "verified": true, "workspace": "Performance Ads Ltd"},
+      {"email": "sarah.davis@example.com", "password": "admin123", "verified": true, "workspace": "Global Media Solutions"},
+      {"email": "emma.garcia@example.com", "password": "password123", "verified": false, "workspace": "E-commerce Boost"}
+    ],
+    "admin": [
+      {"email": "jane.smith@example.com", "password": "password123", "verified": true, "workspace": "Acme Marketing Agency"},
+      {"email": "tom.miller@example.com", "password": "user123", "verified": true, "workspace": "Global Media Solutions"}
+    ],
+    "member": [
+      {"email": "alice.brown@example.com", "password": "user123", "verified": false, "workspace": "Digital Growth Co"}
+    ]
+  },
+  "workspaces": [
+    {
+      "id": "workspace_001",
+      "name": "Acme Marketing Agency",
+      "currency": "USD",
+      "timezone": "America/New_York",
+      "owner": "john.doe@example.com",
+      "members": ["john.doe@example.com", "jane.smith@example.com"]
+    },
+    {
+      "id": "workspace_002", 
+      "name": "Digital Growth Co",
+      "currency": "EUR",
+      "timezone": "Europe/London",
+      "owner": "bob.johnson@example.com",
+      "members": ["bob.johnson@example.com", "alice.brown@example.com"]
+    },
+    {
+      "id": "workspace_003",
+      "name": "Performance Ads Ltd", 
+      "currency": "GBP",
+      "timezone": "Europe/London",
+      "owner": "mike.wilson@example.com",
+      "members": ["mike.wilson@example.com", "john.doe@example.com"]
+    },
+    {
+      "id": "workspace_004",
+      "name": "Global Media Solutions",
+      "currency": "USD", 
+      "timezone": "America/Los_Angeles",
+      "owner": "sarah.davis@example.com",
+      "members": ["sarah.davis@example.com", "tom.miller@example.com", "jane.smith@example.com"]
+    },
+    {
+      "id": "workspace_005",
+      "name": "E-commerce Boost",
+      "currency": "CAD",
+      "timezone": "America/Toronto",
+      "owner": "emma.garcia@example.com",
+      "members": ["emma.garcia@example.com"]
+    }
+  ],
+  "test_scenarios": {
+    "successful_login": {
+      "email": "john.doe@example.com",
+      "password": "password123",
+      "expected_workspace": "workspace_001"
+    },
+    "admin_user": {
+      "email": "jane.smith@example.com", 
+      "password": "password123",
+      "expected_workspace": "workspace_001"
+    },
+    "unverified_email": {
+      "email": "alice.brown@example.com",
+      "password": "user123",
+      "expected_workspace": "workspace_002"
+    },
+    "invalid_credentials": {
+      "email": "john.doe@example.com",
+      "password": "wrongpassword",
+      "expected_error": "Invalid email or password"
+    }
+  },
+  "api_testing": {
+    "base_url": "https://123ad-performance.launchpulse.ai",
+    "endpoints": {
+      "login": "POST /api/auth/login",
+      "register": "POST /api/auth/register", 
+      "me": "GET /api/auth/me",
+      "workspaces": "GET /api/workspaces"
+    },
+    "sample_requests": {
+      "login": {
+        "method": "POST",
+        "url": "/api/auth/login",
+        "body": {
+          "email": "john.doe@example.com",
+          "password": "password123"
+        }
+      },
+      "get_workspaces": {
+        "method": "GET", 
+        "url": "/api/workspaces",
+        "headers": {
+          "Authorization": "Bearer {jwt_token}"
+        }
+      }
+    }
+  }
+}

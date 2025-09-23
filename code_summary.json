@@ -1,0 +1,204 @@
+{
+  "generated_at": "2024-01-20T10:30:00Z",
+  "project_name": "Ad Performance Analytics Platform",
+  "description": "A comprehensive advertising performance analytics platform for managing multi-platform ad campaigns with real-time metrics, alerts, and team collaboration features.",
+  "tech_stack": [
+    "React 18.3.1",
+    "TypeScript 5.5.3", 
+    "Vite 5.4.20",
+    "Node.js 18.20.8",
+    "Express 4.19.2",
+    "PostgreSQL",
+    "Tailwind CSS 3.4.8",
+    "Radix UI Components",
+    "React Query (TanStack Query) 5.0.0",
+    "Zustand State Management",
+    "React Router DOM 6.26.0",
+    "JWT Authentication",
+    "Recharts 2.12.7",
+    "Framer Motion 11.5.4"
+  ],
+  "architecture": {
+    "frontend": {
+      "framework": "React with TypeScript",
+      "build_tool": "Vite",
+      "state_management": "Zustand",
+      "routing": "React Router DOM",
+      "styling": "Tailwind CSS + Radix UI",
+      "data_fetching": "React Query + Axios"
+    },
+    "backend": {
+      "framework": "Express.js with TypeScript",
+      "database": "PostgreSQL",
+      "authentication": "JWT",
+      "validation": "Zod",
+      "file_uploads": "Multer",
+      "logging": "Morgan"
+    }
+  },
+  "features": [
+    {
+      "name": "User Authentication & Authorization",
+      "description": "Complete auth system with registration, login, password reset, email verification",
+      "files": [
+        "vitereact/src/components/views/UV_SignIn.tsx",
+        "vitereact/src/components/views/UV_SignUp.tsx", 
+        "vitereact/src/components/views/UV_PasswordReset.tsx",
+        "vitereact/src/components/views/UV_EmailVerification.tsx",
+        "backend/server.ts (auth routes)"
+      ],
+      "endpoints": [
+        "POST /api/auth/register",
+        "POST /api/auth/login", 
+        "POST /api/auth/logout",
+        "GET /api/auth/me",
+        "POST /api/auth/verify-email",
+        "POST /api/auth/forgot-password",
+        "POST /api/auth/reset-password"
+      ]
+    },
+    {
+      "name": "Multi-Platform Analytics Dashboard",
+      "description": "Comprehensive dashboard showing KPIs, trends, and insights across Facebook, Google, TikTok, Snapchat",
+      "files": [
+        "vitereact/src/components/views/UV_Overview.tsx",
+        "vitereact/src/components/views/UV_ChannelsCompare.tsx",
+        "backend/server.ts (metrics routes)"
+      ],
+      "endpoints": [
+        "GET /api/workspaces/{workspace_id}/metrics/overview",
+        "GET /api/workspaces/{workspace_id}/metrics/comparison", 
+        "GET /api/workspaces/{workspace_id}/metrics/trends",
+        "GET /api/workspaces/{workspace_id}/metrics/daily"
+      ]
+    },
+    {
+      "name": "Campaign Management",
+      "description": "View and manage advertising campaigns across platforms with detailed performance metrics",
+      "files": [
+        "vitereact/src/components/views/UV_Campaigns.tsx",
+        "backend/server.ts (campaign routes)"
+      ],
+      "endpoints": [
+        "GET /api/workspaces/{workspace_id}/campaigns",
+        "GET /api/workspaces/{workspace_id}/campaigns/{campaign_id}",
+        "PUT /api/workspaces/{workspace_id}/campaigns/{campaign_id}"
+      ]
+    },
+    {
+      "name": "Creative Performance Analysis", 
+      "description": "Analyze creative performance across campaigns with visual thumbnails and performance rankings",
+      "files": [
+        "vitereact/src/components/views/UV_Creatives.tsx",
+        "backend/server.ts (creative routes)"
+      ],
+      "endpoints": [
+        "GET /api/workspaces/{workspace_id}/creatives",
+        "GET /api/workspaces/{workspace_id}/creatives/{creative_id}"
+      ]
+    },
+    {
+      "name": "Data Upload & Processing",
+      "description": "Upload CSV/Excel files with custom mapping templates for different ad platforms",
+      "files": [
+        "vitereact/src/components/views/UV_Uploads.tsx",
+        "vitereact/src/components/views/UV_UploadWizard.tsx",
+        "vitereact/src/components/views/UV_DataMapping.tsx",
+        "backend/server.ts (upload routes)"
+      ],
+      "endpoints": [
+        "GET /api/workspaces/{workspace_id}/uploads",
+        "POST /api/workspaces/{workspace_id}/uploads",
+        "GET /api/workspaces/{workspace_id}/mapping-templates",
+        "POST /api/workspaces/{workspace_id}/mapping-templates"
+      ]
+    },
+    {
+      "name": "Alert System",
+      "description": "Configurable alerts for performance thresholds with email and in-app notifications",
+      "files": [
+        "vitereact/src/components/views/UV_Alerts.tsx",
+        "vitereact/src/components/views/GV_NotificationSystem.tsx",
+        "backend/server.ts (alert routes)"
+      ],
+      "endpoints": [
+        "GET /api/workspaces/{workspace_id}/alert-rules",
+        "POST /api/workspaces/{workspace_id}/alert-rules",
+        "GET /api/workspaces/{workspace_id}/notifications"
+      ]
+    },
+    {
+      "name": "Workspace & Team Management",
+      "description": "Multi-tenant workspace system with role-based access control and team invitations",
+      "files": [
+        "vitereact/src/components/views/UV_Settings.tsx",
+        "vitereact/src/components/views/UV_TeamManagement.tsx",
+        "backend/server.ts (workspace routes)"
+      ],
+      "endpoints": [
+        "GET /api/workspaces",
+        "POST /api/workspaces", 
+        "GET /api/workspaces/{workspace_id}/members",
+        "POST /api/workspaces/{workspace_id}/invitations"
+      ]
+    },
+    {
+      "name": "Data Export & Sharing",
+      "description": "Export data in multiple formats and create shareable dashboard links",
+      "files": [
+        "backend/server.ts (export routes)"
+      ],
+      "endpoints": [
+        "GET /api/workspaces/{workspace_id}/exports",
+        "POST /api/workspaces/{workspace_id}/exports",
+        "GET /api/workspaces/{workspace_id}/shared-links",
+        "POST /api/workspaces/{workspace_id}/shared-links"
+      ]
+    }
+  ],
+  "database_tables": [
+    "users",
+    "workspaces", 
+    "memberships",
+    "accounts",
+    "campaigns",
+    "ad_sets",
+    "ads",
+    "metrics_daily",
+    "upload_jobs",
+    "mapping_templates",
+    "alert_rules",
+    "alert_triggers", 
+    "notifications",
+    "user_preferences",
+    "shared_links",
+    "export_jobs",
+    "anomaly_detections",
+    "creative_performance",
+    "workspace_invitations",
+    "audit_logs",
+    "user_sessions"
+  ],
+  "api_endpoints": [
+    "/api/auth/*",
+    "/api/users/*", 
+    "/api/workspaces/*",
+    "/api/health"
+  ],
+  "key_components": {
+    "authentication": "JWT-based with refresh tokens",
+    "authorization": "Role-based (owner, admin, member)",
+    "data_processing": "Background job processing for file uploads",
+    "real_time": "WebSocket notifications for alerts",
+    "multi_tenancy": "Workspace-based isolation",
+    "file_handling": "CSV/Excel upload with custom mapping",
+    "analytics": "Cross-platform performance aggregation",
+    "alerting": "Threshold-based monitoring with notifications"
+  },
+  "deployment": {
+    "frontend_url": "https://123ad-performance.launchpulse.ai",
+    "backend_url": "https://123ad-performance.launchpulse.ai",
+    "database": "PostgreSQL (Neon)",
+    "environment": "Production"
+  }
+}
