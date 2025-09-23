@@ -147,13 +147,96 @@ const pool = new Pool(
 const app = express();
 const port = process.env.PORT || 3000;
 
+// CORS Configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://123ad-performance.launchpulse.ai',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:3000'
+    ];
+    
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" }));
 app.use(morgan('combined'));
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Health check endpoint
+app.get('/health', async (req, res) => {
+  try {
+    // Test database connection
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    
+    res.status(200).json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      database: 'connected'
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      database: 'disconnected',
+      error: error.message
+    });
+  }
+});
+
+// API status endpoint
+app.get('/api/status', async (req, res) => {
+  try {
+    // Test database connection
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    
+    res.status(200).json({
+      success: true,
+      message: 'API is running',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      database: 'connected'
+    });
+  } catch (error) {
+    console.error('API status check failed:', error);
+    res.status(503).json({
+      success: false,
+      message: 'API is running but database is unavailable',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      database: 'disconnected',
+      error: error.message
+    });
+  }
+});
 
 // Create storage directory if it doesn't exist
 const storageDir = path.join(__dirname, 'storage');
@@ -4857,19 +4940,35 @@ app.delete('/api/workspaces/:workspace_id/shared-links/:link_id', authenticateTo
 });
 
 // ================================
-// HEALTH CHECK ROUTE
+// ERROR HANDLING MIDDLEWARE
 // ================================
 
-/*
-  GET /api/health
-  Health check endpoint for monitoring
-*/
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
+// Global error handler
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Unhandled error:', err);
+  
+  // Handle CORS errors
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json(createErrorResponse('CORS policy violation', err, 'CORS_ERROR'));
+  }
+  
+  // Handle JSON parsing errors
+  if (err instanceof SyntaxError && 'body' in err) {
+    return res.status(400).json(createErrorResponse('Invalid JSON in request body', err, 'JSON_PARSE_ERROR'));
+  }
+  
+  // Handle multer errors
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json(createErrorResponse('File too large', err, 'FILE_SIZE_ERROR'));
+  }
+  
+  // Default error response
+  res.status(500).json(createErrorResponse('Internal server error', err, 'INTERNAL_SERVER_ERROR'));
+});
+
+// Handle 404 for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json(createErrorResponse('API endpoint not found', null, 'ENDPOINT_NOT_FOUND'));
 });
 
 // ================================
@@ -4878,16 +4977,31 @@ app.get('/api/health', (req, res) => {
 
 // Serve React app for all non-API routes
 app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json(createErrorResponse('API endpoint not found', null, 'ENDPOINT_NOT_FOUND'));
-  }
-  
   // In production, serve the built React app
-  const indexPath = path.join(__dirname, '../vitereact/public/index.html');
+  const indexPath = path.join(__dirname, 'public/index.html');
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(404).json(createErrorResponse('Frontend not built', null, 'FRONTEND_NOT_FOUND'));
+    // Fallback to a simple HTML response if frontend not built
+    res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>PulseDeck - Loading</title>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+        </head>
+        <body>
+          <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+            <div style="text-align: center;">
+              <h1>PulseDeck</h1>
+              <p>Application is starting up...</p>
+              <p>If this persists, please check the server logs.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
   }
 });
 
@@ -4895,9 +5009,67 @@ app.get('*', (req, res) => {
 // SERVER STARTUP
 // ================================
 
-app.listen(port, () => {
+// Graceful shutdown handling
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  await pool.end();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT received, shutting down gracefully');
+  await pool.end();
+  process.exit(0);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
-  console.log(`Health check: http://localhost:${port}/api/health`);
+  console.log(`Health check: http://localhost:${port}/health`);
+  console.log(`API status: http://localhost:${port}/api/status`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Test database connection on startup
+  pool.connect()
+    .then(client => {
+      console.log('Database connection successful');
+      client.release();
+    })
+    .catch(err => {
+      console.error('Database connection failed:', err);
+    });
+});
+
+// Handle server errors
+server.on('error', (error: any) => {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
 });
 
 // Export for testing

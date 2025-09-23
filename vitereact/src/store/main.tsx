@@ -164,6 +164,68 @@ const getApiBaseUrl = (): string => {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 };
 
+// Configure axios defaults
+axios.defaults.timeout = 30000; // 30 second timeout
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+// Request interceptor to add auth token
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('pulsedeck-app-storage');
+    if (token) {
+      try {
+        const parsed = JSON.parse(token);
+        const authToken = parsed?.state?.authentication_state?.auth_token;
+        if (authToken) {
+          config.headers.Authorization = `Bearer ${authToken}`;
+        }
+      } catch (error) {
+        console.warn('Failed to parse stored auth token:', error);
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle errors consistently
+axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response) {
+      // Server responded with error status
+      const { status, data } = error.response;
+      
+      if (status === 401) {
+        // Unauthorized - clear auth state
+        localStorage.removeItem('pulsedeck-app-storage');
+        window.location.href = '/signin';
+        return Promise.reject(new Error('Session expired. Please sign in again.'));
+      }
+      
+      if (status === 403) {
+        return Promise.reject(new Error(data?.message || 'Access denied'));
+      }
+      
+      if (status >= 500) {
+        return Promise.reject(new Error('Server error. Please try again later.'));
+      }
+      
+      return Promise.reject(new Error(data?.message || `Request failed with status ${status}`));
+    } else if (error.request) {
+      // Network error
+      return Promise.reject(new Error('Network error. Please check your connection.'));
+    } else {
+      // Other error
+      return Promise.reject(new Error(error.message || 'An unexpected error occurred'));
+    }
+  }
+);
+
 // ========================
 // ZUSTAND STORE
 // ========================
@@ -227,13 +289,27 @@ export const useAppStore = create<AppStore>()(
         }));
 
         try {
+          // First test API connectivity
+          try {
+            await axios.get(`${getApiBaseUrl()}/api/status`);
+          } catch (connectError) {
+            throw new Error('Unable to connect to server. Please try again later.');
+          }
+
           const response = await axios.post(
             `${getApiBaseUrl()}/api/auth/login`,
             { email, password },
-            { headers: { 'Content-Type': 'application/json' } }
+            { 
+              headers: { 'Content-Type': 'application/json' },
+              timeout: 10000 // 10 second timeout for login
+            }
           );
 
           const { user, token, workspace } = response.data;
+
+          if (!user || !token) {
+            throw new Error('Invalid response from server');
+          }
 
           set(() => ({
             authentication_state: {
@@ -257,7 +333,8 @@ export const useAppStore = create<AppStore>()(
           get().connect_websocket();
 
         } catch (error: any) {
-          const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+          console.error('Login error:', error);
+          const errorMessage = error.message || 'Login failed';
           
           set(() => ({
             authentication_state: {
@@ -352,12 +429,22 @@ export const useAppStore = create<AppStore>()(
         }
 
         try {
+          // Test API connectivity first
+          await axios.get(`${getApiBaseUrl()}/api/status`, { timeout: 5000 });
+
           const response = await axios.get(
             `${getApiBaseUrl()}/api/auth/me`,
-            { headers: { Authorization: `Bearer ${token}` } }
+            { 
+              headers: { Authorization: `Bearer ${token}` },
+              timeout: 10000
+            }
           );
 
           const user = response.data;
+          
+          if (!user || !user.id) {
+            throw new Error('Invalid user data received');
+          }
           
           set(() => ({
             authentication_state: {
@@ -374,8 +461,9 @@ export const useAppStore = create<AppStore>()(
           // Connect WebSocket after successful auth verification
           get().connect_websocket();
 
-        } catch {
-          // Token is invalid, clear auth state
+        } catch (error) {
+          console.warn('Auth initialization failed:', error);
+          // Token is invalid or server unreachable, clear auth state
           set(() => ({
             authentication_state: {
               current_user: null,
