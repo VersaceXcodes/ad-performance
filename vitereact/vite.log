@@ -3,10 +3,7 @@
 > vite
 
 
-  VITE v5.4.20  ready in 241 ms
+  VITE v5.4.20  ready in 208 ms
 
   ➜  Local:   http://localhost:5173/
-  ➜  Network: http://172.20.19.134:5173/
-1:06:24 AM [vite] vite.config.ts changed, restarting server...
-Re-optimizing dependencies because lockfile has changed
-1:06:24 AM [vite] server restarted.
+  ➜  Network: http://172.20.32.32:5173/
