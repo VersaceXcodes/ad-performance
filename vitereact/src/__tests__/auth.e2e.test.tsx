@@ -4,9 +4,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 
-import UV_SignUp from '@/components/views/UV_SignUp';
-import UV_SignIn from '@/components/views/UV_SignIn';
-import { useAppStore } from '@/store/main';
+import UV_SignUp from '../components/views/UV_SignUp';
+import UV_SignIn from '../components/views/UV_SignIn';
+import { useAppStore } from '../store/main';
 
 const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <BrowserRouter>{children}</BrowserRouter>
