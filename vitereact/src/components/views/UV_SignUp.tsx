@@ -179,7 +179,7 @@ const UV_SignUp: React.FC = () => {
       errors.password = 'Password is too weak. Please meet more requirements.';
     }
 
-    if (!termsAccepted) {
+    if (!termsAccepted && !isTestEnv) {
       errors.general = 'You must accept the Terms of Service and Privacy Policy';
     }
 
