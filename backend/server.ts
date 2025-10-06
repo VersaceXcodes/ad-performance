@@ -78,8 +78,14 @@ const __dirname = path.dirname(__filename);
 
 // Determine correct static path (works for both tsx and compiled js)
 const getStaticPath = () => {
-  // If running from dist directory (compiled), use ../../vitereact/dist
-  // If running from source directory (tsx), use ../vitereact/dist
+  // In production, use public directory for deployed assets
+  if (process.env.NODE_ENV === 'production') {
+    const publicPath = __dirname.endsWith('/dist') 
+      ? path.join(__dirname, '../public')
+      : path.join(__dirname, 'public');
+    return publicPath;
+  }
+  // In development, use vitereact/dist directory
   const staticPath = __dirname.endsWith('/dist') 
     ? path.join(__dirname, '../../vitereact/dist')
     : path.join(__dirname, '../vitereact/dist');
@@ -5558,6 +5564,31 @@ app.get('/api/debug', (req, res) => {
       env: process.env.NODE_ENV || 'development'
     }
   });
+});
+
+// SPA fallback - serve index.html for all non-API routes
+app.get('*', (req, res, next) => {
+  // Skip API routes and static assets
+  if (req.path.startsWith('/api/') || req.path.startsWith('/health') || req.path.startsWith('/ready')) {
+    return next();
+  }
+  
+  // Check if it's a static asset request
+  if (req.path.includes('.') && (req.path.endsWith('.js') || req.path.endsWith('.css') || req.path.endsWith('.ico') || req.path.endsWith('.png') || req.path.endsWith('.svg'))) {
+    return next();
+  }
+  
+  // Serve index.html for all other routes (SPA routing)
+  const indexPath = path.join(STATIC_PATH, 'index.html');
+  
+  if (fs.existsSync(indexPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.sendFile(indexPath);
+  } else {
+    // Return JSON error if index.html is not found
+    res.status(404).json(createErrorResponse('Page not found', null, 'NOT_FOUND'));
+  }
 });
 
 // Add global error handler after all routes
