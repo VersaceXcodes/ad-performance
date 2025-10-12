@@ -78,17 +78,22 @@ const __dirname = path.dirname(__filename);
 
 // Determine correct static path (works for both tsx and compiled js)
 const getStaticPath = () => {
-  // In production, use public directory for deployed assets
-  if (process.env.NODE_ENV === 'production') {
-    const publicPath = __dirname.endsWith('/dist') 
-      ? path.join(__dirname, '../public')
-      : path.join(__dirname, 'public');
+  // First, check if backend/public exists (deployed static assets)
+  const publicPath = __dirname.endsWith('/dist') 
+    ? path.join(__dirname, '../public')
+    : path.join(__dirname, 'public');
+  
+  if (fs.existsSync(path.join(publicPath, 'index.html'))) {
+    console.log('Using backend/public for static files');
     return publicPath;
   }
-  // In development, use vitereact/dist directory
+  
+  // Fallback to vitereact/dist directory (development)
   const staticPath = __dirname.endsWith('/dist') 
     ? path.join(__dirname, '../../vitereact/dist')
     : path.join(__dirname, '../vitereact/dist');
+  
+  console.log('Using vitereact/dist for static files');
   return staticPath;
 };
 
