@@ -2,8 +2,10 @@
 > conductor@0.0.0 dev
 > vite
 
+NODE_ENV=production is not supported in the .env file. Only NODE_ENV=development is supported to create a development build of your project. If you need to set process.env.NODE_ENV, you can set it in the Vite config instead.
+Re-optimizing dependencies because lockfile has changed
 
-  VITE v5.4.20  ready in 202 ms
+  VITE v5.4.20  ready in 375 ms
 
   ➜  Local:   http://localhost:5173/
-  ➜  Network: http://172.20.8.45:5173/
+  ➜  Network: http://172.20.38.23:5173/
