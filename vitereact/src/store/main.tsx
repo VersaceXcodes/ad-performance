@@ -161,6 +161,10 @@ const generateId = (): string => {
 };
 
 const getApiBaseUrl = (): string => {
+  // In production, use the same host as the frontend
+  if (window.location.hostname.includes('launchpulse.ai') || window.location.hostname.includes('trycloudflare.com')) {
+    return `${window.location.protocol}//${window.location.host}`;
+  }
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 };
 
@@ -184,10 +188,12 @@ const retryRequest = async (fn: () => Promise<any>, maxRetries = 3, delay = 1000
 };
 
 // Configure axios defaults
-axios.defaults.timeout = 30000; // 30 second timeout
+axios.defaults.timeout = 45000; // 45 second timeout for better reliability
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
+axios.defaults.maxRedirects = 5; // Handle redirects
+axios.defaults.validateStatus = (status) => status < 500; // Don't throw on 4xx
 
 // Add browser testing headers if in test environment
 if (typeof window !== 'undefined' && (
@@ -351,11 +357,14 @@ export const useAppStore = create<AppStore>()(
         try {
           // First test API connectivity with retry
           await retryRequest(async () => {
-            const response = await axios.get(`${getApiBaseUrl()}/api/status`, { timeout: 5000 });
+            const response = await axios.get(`${getApiBaseUrl()}/api/health`, { 
+              timeout: 8000,
+              headers: { 'X-Browser-Test': 'login-connectivity-check' }
+            });
             if (!response.data || !response.data.success) {
-              throw new Error('API status check failed');
+              throw new Error('API health check failed');
             }
-          }, 2, 1000);
+          }, 3, 1000);
 
           // Perform login with retry
           const response = await retryRequest(async () => {
@@ -506,13 +515,16 @@ export const useAppStore = create<AppStore>()(
 
         try {
           // Test API connectivity first
-          await axios.get(`${getApiBaseUrl()}/api/status`, { timeout: 5000 });
+          await axios.get(`${getApiBaseUrl()}/api/health`, { 
+            timeout: 8000,
+            headers: { 'X-Browser-Test': 'auth-init-check' }
+          });
 
           const response = await axios.get(
             `${getApiBaseUrl()}/api/auth/me`,
             { 
               headers: { Authorization: `Bearer ${token}` },
-              timeout: 10000
+              timeout: 15000
             }
           );
 

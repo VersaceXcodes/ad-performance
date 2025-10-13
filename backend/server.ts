@@ -156,14 +156,16 @@ const pool = new Pool(
     ? { 
         connectionString: DATABASE_URL, 
         ssl: { rejectUnauthorized: false },
-        max: 20,
-        min: 2, // Keep minimum connections
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 15000, // Longer connection timeout
-        acquireTimeoutMillis: 20000, // Time to wait for connection
-        createTimeoutMillis: 15000,
+        max: 25,
+        min: 3, // Keep minimum connections
+        idleTimeoutMillis: 60000, // 60s idle timeout
+        connectionTimeoutMillis: 20000, // 20s connection timeout
+        acquireTimeoutMillis: 30000, // 30s to wait for connection
+        createTimeoutMillis: 20000, // 20s to create connection
         reapIntervalMillis: 1000,
         createRetryIntervalMillis: 2000,
+        maxUses: 7500, // Recycle connections periodically
+        allowExitOnIdle: false
       }
     : {
         host: PGHOST,
@@ -172,14 +174,16 @@ const pool = new Pool(
         password: PGPASSWORD,
         port: Number(PGPORT),
         ssl: { rejectUnauthorized: false },
-        max: 20,
-        min: 2,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 15000,
-        acquireTimeoutMillis: 20000,
-        createTimeoutMillis: 15000,
+        max: 25,
+        min: 3,
+        idleTimeoutMillis: 60000,
+        connectionTimeoutMillis: 20000,
+        acquireTimeoutMillis: 30000,
+        createTimeoutMillis: 20000,
         reapIntervalMillis: 1000,
         createRetryIntervalMillis: 2000,
+        maxUses: 7500,
+        allowExitOnIdle: false
       }
 );
 
@@ -317,18 +321,20 @@ const corsOptions = {
                          userAgent.includes('Playwright') ||
                          userAgent.includes('Puppeteer') ||
                          req?.get('X-Automation') === 'true' ||
-                         req?.get('X-Test-Mode') === 'browser-testing';
+                         req?.get('X-Test-Mode') === 'browser-testing' ||
+                         origin?.includes('launchpulse.ai') ||
+                         origin?.includes('trycloudflare.com');
     
     if (isBrowserTest) {
       console.log('CORS: Allowing browser test origin:', origin || 'null');
       return callback(null, true);
     }
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.indexOf(origin) !== -1 || origin?.includes('launchpulse.ai')) {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
-      // Don't block, just log for debugging - be permissive for browser testing
+      // Be permissive for browser testing and deployment domains
       callback(null, true);
     }
   },
@@ -452,8 +458,9 @@ app.use((req, res, next) => {
                        req.get('X-Automation') === 'true';
                        
   // Use longer timeout for browser testing, shorter for regular requests
-  const timeout = isBrowserTest ? 60000 : 30000; // 60s for tests, 30s for regular
+  const timeout = isBrowserTest ? 120000 : 45000; // 120s for tests, 45s for regular
   
+  req.setTimeout(timeout);
   res.setTimeout(timeout, () => {
     console.error('Request timeout:', {
       method: req.method,
@@ -464,7 +471,8 @@ app.use((req, res, next) => {
       isBrowserTest: isBrowserTest
     });
     if (!res.headersSent) {
-      res.status(408).json(createErrorResponse('Request timeout', null, 'REQUEST_TIMEOUT'));
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.status(408).json(createErrorResponse('Request timeout - server took too long to respond', null, 'REQUEST_TIMEOUT'));
     }
   });
   next();
@@ -605,6 +613,37 @@ app.get('/health', async (req, res) => {
     console.error('Health check response error:', error);
     // Fallback response
     res.status(500).send('{"status":"error","message":"Health check failed"}');
+  }
+});
+
+// API Health endpoint (alias for /health)
+app.get('/api/health', async (req, res) => {
+  try {
+    // Test database connection with timeout
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
+    
+    res.setHeader('Cache-Control', 'no-cache');
+    res.status(200).json({
+      success: true,
+      message: 'API is healthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      database: 'connected',
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (error) {
+    console.error('API health check failed:', error);
+    res.status(503).json({
+      success: false,
+      message: 'API is running but database is unavailable',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      database: 'disconnected',
+      environment: process.env.NODE_ENV || 'development',
+      error: error.message
+    });
   }
 });
 
