@@ -382,37 +382,47 @@ app.use(express.static(STATIC_PATH, {
         }
     }
 }));
-// Health check endpoint
+// Health check endpoint with enhanced error handling
 app.get('/health', async (req, res) => {
+    const startTime = Date.now();
     const healthCheck = {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         version: '1.0.0',
         environment: process.env.NODE_ENV || 'development',
-        uptime: process.uptime(),
+        uptime: Math.floor(process.uptime()),
         memory: process.memoryUsage(),
         database: 'disconnected',
+        response_time_ms: 0,
         checks: {
             database: false,
             jwt_secret: false,
             environment_vars: false,
-            static_files: false
+            static_files: false,
+            server_ready: true
         }
     };
     try {
         // Test database connection with timeout
         const client = await pool.connect();
-        const dbResult = await client.query('SELECT NOW() as current_time, version() as db_version');
-        client.release();
-        healthCheck.database = 'connected';
-        healthCheck.checks.database = true;
-        healthCheck.database_info = {
-            current_time: dbResult.rows[0].current_time,
-            version: dbResult.rows[0].db_version.split(' ')[0]
-        };
+        try {
+            const dbResult = await client.query('SELECT NOW() as current_time, version() as db_version');
+            healthCheck.database = 'connected';
+            healthCheck.checks.database = true;
+            healthCheck.database_info = {
+                current_time: dbResult.rows[0].current_time,
+                version: dbResult.rows[0].db_version.split(' ')[0]
+            };
+        }
+        finally {
+            client.release();
+        }
     }
     catch (error) {
-        console.error('Database health check failed:', error);
+        console.error('Database health check failed:', {
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
         healthCheck.status = 'unhealthy';
         healthCheck.database_error = error.message;
     }
@@ -425,22 +435,37 @@ app.get('/health', async (req, res) => {
         healthCheck.checks.environment_vars = true;
     }
     // Check static files
-    const indexPath = path.join(STATIC_PATH, 'index.html');
-    if (fs.existsSync(indexPath)) {
-        healthCheck.checks.static_files = true;
+    try {
+        const indexPath = path.join(STATIC_PATH, 'index.html');
+        if (fs.existsSync(indexPath)) {
+            healthCheck.checks.static_files = true;
+        }
+    }
+    catch (error) {
+        console.error('Static files check failed:', error);
     }
     // Overall health status
     const allChecksPass = Object.values(healthCheck.checks).every(check => check === true);
     if (!allChecksPass) {
         healthCheck.status = 'degraded';
     }
+    // Calculate response time
+    healthCheck.response_time_ms = Date.now() - startTime;
     const statusCode = healthCheck.status === 'healthy' ? 200 :
         healthCheck.status === 'degraded' ? 200 : 503;
-    // Set proper headers for health checks
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.status(statusCode).json(healthCheck);
+    try {
+        // Set proper headers for health checks
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.status(statusCode).json(healthCheck);
+    }
+    catch (error) {
+        console.error('Health check response error:', error);
+        // Fallback response
+        res.status(500).send('{"status":"error","message":"Health check failed"}');
+    }
 });
 // API status endpoint
 app.get('/api/status', async (req, res) => {
@@ -5037,43 +5062,99 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     process.exit(1);
 });
+// Graceful shutdown handler
+const gracefulShutdown = (signal) => {
+    console.log(`Received ${signal}. Starting graceful shutdown...`);
+    if (server) {
+        server.close((err) => {
+            if (err) {
+                console.error('Error during server shutdown:', err);
+                process.exit(1);
+            }
+            console.log('HTTP server closed.');
+            // Close database pool
+            pool.end()
+                .then(() => {
+                console.log('Database pool closed.');
+                process.exit(0);
+            })
+                .catch((err) => {
+                console.error('Error closing database pool:', err);
+                process.exit(1);
+            });
+        });
+        // Force shutdown after 10 seconds
+        setTimeout(() => {
+            console.error('Forced shutdown after timeout');
+            process.exit(1);
+        }, 10000);
+    }
+    else {
+        process.exit(0);
+    }
+};
 // Only start server if this file is run directly (not imported for testing)
 const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 let server;
 if (isMainModule) {
-    server = app.listen(port, '0.0.0.0', () => {
-        console.log(`Server running on port ${port}`);
-        console.log(`Health check: http://localhost:${port}/health`);
-        console.log(`API status: http://localhost:${port}/api/status`);
-        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-        // Test database connection on startup
-        pool.connect()
-            .then(client => {
-            console.log('Database connection successful');
-            client.release();
-        })
-            .catch(err => {
-            console.error('Database connection failed:', err);
+    // Enhanced startup logging
+    console.log('🚀 Starting PulseDeck Server...');
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Port: ${port}`);
+    console.log(`Host: 0.0.0.0`);
+    console.log(`Static files: ${STATIC_PATH}`);
+    // Test database connection before starting server
+    pool.connect()
+        .then(client => {
+        console.log('✅ Database connection successful');
+        client.release();
+        // Start server after database is confirmed working
+        server = app.listen(port, '0.0.0.0', () => {
+            console.log(`✅ Server running on port ${port}`);
+            console.log(`🔗 Health check: http://localhost:${port}/health`);
+            console.log(`📊 API status: http://localhost:${port}/api/status`);
+            console.log(`🌐 Frontend: http://localhost:${port}/`);
+            console.log('🎉 Server startup completed successfully!');
         });
-    });
-    // Handle server errors
-    server.on('error', (error) => {
-        if (error.syscall !== 'listen') {
-            throw error;
-        }
-        const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
-        switch (error.code) {
-            case 'EACCES':
-                console.error(bind + ' requires elevated privileges');
-                process.exit(1);
-                break;
-            case 'EADDRINUSE':
-                console.error(bind + ' is already in use');
-                process.exit(1);
-                break;
-            default:
+        // Handle server errors
+        server.on('error', (error) => {
+            console.error('🚨 Server error occurred:', error);
+            if (error.syscall !== 'listen') {
                 throw error;
-        }
+            }
+            const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+            switch (error.code) {
+                case 'EACCES':
+                    console.error(`❌ ${bind} requires elevated privileges`);
+                    process.exit(1);
+                    break;
+                case 'EADDRINUSE':
+                    console.error(`❌ ${bind} is already in use`);
+                    process.exit(1);
+                    break;
+                default:
+                    console.error(`❌ Server error: ${error.message}`);
+                    throw error;
+            }
+        });
+        // Setup graceful shutdown handlers
+        process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+        process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+        process.on('SIGUSR2', () => gracefulShutdown('SIGUSR2')); // For nodemon
+        // Handle uncaught exceptions and rejections
+        process.on('uncaughtException', (err) => {
+            console.error('🚨 Uncaught Exception:', err);
+            gracefulShutdown('uncaughtException');
+        });
+        process.on('unhandledRejection', (reason, promise) => {
+            console.error('🚨 Unhandled Rejection at:', promise, 'reason:', reason);
+            gracefulShutdown('unhandledRejection');
+        });
+    })
+        .catch(err => {
+        console.error('❌ Database connection failed:', err);
+        console.error('🚨 Server cannot start without database connection');
+        process.exit(1);
     });
 }
 // Export for testing
