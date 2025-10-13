@@ -9,18 +9,18 @@
       {
         "name": "Basic Connectivity",
         "status": "PASS",
-        "duration_ms": 97,
+        "duration_ms": 334,
         "message": "Server is responding and healthy",
         "details": {
           "status": "healthy",
-          "response_time": 4,
+          "response_time": 236,
           "database": "connected"
         }
       },
       {
         "name": "API Endpoints",
         "status": "PASS",
-        "duration_ms": 214,
+        "duration_ms": 942,
         "message": "All 5 API endpoints are working",
         "details": {
           "/api/health": {
@@ -46,14 +46,14 @@
           "/api/test/browser": {
             "status": 200,
             "success": true,
-            "response_time": "4"
+            "response_time": "235"
           }
         }
       },
       {
         "name": "CORS Headers",
         "status": "PASS",
-        "duration_ms": 37,
+        "duration_ms": 46,
         "message": "CORS headers are properly configured",
         "details": {
           "access-control-allow-origin": "https://browser-test.example.com",
@@ -65,7 +65,7 @@
       {
         "name": "Static File Serving",
         "status": "PASS",
-        "duration_ms": 34,
+        "duration_ms": 43,
         "message": "Static files are being served correctly",
         "details": {
           "content_type": "text/html; charset=UTF-8",
@@ -76,7 +76,7 @@
       {
         "name": "Authentication Endpoints",
         "status": "PASS",
-        "duration_ms": 1207,
+        "duration_ms": 1410,
         "message": "Authentication endpoints handle errors correctly",
         "details": {
           "login_endpoint": "Returns proper error responses",
@@ -86,18 +86,18 @@
       {
         "name": "Database Connectivity",
         "status": "PASS",
-        "duration_ms": 48,
+        "duration_ms": 276,
         "message": "Database is connected and responding",
         "details": {
           "status": "pass",
           "message": "Database connected successfully",
-          "query_time": 4
+          "query_time": 234
         }
       },
       {
         "name": "Error Handling",
         "status": "PASS",
-        "duration_ms": 38,
+        "duration_ms": 37,
         "message": "Error handling returns proper JSON responses",
         "details": {
           "404_handling": "Returns JSON error response",
@@ -107,7 +107,7 @@
       {
         "name": "Browser-Specific Features",
         "status": "PASS",
-        "duration_ms": 48,
+        "duration_ms": 273,
         "message": "Browser-specific features are working correctly",
         "details": {
           "browser_test_mode": true,
@@ -118,21 +118,21 @@
       {
         "name": "Performance",
         "status": "PASS",
-        "duration_ms": 142,
-        "message": "Average response time: 47ms",
+        "duration_ms": 867,
+        "message": "Average response time: 289ms",
         "details": {
           "https://123ad-performance.launchpulse.ai/health": {
-            "response_time_ms": 48,
+            "response_time_ms": 289,
             "status": 200,
             "content_length": "unknown"
           },
           "https://123ad-performance.launchpulse.ai/api/health": {
-            "response_time_ms": 43,
+            "response_time_ms": 278,
             "status": 200,
             "content_length": "unknown"
           },
           "https://123ad-performance.launchpulse.ai/api/status": {
-            "response_time_ms": 51,
+            "response_time_ms": 299,
             "status": 200,
             "content_length": "unknown"
           }
@@ -141,5 +141,5 @@
     ],
     "recommendations": []
   },
-  "duration_ms": 1866
+  "duration_ms": 4233
 }

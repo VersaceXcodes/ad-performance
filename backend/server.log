@@ -1,6 +1,10 @@
+
+> backend@1.0.0 start
+> node dist/server.js
+
 Using backend/public for static files
 🚀 Starting PulseDeck Server...
-Environment: production
+Environment: development
 Port: 3000
 Host: 0.0.0.0
 Static files: /app/backend/public
@@ -11,27 +15,12 @@ Static files: /app/backend/public
 🌐 Frontend: http://localhost:3000/
 🎉 Server startup completed successfully!
 Database connected successfully
-→ POST /api/auth/register - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← POST /api/auth/register - 201 - 93ms - JSON
-← POST /api/auth/register - 201 - 94ms
-127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "POST /api/auth/register HTTP/1.1" 201 493 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
-→ GET /api/auth/me - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← GET /api/auth/me - 200 - 8ms - JSON
-← GET /api/auth/me - 200 - 8ms
-127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "GET /api/auth/me HTTP/1.1" 200 145 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
-→ POST /api/auth/register - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← POST /api/auth/register - 201 - 13ms - JSON
-← POST /api/auth/register - 201 - 13ms
-127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "POST /api/auth/register HTTP/1.1" 201 526 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
-→ POST /api/workspaces - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← POST /api/workspaces - 201 - 25ms - JSON
-← POST /api/workspaces - 201 - 25ms
-127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "POST /api/workspaces HTTP/1.1" 201 626 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
-→ GET /api/workspaces - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← GET /api/workspaces - 200 - 14ms - JSON
-← GET /api/workspaces - 200 - 14ms
-127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "GET /api/workspaces HTTP/1.1" 200 373 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
-→ POST /api/auth/login - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
+→ GET /health - 127.0.0.1 - curl/7.88.1
+← GET /health - 200 - 242ms - JSON
+← GET /health - 200 - 243ms
+127.0.0.1 - - [13/Oct/2025:11:55:34 +0000] "GET /health HTTP/1.1" 200 462 "-" "curl/7.88.1"
+→ POST /api/auth/login - 127.0.0.1 - curl/7.88.1
+CORS: Unknown origin, but allowing for testing: http://test.example.com
 Invalid JSON received: {
   error: 'Unexpected token j in JSON at position 12',
   body: '{"invalid": json}',
@@ -40,7 +29,7 @@ Invalid JSON received: {
   ip: '127.0.0.1'
 }
 Unhandled error: Error: Invalid JSON format
-    at verify (file:///app/backend/dist/server.js:298:19)
+    at verify (file:///app/backend/dist/server.js:420:19)
     at /app/backend/node_modules/body-parser/lib/read.js:111:9
     at AsyncResource.runInAsyncScope (node:async_hooks:203:9)
     at invokeCallback (/app/backend/node_modules/raw-body/index.js:238:16)
@@ -55,13 +44,200 @@ Unhandled error: Error: Invalid JSON format
   body: <Buffer 7b 22 69 6e 76 61 6c 69 64 22 3a 20 6a 73 6f 6e 7d>,
   type: 'entity.verify.failed'
 }
-← POST /api/auth/login - 500 - 6ms - JSON
-← POST /api/auth/login - 500 - 6ms
-→ GET /api/auth/me - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
+← POST /api/auth/login - 500 - 21ms - JSON
+← POST /api/auth/login - 500 - 21ms
+→ POST /api/auth/login - 127.0.0.1 - curl/7.88.1
+CORS: Unknown origin, but allowing for testing: http://test.example.com
+Invalid JSON received: {
+  error: 'Unexpected token j in JSON at position 12',
+  body: '{"invalid": json}',
+  url: '/api/auth/login',
+  method: 'POST',
+  ip: '127.0.0.1'
+}
+Unhandled error: Error: Invalid JSON format
+    at verify (file:///app/backend/dist/server.js:420:19)
+    at /app/backend/node_modules/body-parser/lib/read.js:111:9
+    at AsyncResource.runInAsyncScope (node:async_hooks:203:9)
+    at invokeCallback (/app/backend/node_modules/raw-body/index.js:238:16)
+    at done (/app/backend/node_modules/raw-body/index.js:227:7)
+    at IncomingMessage.onEnd (/app/backend/node_modules/raw-body/index.js:287:7)
+    at IncomingMessage.emit (node:events:517:28)
+    at endReadableNT (node:internal/streams/readable:1400:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  expose: true,
+  statusCode: 403,
+  status: 403,
+  body: <Buffer 7b 22 69 6e 76 61 6c 69 64 22 3a 20 6a 73 6f 6e 7d>,
+  type: 'entity.verify.failed'
+}
+← POST /api/auth/login - 500 - 10ms - JSON
+← POST /api/auth/login - 500 - 10ms
+→ GET /health - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /health - 200 - 238ms - JSON
+← GET /health - 200 - 239ms
+127.0.0.1 - - [13/Oct/2025:11:55:56 +0000] "GET /health HTTP/1.1" 200 464 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/health - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/health - 200 - 236ms - JSON
+← GET /api/health - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:55:56 +0000] "GET /api/health HTTP/1.1" 200 151 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/status - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/status - 200 - 235ms - JSON
+← GET /api/status - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:55:56 +0000] "GET /api/status HTTP/1.1" 200 151 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/debug - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/debug - 200 - 3ms - JSON
+← GET /api/debug - 200 - 3ms
+127.0.0.1 - - [13/Oct/2025:11:55:56 +0000] "GET /api/debug HTTP/1.1" 200 585 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/test/connectivity - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/test/connectivity - 200 - 2ms - JSON
+← GET /api/test/connectivity - 200 - 2ms
+127.0.0.1 - - [13/Oct/2025:11:55:56 +0000] "GET /api/test/connectivity HTTP/1.1" 200 811 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/test/browser - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/test/browser - 200 - 236ms - JSON
+← GET /api/test/browser - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:55:57 +0000] "GET /api/test/browser HTTP/1.1" 200 1791 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ OPTIONS /api/health - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+CORS: Unknown origin, but allowing for testing: https://browser-test.example.com
+→ GET / - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+127.0.0.1 - - [13/Oct/2025:11:55:57 +0000] "GET / HTTP/1.1" 200 1270 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ POST /api/auth/login - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← POST /api/auth/login - 400 - 1239ms - JSON
+← POST /api/auth/login - 400 - 1239ms
+127.0.0.1 - - [13/Oct/2025:11:55:58 +0000] "POST /api/auth/login HTTP/1.1" 400 129 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ POST /api/auth/register - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← POST /api/auth/register - 400 - 4ms - JSON
+← POST /api/auth/register - 400 - 4ms
+127.0.0.1 - - [13/Oct/2025:11:55:58 +0000] "POST /api/auth/register HTTP/1.1" 400 2307 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/test/browser - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/test/browser - 200 - 235ms - JSON
+← GET /api/test/browser - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:55:58 +0000] "GET /api/test/browser HTTP/1.1" 200 1791 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/nonexistent-endpoint - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET / - 404 - 2ms - JSON
+← GET / - 404 - 2ms
+127.0.0.1 - - [13/Oct/2025:11:55:59 +0000] "GET /api/nonexistent-endpoint HTTP/1.1" 404 125 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/test/browser - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/test/browser - 200 - 235ms - JSON
+← GET /api/test/browser - 200 - 235ms
+127.0.0.1 - - [13/Oct/2025:11:55:59 +0000] "GET /api/test/browser HTTP/1.1" 200 1791 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /health - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /health - 200 - 236ms - JSON
+← GET /health - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:55:59 +0000] "GET /health HTTP/1.1" 200 463 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/health - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/health - 200 - 236ms - JSON
+← GET /api/health - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:55:59 +0000] "GET /api/health HTTP/1.1" 200 151 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /api/status - 127.0.0.1 - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+← GET /api/status - 200 - 236ms - JSON
+← GET /api/status - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:56:00 +0000] "GET /api/status HTTP/1.1" 200 151 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.124 Safari/537.36"
+→ GET /health - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /health - 200 - 236ms - JSON
+← GET /health - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:56:11 +0000] "GET /health HTTP/1.1" 200 463 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET /api/status - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /api/status - 200 - 235ms - JSON
+← GET /api/status - 200 - 235ms
+127.0.0.1 - - [13/Oct/2025:11:56:11 +0000] "GET /api/status HTTP/1.1" 200 151 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET / - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+127.0.0.1 - - [13/Oct/2025:11:56:11 +0000] "GET / HTTP/1.1" 200 1270 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET /api/test/browser - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /api/test/browser - 200 - 235ms - JSON
+← GET /api/test/browser - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:56:12 +0000] "GET /api/test/browser HTTP/1.1" 200 1728 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ OPTIONS /api/auth/login - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+CORS: Allowing browser test origin: https://123ad-performance.launchpulse.ai UA: 
+→ POST /api/auth/login - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+Invalid JSON received: {
+  error: 'Unexpected token j in JSON at position 12',
+  body: '{"invalid": json}',
+  url: '/api/auth/login',
+  method: 'POST',
+  ip: '127.0.0.1'
+}
+Unhandled error: Error: Invalid JSON format
+    at verify (file:///app/backend/dist/server.js:420:19)
+    at /app/backend/node_modules/body-parser/lib/read.js:111:9
+    at AsyncResource.runInAsyncScope (node:async_hooks:203:9)
+    at invokeCallback (/app/backend/node_modules/raw-body/index.js:238:16)
+    at done (/app/backend/node_modules/raw-body/index.js:227:7)
+    at IncomingMessage.onEnd (/app/backend/node_modules/raw-body/index.js:287:7)
+    at IncomingMessage.emit (node:events:517:28)
+    at endReadableNT (node:internal/streams/readable:1400:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  expose: true,
+  statusCode: 403,
+  status: 403,
+  body: <Buffer 7b 22 69 6e 76 61 6c 69 64 22 3a 20 6a 73 6f 6e 7d>,
+  type: 'entity.verify.failed'
+}
+← POST /api/auth/login - 500 - 1ms - JSON
+← POST /api/auth/login - 500 - 1ms
+→ GET /api/auth/me - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
 ← GET /api/auth/me - 401 - 1ms - JSON
 ← GET /api/auth/me - 401 - 1ms
-127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "GET /api/auth/me HTTP/1.1" 401 125 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
-→ GET /api/nonexistent - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← GET / - 404 - 1ms - JSON
-← GET / - 404 - 2ms
-127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "GET /api/nonexistent HTTP/1.1" 404 125 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
+127.0.0.1 - - [13/Oct/2025:11:56:12 +0000] "GET /api/auth/me HTTP/1.1" 401 125 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ POST /api/auth/register - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← POST /api/auth/register - 201 - 710ms - JSON
+← POST /api/auth/register - 201 - 710ms
+127.0.0.1 - - [13/Oct/2025:11:56:13 +0000] "POST /api/auth/register HTTP/1.1" 201 493 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET /api/auth/me - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /api/auth/me - 200 - 239ms - JSON
+← GET /api/auth/me - 200 - 239ms
+127.0.0.1 - - [13/Oct/2025:11:56:13 +0000] "GET /api/auth/me HTTP/1.1" 200 145 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET /health - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /health - 200 - 235ms - JSON
+← GET /health - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:56:13 +0000] "GET /health HTTP/1.1" 200 464 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET /api/status - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /api/status - 200 - 234ms - JSON
+← GET /api/status - 200 - 234ms
+127.0.0.1 - - [13/Oct/2025:11:56:13 +0000] "GET /api/status HTTP/1.1" 200 151 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET / - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+127.0.0.1 - - [13/Oct/2025:11:56:13 +0000] "GET / HTTP/1.1" 200 1270 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET /api/test/browser - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /api/test/browser - 200 - 234ms - JSON
+← GET /api/test/browser - 200 - 235ms
+127.0.0.1 - - [13/Oct/2025:11:56:14 +0000] "GET /api/test/browser HTTP/1.1" 200 1660 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ OPTIONS /api/auth/login - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+CORS: Allowing browser test origin: http://localhost:3000 UA: 
+→ POST /api/auth/login - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+Invalid JSON received: {
+  error: 'Unexpected token j in JSON at position 12',
+  body: '{"invalid": json}',
+  url: '/api/auth/login',
+  method: 'POST',
+  ip: '127.0.0.1'
+}
+Unhandled error: Error: Invalid JSON format
+    at verify (file:///app/backend/dist/server.js:420:19)
+    at /app/backend/node_modules/body-parser/lib/read.js:111:9
+    at AsyncResource.runInAsyncScope (node:async_hooks:203:9)
+    at invokeCallback (/app/backend/node_modules/raw-body/index.js:238:16)
+    at done (/app/backend/node_modules/raw-body/index.js:227:7)
+    at IncomingMessage.onEnd (/app/backend/node_modules/raw-body/index.js:287:7)
+    at IncomingMessage.emit (node:events:517:28)
+    at endReadableNT (node:internal/streams/readable:1400:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  expose: true,
+  statusCode: 403,
+  status: 403,
+  body: <Buffer 7b 22 69 6e 76 61 6c 69 64 22 3a 20 6a 73 6f 6e 7d>,
+  type: 'entity.verify.failed'
+}
+← POST /api/auth/login - 500 - 1ms - JSON
+← POST /api/auth/login - 500 - 1ms
+→ GET /api/auth/me - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /api/auth/me - 401 - 1ms - JSON
+← GET /api/auth/me - 401 - 1ms
+127.0.0.1 - - [13/Oct/2025:11:56:14 +0000] "GET /api/auth/me HTTP/1.1" 401 125 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ POST /api/auth/register - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← POST /api/auth/register - 201 - 706ms - JSON
+← POST /api/auth/register - 201 - 706ms
+127.0.0.1 - - [13/Oct/2025:11:56:14 +0000] "POST /api/auth/register HTTP/1.1" 201 493 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
+→ GET /api/auth/me - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.
+← GET /api/auth/me - 200 - 235ms - JSON
+← GET /api/auth/me - 200 - 236ms
+127.0.0.1 - - [13/Oct/2025:11:56:15 +0000] "GET /api/auth/me HTTP/1.1" 200 145 "-" "Mozilla/5.0 (HeadlessChrome/118.0.0.0) Safari/537.36 Browser-Test-Agent"
