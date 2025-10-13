@@ -1,0 +1,144 @@
+{
+  "success": true,
+  "summary": {
+    "total_tests": 9,
+    "passed_tests": 9,
+    "failed_tests": 0,
+    "warnings": 0,
+    "test_results": [
+      {
+        "name": "Basic Connectivity",
+        "status": "PASS",
+        "duration_ms": 112,
+        "message": "Server is responding and healthy",
+        "details": {
+          "status": "healthy",
+          "response_time": 7,
+          "database": "connected"
+        }
+      },
+      {
+        "name": "API Endpoints",
+        "status": "PASS",
+        "duration_ms": 233,
+        "message": "All 5 API endpoints are working",
+        "details": {
+          "/api/health": {
+            "status": 200,
+            "success": true,
+            "response_time": "unknown"
+          },
+          "/api/status": {
+            "status": 200,
+            "success": true,
+            "response_time": "unknown"
+          },
+          "/api/debug": {
+            "status": 200,
+            "success": true,
+            "response_time": "unknown"
+          },
+          "/api/test/connectivity": {
+            "status": 200,
+            "success": true,
+            "response_time": "unknown"
+          },
+          "/api/test/browser": {
+            "status": 200,
+            "success": true,
+            "response_time": "unknown"
+          }
+        }
+      },
+      {
+        "name": "CORS Headers",
+        "status": "PASS",
+        "duration_ms": 37,
+        "message": "CORS headers are properly configured",
+        "details": {
+          "access-control-allow-origin": "https://browser-test.example.com",
+          "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH",
+          "access-control-allow-headers": "Content-Type,Authorization,X-Requested-With,Accept,Origin,Cache-Control,X-Forwarded-For,X-Forwarded-Proto,X-Real-IP,User-Agent,Referer,X-Automation,X-Test-Mode,X-CSRF-Token,X-Client-Version",
+          "access-control-allow-credentials": "true"
+        }
+      },
+      {
+        "name": "Static File Serving",
+        "status": "PASS",
+        "duration_ms": 40,
+        "message": "Static files are being served correctly",
+        "details": {
+          "content_type": "text/html; charset=UTF-8",
+          "has_scripts": true,
+          "has_stylesheets": true
+        }
+      },
+      {
+        "name": "Authentication Endpoints",
+        "status": "PASS",
+        "duration_ms": 1234,
+        "message": "Authentication endpoints handle errors correctly",
+        "details": {
+          "login_endpoint": "Returns proper error responses",
+          "register_endpoint": "Validates input correctly"
+        }
+      },
+      {
+        "name": "Database Connectivity",
+        "status": "PASS",
+        "duration_ms": 56,
+        "message": "Database is connected and responding",
+        "details": {
+          "status": "pass",
+          "message": "Database connected at Mon Oct 13 2025 11:36:49 GMT+0000 (Coordinated Universal Time)"
+        }
+      },
+      {
+        "name": "Error Handling",
+        "status": "PASS",
+        "duration_ms": 52,
+        "message": "Error handling returns proper JSON responses",
+        "details": {
+          "404_handling": "Returns JSON error response",
+          "content_type": "application/json"
+        }
+      },
+      {
+        "name": "Browser-Specific Features",
+        "status": "PASS",
+        "duration_ms": 45,
+        "message": "Browser-specific features are working correctly",
+        "details": {
+          "browser_test_mode": true,
+          "test_results": 6,
+          "server_detection": "comprehensive-test"
+        }
+      },
+      {
+        "name": "Performance",
+        "status": "PASS",
+        "duration_ms": 119,
+        "message": "Average response time: 40ms",
+        "details": {
+          "https://123ad-performance.launchpulse.ai/health": {
+            "response_time_ms": 44,
+            "status": 200,
+            "content_length": "unknown"
+          },
+          "https://123ad-performance.launchpulse.ai/api/health": {
+            "response_time_ms": 38,
+            "status": 200,
+            "content_length": "unknown"
+          },
+          "https://123ad-performance.launchpulse.ai/api/status": {
+            "response_time_ms": 37,
+            "status": 200,
+            "content_length": "unknown"
+          }
+        }
+      }
+    ],
+    "recommendations": []
+  },
+  "duration_ms": 1932
+}

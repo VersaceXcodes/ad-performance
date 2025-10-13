@@ -187,7 +187,7 @@ const retryRequest = async (fn: () => Promise<any>, maxRetries = 3, delay = 1000
   }
 };
 
-// Configure axios defaults
+// Configure axios defaults with enhanced browser testing support
 axios.defaults.timeout = 45000; // 45 second timeout for better reliability
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['Accept'] = 'application/json';
@@ -195,16 +195,35 @@ axios.defaults.withCredentials = true;
 axios.defaults.maxRedirects = 5; // Handle redirects
 axios.defaults.validateStatus = (status) => status < 500; // Don't throw on 4xx
 
-// Add browser testing headers if in test environment
-if (typeof window !== 'undefined' && (
-  window.navigator.userAgent.includes('HeadlessChrome') ||
-  window.navigator.userAgent.includes('PhantomJS') ||
-  window.navigator.userAgent.includes('Selenium') ||
-  window.navigator.userAgent.includes('Playwright') ||
-  window.navigator.userAgent.includes('Puppeteer')
-)) {
-  axios.defaults.headers.common['X-Automation'] = 'true';
-  axios.defaults.headers.common['X-Test-Mode'] = 'browser-testing';
+// Enhanced retry configuration for better reliability
+axios.defaults.retry = 3;
+axios.defaults.retryDelay = 1000;
+
+// Enhanced browser testing detection and headers
+if (typeof window !== 'undefined') {
+  const userAgent = window.navigator.userAgent;
+  const isBrowserTest = userAgent.includes('HeadlessChrome') ||
+                       userAgent.includes('PhantomJS') ||
+                       userAgent.includes('Selenium') ||
+                       userAgent.includes('Playwright') ||
+                       userAgent.includes('Puppeteer') ||
+                       userAgent.includes('Chrome-Lighthouse') ||
+                       userAgent.includes('jsdom') ||
+                       window.location.hostname.includes('test') ||
+                       window.location.search.includes('test=true');
+  
+  if (isBrowserTest) {
+    axios.defaults.headers.common['X-Automation'] = 'true';
+    axios.defaults.headers.common['X-Test-Mode'] = 'browser-testing';
+    axios.defaults.headers.common['X-Browser-Test'] = 'true';
+    axios.defaults.headers.common['X-Testing-Framework'] = 'browser-automation';
+    
+    console.log('Browser testing mode detected:', {
+      userAgent: userAgent.substring(0, 50),
+      hostname: window.location.hostname,
+      testMode: 'active'
+    });
+  }
 }
 
 // Request interceptor to add auth token
@@ -267,15 +286,27 @@ axios.interceptors.response.use(
         return Promise.reject(new Error('Server error. Please try again later.'));
       }
       
-      // Handle Cloudflare and proxy errors
+      // Handle Cloudflare and proxy errors with more specific messages
       if (status === 502) {
-        return Promise.reject(new Error('Bad Gateway - Server connection failed. Please try again.'));
+        return Promise.reject(new Error('Bad Gateway (502) - Server connection failed. The backend server may be down or unreachable.'));
       }
       if (status === 503) {
-        return Promise.reject(new Error('Service Unavailable - Server is temporarily down. Please try again.'));
+        return Promise.reject(new Error('Service Unavailable (503) - Server is temporarily down. Please wait a moment and try again.'));
       }
       if (status === 504) {
-        return Promise.reject(new Error('Gateway Timeout - Server took too long to respond. Please try again.'));
+        return Promise.reject(new Error('Gateway Timeout (504) - Server took too long to respond. This may indicate server overload.'));
+      }
+      if (status === 521) {
+        return Promise.reject(new Error('Web Server Is Down (521) - Cloudflare could not connect to the origin server.'));
+      }
+      if (status === 522) {
+        return Promise.reject(new Error('Connection Timed Out (522) - Cloudflare timed out connecting to the origin server.'));
+      }
+      if (status === 523) {
+        return Promise.reject(new Error('Origin Is Unreachable (523) - Cloudflare could not reach the origin server.'));
+      }
+      if (status === 524) {
+        return Promise.reject(new Error('A Timeout Occurred (524) - Cloudflare was able to complete a TCP connection but did not receive a timely HTTP response.'));
       }
       
       return Promise.reject(new Error(data?.message || `Request failed with status ${status}`));
@@ -358,13 +389,29 @@ export const useAppStore = create<AppStore>()(
           // First test API connectivity with retry
           await retryRequest(async () => {
             const response = await axios.get(`${getApiBaseUrl()}/api/health`, { 
-              timeout: 8000,
-              headers: { 'X-Browser-Test': 'login-connectivity-check' }
+              timeout: 10000,
+              headers: { 
+                'X-Browser-Test': 'login-connectivity-check',
+                'X-Test-Mode': 'pre-login-health-check'
+              }
             });
-            if (!response.data || !response.data.success) {
-              throw new Error('API health check failed');
+            
+            // Enhanced health check validation
+            if (!response.data) {
+              throw new Error('API health check returned no data');
             }
-          }, 3, 1000);
+            
+            if (response.data.status !== 'healthy' && !response.data.success) {
+              throw new Error(`API health check failed: ${response.data.message || 'Unknown error'}`);
+            }
+            
+            // Check specific health indicators
+            if (response.data.checks && response.data.checks.database === false) {
+              throw new Error('Database connection failed during health check');
+            }
+            
+            console.log('API connectivity verified:', response.data.status || response.data.message);
+          }, 3, 1500);
 
           // Perform login with retry
           const response = await retryRequest(async () => {
