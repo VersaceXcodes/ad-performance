@@ -1,10 +1,6 @@
-
-> backend@1.0.0 dev
-> tsx server.ts
-
 Using backend/public for static files
 🚀 Starting PulseDeck Server...
-Environment: development
+Environment: production
 Port: 3000
 Host: 0.0.0.0
 Static files: /app/backend/public
@@ -15,48 +11,26 @@ Static files: /app/backend/public
 🌐 Frontend: http://localhost:3000/
 🎉 Server startup completed successfully!
 Database connected successfully
-→ GET /health - 127.0.0.1 - curl/7.88.1
-← GET /health - 200 - 13ms - JSON
-← GET /health - 200 - 14ms
-127.0.0.1 - - [12/Oct/2025:20:40:21 +0000] "GET /health HTTP/1.1" 200 461 "-" "curl/7.88.1"
-→ GET /api/test/validate - 127.0.0.1 - curl/7.88.1
-← GET /api/test/validate - 200 - 9ms - JSON
-← GET /api/test/validate - 200 - 10ms
-127.0.0.1 - - [12/Oct/2025:20:40:24 +0000] "GET /api/test/validate HTTP/1.1" 200 514 "-" "curl/7.88.1"
-→ GET /api/test/browser - 127.0.0.1 - curl/7.88.1
-← GET /api/test/browser - 200 - 11ms - JSON
-← GET /api/test/browser - 200 - 11ms
-127.0.0.1 - - [12/Oct/2025:20:40:25 +0000] "GET /api/test/browser HTTP/1.1" 200 767 "-" "curl/7.88.1"
-→ HEAD / - 127.0.0.1 - curl/7.88.1
-127.0.0.1 - - [12/Oct/2025:20:40:26 +0000] "HEAD / HTTP/1.1" 200 1270 "-" "curl/7.88.1"
-→ GET /api/test/connectivity - 127.0.0.1 - curl/7.88.1
-← GET /api/test/connectivity - 200 - 4ms - JSON
-← GET /api/test/connectivity - 200 - 5ms
-127.0.0.1 - - [12/Oct/2025:20:40:39 +0000] "GET /api/test/connectivity HTTP/1.1" 200 670 "-" "curl/7.88.1"
-→ GET /api/test/validate - 127.0.0.1 - HeadlessChrome/118.0.0.0 Safari/537.36
-← GET /api/test/validate - 200 - 11ms - JSON
-← GET /api/test/validate - 200 - 12ms
-127.0.0.1 - - [12/Oct/2025:20:40:44 +0000] "GET /api/test/validate HTTP/1.1" 200 514 "-" "HeadlessChrome/118.0.0.0 Safari/537.36"
 → POST /api/auth/register - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← POST /api/auth/register - 201 - 61ms - JSON
-← POST /api/auth/register - 201 - 62ms
-127.0.0.1 - - [12/Oct/2025:20:40:46 +0000] "POST /api/auth/register HTTP/1.1" 201 493 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
+← POST /api/auth/register - 201 - 93ms - JSON
+← POST /api/auth/register - 201 - 94ms
+127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "POST /api/auth/register HTTP/1.1" 201 493 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
 → GET /api/auth/me - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← GET /api/auth/me - 200 - 13ms - JSON
-← GET /api/auth/me - 200 - 14ms
-127.0.0.1 - - [12/Oct/2025:20:40:46 +0000] "GET /api/auth/me HTTP/1.1" 200 145 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
+← GET /api/auth/me - 200 - 8ms - JSON
+← GET /api/auth/me - 200 - 8ms
+127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "GET /api/auth/me HTTP/1.1" 200 145 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
 → POST /api/auth/register - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← POST /api/auth/register - 201 - 26ms - JSON
-← POST /api/auth/register - 201 - 26ms
-127.0.0.1 - - [12/Oct/2025:20:40:46 +0000] "POST /api/auth/register HTTP/1.1" 201 526 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
+← POST /api/auth/register - 201 - 13ms - JSON
+← POST /api/auth/register - 201 - 13ms
+127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "POST /api/auth/register HTTP/1.1" 201 526 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
 → POST /api/workspaces - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← POST /api/workspaces - 201 - 40ms - JSON
-← POST /api/workspaces - 201 - 40ms
-127.0.0.1 - - [12/Oct/2025:20:40:46 +0000] "POST /api/workspaces HTTP/1.1" 201 626 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
+← POST /api/workspaces - 201 - 25ms - JSON
+← POST /api/workspaces - 201 - 25ms
+127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "POST /api/workspaces HTTP/1.1" 201 626 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
 → GET /api/workspaces - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← GET /api/workspaces - 200 - 20ms - JSON
-← GET /api/workspaces - 200 - 21ms
-127.0.0.1 - - [12/Oct/2025:20:40:46 +0000] "GET /api/workspaces HTTP/1.1" 200 373 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
+← GET /api/workspaces - 200 - 14ms - JSON
+← GET /api/workspaces - 200 - 14ms
+127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "GET /api/workspaces HTTP/1.1" 200 373 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
 → POST /api/auth/login - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
 Invalid JSON received: {
   error: 'Unexpected token j in JSON at position 12',
@@ -66,7 +40,7 @@ Invalid JSON received: {
   ip: '127.0.0.1'
 }
 Unhandled error: Error: Invalid JSON format
-    at verify (/app/backend/server.ts:417:13)
+    at verify (file:///app/backend/dist/server.js:298:19)
     at /app/backend/node_modules/body-parser/lib/read.js:111:9
     at AsyncResource.runInAsyncScope (node:async_hooks:203:9)
     at invokeCallback (/app/backend/node_modules/raw-body/index.js:238:16)
@@ -81,20 +55,13 @@ Unhandled error: Error: Invalid JSON format
   body: <Buffer 7b 22 69 6e 76 61 6c 69 64 22 3a 20 6a 73 6f 6e 7d>,
   type: 'entity.verify.failed'
 }
-← POST /api/auth/login - 500 - 73ms - JSON
-← POST /api/auth/login - 500 - 73ms
+← POST /api/auth/login - 500 - 6ms - JSON
+← POST /api/auth/login - 500 - 6ms
 → GET /api/auth/me - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
 ← GET /api/auth/me - 401 - 1ms - JSON
 ← GET /api/auth/me - 401 - 1ms
-127.0.0.1 - - [12/Oct/2025:20:40:46 +0000] "GET /api/auth/me HTTP/1.1" 401 125 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
+127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "GET /api/auth/me HTTP/1.1" 401 125 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
 → GET /api/nonexistent - 127.0.0.1 - Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser
-← GET / - 404 - 7ms - JSON
-← GET / - 404 - 7ms
-127.0.0.1 - - [12/Oct/2025:20:40:46 +0000] "GET /api/nonexistent HTTP/1.1" 404 125 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
-→ GET /health - 127.0.0.1 - curl/7.88.1
-← GET /health - 200 - 7ms - JSON
-← GET /health - 200 - 7ms
-127.0.0.1 - - [12/Oct/2025:20:40:46 +0000] "GET /health HTTP/1.1" 200 461 "-" "curl/7.88.1"
-SIGTERM received, shutting down gracefully
-Received SIGTERM. Starting graceful shutdown...
-HTTP server closed.
+← GET / - 404 - 1ms - JSON
+← GET / - 404 - 2ms
+127.0.0.1 - - [13/Oct/2025:10:51:57 +0000] "GET /api/nonexistent HTTP/1.1" 404 125 "https://123ad-performance.launchpulse.ai/" "Mozilla/5.0 (HeadlessChrome/91.0.4472.124) Browser-Test"
