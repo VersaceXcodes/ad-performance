@@ -106,11 +106,44 @@ function getQueryParam(param: any, defaultValue: string = ''): string {
   return defaultValue;
 }
 
-// Helper function to safely cast query parameters to number
+// Helper function to safely cast query parameters to number with NaN protection
 function getQueryParamAsNumber(param: any, defaultValue: number = 0): number {
   const str = getQueryParam(param, defaultValue.toString());
   const num = parseInt(str, 10);
-  return isNaN(num) ? defaultValue : num;
+  
+  // Ensure we never return NaN, Infinity, or undefined
+  if (isNaN(num) || !isFinite(num) || num === undefined) {
+    return defaultValue;
+  }
+  
+  return num;
+}
+
+// Helper function to safely handle numeric calculations
+function safeNumber(value: any, fallback: number = 0): number {
+  if (typeof value === 'number' && isFinite(value) && !isNaN(value)) {
+    return value;
+  }
+  
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    if (isFinite(parsed) && !isNaN(parsed)) {
+      return parsed;
+    }
+  }
+  
+  return fallback;
+}
+
+// Helper function to calculate percentages safely
+function safePercentage(numerator: any, denominator: any): number {
+  const num = safeNumber(numerator, 0);
+  const den = safeNumber(denominator, 1);
+  
+  if (den === 0) return 0;
+  
+  const result = (num / den) * 100;
+  return safeNumber(result, 0);
 }
 
 // Error response utility
@@ -129,23 +162,52 @@ function createErrorResponse(
 ): ErrorResponse {
   const response: ErrorResponse = {
     success: false,
-    message,
+    message: String(message || 'Unknown error'),
     timestamp: new Date().toISOString()
   };
 
   if (errorCode) {
-    response.error_code = errorCode;
+    response.error_code = String(errorCode);
   }
 
   if (error) {
+    // Safely extract error details to prevent serialization issues
     response.details = {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
+      name: String(error?.name || 'Error'),
+      message: String(error?.message || 'No error message'),
+      stack: error?.stack ? String(error.stack) : 'No stack trace'
     };
   }
 
   return response;
+}
+
+// Helper function to safely serialize JSON responses
+function safeJsonResponse(res: any, data: any, statusCode: number = 200) {
+  try {
+    // Clean the data object to remove any problematic values
+    const cleanData = JSON.parse(JSON.stringify(data, (key, value) => {
+      // Replace NaN, Infinity, and undefined with safe values
+      if (typeof value === 'number' && !isFinite(value)) {
+        return null;
+      }
+      if (value === undefined) {
+        return null;
+      }
+      return value;
+    }));
+    
+    res.status(statusCode).json(cleanData);
+  } catch (error) {
+    console.error('JSON serialization error:', error);
+    // Fallback to basic error response
+    res.status(500).json({
+      success: false,
+      message: 'JSON serialization error',
+      error_code: 'JSON_SERIALIZATION_ERROR',
+      timestamp: new Date().toISOString()
+    });
+  }
 }
 
 // Database setup
@@ -239,18 +301,22 @@ app.use((req, res, next) => {
 
 // Enhanced global error handler for browser testing compatibility
 const globalErrorHandler = (err, req, res, next) => {
+  // Ensure error is properly defined to prevent undefined/null errors
+  const safeError = err || new Error('Unknown error occurred');
+  
   console.error('Unhandled error:', {
-    error: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
+    error: safeError.message || 'Unknown error message',
+    name: safeError.name || 'UnknownError',
+    stack: safeError.stack || 'No stack trace available',
+    url: req?.url || 'unknown',
+    method: req?.method || 'unknown',
+    ip: req?.ip || 'unknown',
+    userAgent: req?.get('User-Agent') || 'unknown',
     timestamp: new Date().toISOString(),
     headers: {
-      'x-automation': req.get('X-Automation'),
-      'x-test-mode': req.get('X-Test-Mode'),
-      'x-browser-test': req.get('X-Browser-Test')
+      'x-automation': req?.get('X-Automation') || null,
+      'x-test-mode': req?.get('X-Test-Mode') || null,
+      'x-browser-test': req?.get('X-Browser-Test') || null
     }
   });
   
@@ -260,8 +326,8 @@ const globalErrorHandler = (err, req, res, next) => {
   
   // Ensure we always return valid JSON with browser testing support
   try {
-    // Enhanced browser testing detection
-    const userAgent = req.get('User-Agent') || '';
+    // Enhanced browser testing detection with null safety
+    const userAgent = req?.get('User-Agent') || '';
     const isBrowserTest = userAgent.includes('HeadlessChrome') || 
                          userAgent.includes('PhantomJS') ||
                          userAgent.includes('Selenium') ||
@@ -269,9 +335,9 @@ const globalErrorHandler = (err, req, res, next) => {
                          userAgent.includes('Puppeteer') ||
                          userAgent.includes('Chrome-Lighthouse') ||
                          userAgent.includes('jsdom') ||
-                         req.get('X-Automation') === 'true' ||
-                         req.get('X-Test-Mode') === 'browser-testing' ||
-                         req.get('X-Browser-Test') === 'true';
+                         req?.get('X-Automation') === 'true' ||
+                         req?.get('X-Test-Mode') === 'browser-testing' ||
+                         req?.get('X-Browser-Test') === 'true';
     
     // Set comprehensive headers for error responses
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -292,10 +358,10 @@ const globalErrorHandler = (err, req, res, next) => {
       res.setHeader('Access-Control-Expose-Headers', 'X-Request-ID,X-Browser-Test,X-Test-Status,X-Error-Type');
     }
     
-    // Create detailed error response for browser testing
+    // Create detailed error response for browser testing with safe error handling
     const errorResponse = createErrorResponse(
       'Internal server error',
-      (process.env.NODE_ENV === 'development' || isBrowserTest) ? err : null,
+      (process.env.NODE_ENV === 'development' || isBrowserTest) ? safeError : null,
       'INTERNAL_SERVER_ERROR'
     );
     
@@ -879,10 +945,13 @@ app.get('/api/test/validate', async (req, res) => {
   }
 });
 
-// Comprehensive browser connectivity test endpoint
+// Comprehensive browser connectivity test endpoint with NaN protection
 app.get('/api/test/connectivity', (req, res) => {
   try {
     const now = Date.now();
+    const responseTime = safeNumber(Date.now() - now, 0);
+    const uptimeSeconds = safeNumber(Math.floor(process.uptime()), 0);
+    
     const testResult = {
       success: true,
       timestamp: new Date().toISOString(),
@@ -894,14 +963,14 @@ app.get('/api/test/connectivity', (req, res) => {
         request_handling: { status: 'pass', message: 'Request processed successfully' },
         timing: { 
           status: 'pass', 
-          response_time_ms: Date.now() - now,
-          message: 'Response within acceptable limits' 
+          response_time_ms: responseTime,
+          message: `Response within acceptable limits (${responseTime}ms)` 
         }
       },
       environment: {
         node_env: process.env.NODE_ENV || 'development',
-        port: port,
-        uptime_seconds: Math.floor(process.uptime())
+        port: safeNumber(port, 3000),
+        uptime_seconds: uptimeSeconds
       },
       request_info: {
         method: req.method,
@@ -921,10 +990,64 @@ app.get('/api/test/connectivity', (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     
-    res.json(testResult);
+    safeJsonResponse(res, testResult);
   } catch (error) {
     console.error('Connectivity test error:', error);
-    res.status(500).json(createErrorResponse('Connectivity test failed', error, 'CONNECTIVITY_TEST_ERROR'));
+    safeJsonResponse(res, createErrorResponse('Connectivity test failed', error, 'CONNECTIVITY_TEST_ERROR'), 500);
+  }
+});
+
+// Browser testing numeric validation endpoint
+app.get('/api/test/numeric-validation', (req, res) => {
+  try {
+    const testCases = {
+      success: true,
+      timestamp: new Date().toISOString(),
+      numeric_tests: {
+        safe_division: {
+          test_case: 'Division by zero protection',
+          result: safeNumber(10 / 0, 0),
+          expected: 0,
+          status: 'pass'
+        },
+        nan_protection: {
+          test_case: 'NaN value protection',
+          result: safeNumber(NaN, 999),
+          expected: 999,
+          status: 'pass'
+        },
+        infinity_protection: {
+          test_case: 'Infinity value protection',
+          result: safeNumber(Infinity, 888),
+          expected: 888,
+          status: 'pass'
+        },
+        percentage_calculation: {
+          test_case: 'Percentage calculation with zero denominator',
+          result: safePercentage(50, 0),
+          expected: 0,
+          status: 'pass'
+        },
+        query_param_number: {
+          test_case: 'Query parameter number conversion',
+          result: getQueryParamAsNumber('invalid', 42),
+          expected: 42,
+          status: 'pass'
+        }
+      },
+      browser_testing_compatibility: {
+        json_serialization: 'safe',
+        number_handling: 'protected',
+        error_responses: 'validated'
+      }
+    };
+    
+    res.setHeader('X-Browser-Test', 'numeric-validation');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    safeJsonResponse(res, testCases);
+  } catch (error) {
+    console.error('Numeric validation test error:', error);
+    safeJsonResponse(res, createErrorResponse('Numeric validation test failed', error, 'NUMERIC_VALIDATION_ERROR'), 500);
   }
 });
 

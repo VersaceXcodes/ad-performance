@@ -9,18 +9,18 @@
       {
         "name": "Basic Connectivity",
         "status": "PASS",
-        "duration_ms": 112,
+        "duration_ms": 97,
         "message": "Server is responding and healthy",
         "details": {
           "status": "healthy",
-          "response_time": 7,
+          "response_time": 4,
           "database": "connected"
         }
       },
       {
         "name": "API Endpoints",
         "status": "PASS",
-        "duration_ms": 233,
+        "duration_ms": 214,
         "message": "All 5 API endpoints are working",
         "details": {
           "/api/health": {
@@ -46,7 +46,7 @@
           "/api/test/browser": {
             "status": 200,
             "success": true,
-            "response_time": "unknown"
+            "response_time": "4"
           }
         }
       },
@@ -58,14 +58,14 @@
         "details": {
           "access-control-allow-origin": "https://browser-test.example.com",
           "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH",
-          "access-control-allow-headers": "Content-Type,Authorization,X-Requested-With,Accept,Origin,Cache-Control,X-Forwarded-For,X-Forwarded-Proto,X-Real-IP,User-Agent,Referer,X-Automation,X-Test-Mode,X-CSRF-Token,X-Client-Version",
+          "access-control-allow-headers": "Content-Type,Authorization,X-Requested-With,Accept,Origin,Cache-Control,X-Forwarded-For,X-Forwarded-Proto,X-Real-IP,User-Agent,Referer,X-Automation,X-Test-Mode,X-CSRF-Token,X-Client-Version,X-Browser-Test,X-Testing-Framework,X-Test-Runner,Sec-Fetch-Site,Sec-Fetch-Mode,Sec-Fetch-Dest,Access-Control-Request-Method,Access-Control-Request-Headers",
           "access-control-allow-credentials": "true"
         }
       },
       {
         "name": "Static File Serving",
         "status": "PASS",
-        "duration_ms": 40,
+        "duration_ms": 34,
         "message": "Static files are being served correctly",
         "details": {
           "content_type": "text/html; charset=UTF-8",
@@ -76,7 +76,7 @@
       {
         "name": "Authentication Endpoints",
         "status": "PASS",
-        "duration_ms": 1234,
+        "duration_ms": 1207,
         "message": "Authentication endpoints handle errors correctly",
         "details": {
           "login_endpoint": "Returns proper error responses",
@@ -86,17 +86,18 @@
       {
         "name": "Database Connectivity",
         "status": "PASS",
-        "duration_ms": 56,
+        "duration_ms": 48,
         "message": "Database is connected and responding",
         "details": {
           "status": "pass",
-          "message": "Database connected at Mon Oct 13 2025 11:36:49 GMT+0000 (Coordinated Universal Time)"
+          "message": "Database connected successfully",
+          "query_time": 4
         }
       },
       {
         "name": "Error Handling",
         "status": "PASS",
-        "duration_ms": 52,
+        "duration_ms": 38,
         "message": "Error handling returns proper JSON responses",
         "details": {
           "404_handling": "Returns JSON error response",
@@ -106,32 +107,32 @@
       {
         "name": "Browser-Specific Features",
         "status": "PASS",
-        "duration_ms": 45,
+        "duration_ms": 48,
         "message": "Browser-specific features are working correctly",
         "details": {
           "browser_test_mode": true,
-          "test_results": 6,
+          "test_results": 8,
           "server_detection": "comprehensive-test"
         }
       },
       {
         "name": "Performance",
         "status": "PASS",
-        "duration_ms": 119,
-        "message": "Average response time: 40ms",
+        "duration_ms": 142,
+        "message": "Average response time: 47ms",
         "details": {
           "https://123ad-performance.launchpulse.ai/health": {
-            "response_time_ms": 44,
+            "response_time_ms": 48,
             "status": 200,
             "content_length": "unknown"
           },
           "https://123ad-performance.launchpulse.ai/api/health": {
-            "response_time_ms": 38,
+            "response_time_ms": 43,
             "status": 200,
             "content_length": "unknown"
           },
           "https://123ad-performance.launchpulse.ai/api/status": {
-            "response_time_ms": 37,
+            "response_time_ms": 51,
             "status": 200,
             "content_length": "unknown"
           }
@@ -140,5 +141,5 @@
     ],
     "recommendations": []
   },
-  "duration_ms": 1932
+  "duration_ms": 1866
 }
