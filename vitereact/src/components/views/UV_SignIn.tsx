@@ -45,13 +45,19 @@ const UV_SignIn: React.FC = () => {
     }
   }, [isAuthenticated, currentWorkspace, redirectUrl, navigate]);
 
-   // Clear error when form changes
+   // Clear error when form changes (but not on initial load or when error was just set)
    useEffect(() => {
-     if (errorMessage) {
-       console.log('Clearing auth error on form change:', errorMessage);
-       clearAuthError();
+     if (errorMessage && credentials.email && credentials.password) {
+       // Only clear error if user has actually typed something new
+       // This prevents clearing the error immediately after it's set
+       const timer = setTimeout(() => {
+         console.log('Clearing auth error on form change:', errorMessage);
+         clearAuthError();
+       }, 100); // Small delay to ensure error is displayed first
+       
+       return () => clearTimeout(timer);
      }
-   }, [credentials.email, credentials.password, clearAuthError, errorMessage]);
+   }, [credentials.email, credentials.password, clearAuthError]);
 
    // Debug log for error message changes
    useEffect(() => {
@@ -122,33 +128,33 @@ const UV_SignIn: React.FC = () => {
           {/* Main Sign-in Card */}
           <div className="bg-white shadow-lg shadow-gray-200/50 rounded-xl border border-gray-100 p-8">
             {/* Error Message */}
-            {errorMessage && (
-              <div className="mb-6 bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-lg" role="alert">
-                <div className="flex items-center">
-                  <svg className="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div>
-                    <p className="font-medium text-sm">{errorMessage}</p>
-                    {errorMessage.includes('Invalid credentials') && (
-                      <p className="text-xs mt-1">
-                        Please check your email and password and try again.
-                      </p>
-                    )}
-                    {errorMessage.includes('Invalid email or password') && (
-                      <p className="text-xs mt-1">
-                        Please check your email and password and try again.
-                      </p>
-                    )}
-                    {errorMessage.includes('not verified') && (
-                      <p className="text-xs mt-1">
-                        Please check your email for a verification link.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+             {errorMessage && !isLoading && (
+               <div className="mb-6 bg-red-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-lg" role="alert">
+                 <div className="flex items-center">
+                   <svg className="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                   </svg>
+                   <div>
+                     <p className="font-medium text-sm">{errorMessage}</p>
+                     {errorMessage.includes('Invalid credentials') && (
+                       <p className="text-xs mt-1">
+                         Please check your email and password and try again.
+                       </p>
+                     )}
+                     {errorMessage.includes('Invalid email or password') && (
+                       <p className="text-xs mt-1">
+                         Please check your email and password and try again.
+                       </p>
+                     )}
+                     {errorMessage.includes('not verified') && (
+                       <p className="text-xs mt-1">
+                         Please check your email for a verification link.
+                       </p>
+                     )}
+                   </div>
+                 </div>
+               </div>
+             )}
 
             {/* Rate Limiting Warning */}
             {failedAttempts >= 3 && (

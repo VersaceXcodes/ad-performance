@@ -480,17 +480,20 @@ export const useAppStore = create<AppStore>()(
             console.log('Setting invalid credentials error message:', errorMessage);
           }
           
-          set(() => ({
-            authentication_state: {
-              current_user: null,
-              auth_token: null,
-              authentication_status: {
-                is_authenticated: false,
-                is_loading: false,
+          // Use a timeout to ensure the error state is set after the loading state
+          setTimeout(() => {
+            set(() => ({
+              authentication_state: {
+                current_user: null,
+                auth_token: null,
+                authentication_status: {
+                  is_authenticated: false,
+                  is_loading: false,
+                },
+                error_message: errorMessage,
               },
-              error_message: errorMessage,
-            },
-          }));
+            }));
+          }, 300);
           
           // Don't throw here to let component handle the error display
           // throw new Error(errorMessage);
