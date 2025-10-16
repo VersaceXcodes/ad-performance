@@ -465,12 +465,19 @@ export const useAppStore = create<AppStore>()(
           // Extract error message from server response if available
           if (error.response?.data?.message) {
             errorMessage = error.response.data.message;
+          } else if (error.response?.data?.error_code === 'INVALID_CREDENTIALS') {
+            errorMessage = 'Invalid email or password';
           } else if (error.message.includes('Network error') || error.message.includes('timeout')) {
             errorMessage = 'Connection failed. Please check your internet connection and try again.';
           } else if (error.message.includes('Service temporarily unavailable')) {
             errorMessage = 'Service is temporarily unavailable. Please try again in a few moments.';
           } else if (error.message) {
             errorMessage = error.message;
+          }
+          
+          // Ensure error message is set for invalid credentials
+          if (errorMessage.includes('Invalid email or password') || error.response?.data?.error_code === 'INVALID_CREDENTIALS') {
+            console.log('Setting invalid credentials error message:', errorMessage);
           }
           
           set(() => ({
@@ -484,7 +491,9 @@ export const useAppStore = create<AppStore>()(
               error_message: errorMessage,
             },
           }));
-          throw new Error(errorMessage);
+          
+          // Don't throw here to let component handle the error display
+          // throw new Error(errorMessage);
         }
       },
 

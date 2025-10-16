@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Error Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <h1>Login Error Handling Test</h1>
+    
+    <div id="test-status" class="test-result loading">
+        Testing login error handling...
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        async function testLoginError() {
+            const statusDiv = document.getElementById('test-status');
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                console.log('Testing login with invalid credentials...');
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'invalid@test.com',
+                        password: 'wrongpassword'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                console.log('Response status:', response.status);
+                console.log('Response data:', data);
+                
+                if (response.status === 400 && data.message) {
+                    statusDiv.className = 'test-result success';
+                    statusDiv.innerHTML = `
+                        <strong>✅ Test Passed!</strong><br>
+                        Backend correctly returns error message for invalid credentials.<br>
+                        Status: ${response.status}<br>
+                        Message: "${data.message}"
+                    `;
+                    
+                    // Test if error message contains expected text
+                    if (data.message.includes('Invalid email or password')) {
+                        resultsDiv.innerHTML += `
+                            <div class="test-result success">
+                                <strong>✅ Error Message Validation Passed</strong><br>
+                                Error message contains expected text: "Invalid email or password"
+                            </div>
+                        `;
+                    } else {
+                        resultsDiv.innerHTML += `
+                            <div class="test-result error">
+                                <strong>❌ Error Message Validation Failed</strong><br>
+                                Expected message to contain "Invalid email or password"<br>
+                                Actual message: "${data.message}"
+                            </div>
+                        `;
+                    }
+                } else {
+                    statusDiv.className = 'test-result error';
+                    statusDiv.innerHTML = `
+                        <strong>❌ Test Failed!</strong><br>
+                        Expected 400 status with error message<br>
+                        Got status: ${response.status}<br>
+                        Response: ${JSON.stringify(data)}
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Test error:', error);
+                statusDiv.className = 'test-result error';
+                statusDiv.innerHTML = `
+                    <strong>❌ Test Error!</strong><br>
+                    Network error or request failed: ${error.message}
+                `;
+            }
+        }
+        
+        // Run test when page loads
+        testLoginError();
+    </script>
+</body>
+</html>

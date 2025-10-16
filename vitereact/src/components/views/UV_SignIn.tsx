@@ -45,12 +45,20 @@ const UV_SignIn: React.FC = () => {
     }
   }, [isAuthenticated, currentWorkspace, redirectUrl, navigate]);
 
-  // Clear error when form changes
-  useEffect(() => {
-    if (errorMessage) {
-      clearAuthError();
-    }
-  }, [credentials.email, credentials.password, clearAuthError, errorMessage]);
+   // Clear error when form changes
+   useEffect(() => {
+     if (errorMessage) {
+       console.log('Clearing auth error on form change:', errorMessage);
+       clearAuthError();
+     }
+   }, [credentials.email, credentials.password, clearAuthError, errorMessage]);
+
+   // Debug log for error message changes
+   useEffect(() => {
+     if (errorMessage) {
+       console.log('Error message updated in component:', errorMessage);
+     }
+   }, [errorMessage]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,9 +73,11 @@ const UV_SignIn: React.FC = () => {
       await loginUser(credentials.email, credentials.password);
       // Reset failed attempts on successful login
       setFailedAttempts(0);
-    } catch {
+    } catch (error) {
       // Increment failed attempts for rate limiting display
       setFailedAttempts(prev => prev + 1);
+      // Error is already handled in the store, no need to throw
+      console.error('Login form error:', error);
     }
   };
 
@@ -121,6 +131,11 @@ const UV_SignIn: React.FC = () => {
                   <div>
                     <p className="font-medium text-sm">{errorMessage}</p>
                     {errorMessage.includes('Invalid credentials') && (
+                      <p className="text-xs mt-1">
+                        Please check your email and password and try again.
+                      </p>
+                    )}
+                    {errorMessage.includes('Invalid email or password') && (
                       <p className="text-xs mt-1">
                         Please check your email and password and try again.
                       </p>
