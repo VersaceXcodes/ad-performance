@@ -429,6 +429,16 @@ export const useAppStore = create<AppStore>()(
             );
           }, 3, 1000);
 
+          // Check if response indicates an error (4xx status codes)
+          if (response.status >= 400 && response.status < 500) {
+            const errorData = response.data;
+            if (errorData && errorData.message) {
+              throw new Error(errorData.message);
+            } else {
+              throw new Error(`Request failed with status ${response.status}`);
+            }
+          }
+
           const { user, token, workspace } = response.data;
 
           if (!user || !token) {
