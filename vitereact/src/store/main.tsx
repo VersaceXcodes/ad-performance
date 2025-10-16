@@ -470,7 +470,10 @@ export const useAppStore = create<AppStore>()(
           console.error('Login error:', error);
           let errorMessage = 'Login failed';
           
-          if (error.message.includes('Network error') || error.message.includes('timeout')) {
+          // Extract error message from server response if available
+          if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.message.includes('Network error') || error.message.includes('timeout')) {
             errorMessage = 'Connection failed. Please check your internet connection and try again.';
           } else if (error.message.includes('Service temporarily unavailable')) {
             errorMessage = 'Service is temporarily unavailable. Please try again in a few moments.';
