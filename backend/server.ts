@@ -2937,7 +2937,7 @@ app.get('/api/workspaces/:workspace_id/metrics/trends', authenticateToken, valid
         FROM metrics_daily m
         JOIN accounts a ON m.account_id = a.id
         WHERE ${whereConditions.join(' AND ')}
-        GROUP BY ${groupByClause}
+        GROUP BY ${groupByClause}, m.platform
         ORDER BY ${groupByClause}
       `;
 
@@ -5361,7 +5361,7 @@ app.get('/api/workspaces/:workspace_id/alert-triggers', authenticateToken, valid
         FROM alert_triggers at
         JOIN alert_rules ar ON at.alert_rule_id = ar.id
         WHERE ${whereConditions.join(' AND ')}
-        ORDER BY ${sort_by} ${sort_order.toUpperCase()}
+        ORDER BY at.${sort_by} ${sort_order.toUpperCase()}
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
       `;
 
