@@ -193,7 +193,7 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.withCredentials = true;
 axios.defaults.maxRedirects = 5; // Handle redirects
-axios.defaults.validateStatus = (status) => status < 500; // Don't throw on 4xx
+axios.defaults.validateStatus = (status) => status < 400; // Only throw on 4xx and 5xx
 
 // Enhanced retry configuration for better reliability
 axios.defaults.retry = 3;
@@ -424,20 +424,12 @@ export const useAppStore = create<AppStore>()(
                   'Accept': 'application/json'
                 },
                 timeout: 15000, // 15 second timeout for login
-                validateStatus: (status) => status < 500 // Don't retry on 4xx errors
+                validateStatus: (status) => status < 400 // Only retry on 5xx errors
               }
             );
           }, 3, 1000);
 
-          // Check if response indicates an error (4xx status codes)
-          if (response.status >= 400 && response.status < 500) {
-            const errorData = response.data;
-            if (errorData && errorData.message) {
-              throw new Error(errorData.message);
-            } else {
-              throw new Error(`Request failed with status ${response.status}`);
-            }
-          }
+
 
           const { user, token, workspace } = response.data;
 
