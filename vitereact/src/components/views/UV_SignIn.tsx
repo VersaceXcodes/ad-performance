@@ -46,18 +46,18 @@ const UV_SignIn: React.FC = () => {
   }, [isAuthenticated, currentWorkspace, redirectUrl, navigate]);
 
    // Clear error when form changes (but not on initial load or when error was just set)
-   useEffect(() => {
-     if (errorMessage && credentials.email && credentials.password) {
-       // Only clear error if user has actually typed something new
-       // This prevents clearing the error immediately after it's set
-       const timer = setTimeout(() => {
-         console.log('Clearing auth error on form change:', errorMessage);
-         clearAuthError();
-       }, 100); // Small delay to ensure error is displayed first
-       
-       return () => clearTimeout(timer);
-     }
-   }, [credentials.email, credentials.password, clearAuthError]);
+    useEffect(() => {
+      if (errorMessage && credentials.email && credentials.password) {
+        // Only clear error if user has actually typed something new
+        // This prevents clearing the error immediately after it's set
+        const timer = setTimeout(() => {
+          console.log('Clearing auth error on form change:', errorMessage);
+          clearAuthError();
+        }, 500); // Longer delay to ensure error is displayed first
+        
+        return () => clearTimeout(timer);
+      }
+    }, [credentials.email, credentials.password, clearAuthError]);
 
    // Debug log for error message changes
    useEffect(() => {
