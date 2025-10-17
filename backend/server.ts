@@ -3498,42 +3498,45 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
       const countResult = await client.query(countQuery, queryParams);
       const total = parseInt(countResult.rows[0].total);
 
-      // Determine valid columns for sorting
+      // Determine valid columns for sorting - sanitize sort_by parameter
+      const sanitizedSortBy = String(sort_by || 'created_at').toLowerCase().trim().replace(/[^a-z_]/g, '');
+      const sanitizedSortOrder = String(sort_order || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+      
       const validCampaignColumns = ['id', 'campaign_id', 'campaign_name', 'status', 'objective', 'buying_type', 'created_at', 'updated_at'];
       const validMetricColumns = ['spend', 'impressions', 'clicks', 'conversions', 'revenue', 'ctr', 'cpm', 'cpc', 'cpa', 'cvr', 'roas'];
       
       let orderByClause;
-      if (validCampaignColumns.includes(sort_by)) {
-        orderByClause = `c.${sort_by} ${sort_order.toUpperCase()}`;
-      } else if (validMetricColumns.includes(sort_by)) {
+      if (validCampaignColumns.includes(sanitizedSortBy)) {
+        orderByClause = `c.${sanitizedSortBy} ${sanitizedSortOrder}`;
+      } else if (validMetricColumns.includes(sanitizedSortBy)) {
         // Use the aggregate expression directly instead of the alias to avoid PostgreSQL errors
-        if (sort_by === 'spend') {
-          orderByClause = `SUM(m.spend) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'impressions') {
-          orderByClause = `SUM(m.impressions) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'clicks') {
-          orderByClause = `SUM(m.clicks) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'conversions') {
-          orderByClause = `SUM(m.conversions) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'revenue') {
-          orderByClause = `SUM(m.revenue) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'ctr') {
-          orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.clicks)::NUMERIC / SUM(m.impressions)) * 100 ELSE 0 END) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'cpm') {
-          orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.spend) / SUM(m.impressions)) * 1000 ELSE 0 END) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'cpc') {
-          orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN SUM(m.spend) / SUM(m.clicks) ELSE 0 END) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'cpa') {
-          orderByClause = `(CASE WHEN SUM(m.conversions) > 0 THEN SUM(m.spend) / SUM(m.conversions) ELSE 0 END) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'cvr') {
-          orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN (SUM(m.conversions)::NUMERIC / SUM(m.clicks)) * 100 ELSE 0 END) ${sort_order.toUpperCase()}`;
-        } else if (sort_by === 'roas') {
-          orderByClause = `(CASE WHEN SUM(m.spend) > 0 THEN SUM(m.revenue) / SUM(m.spend) ELSE 0 END) ${sort_order.toUpperCase()}`;
+        if (sanitizedSortBy === 'spend') {
+          orderByClause = `SUM(m.spend) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'impressions') {
+          orderByClause = `SUM(m.impressions) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'clicks') {
+          orderByClause = `SUM(m.clicks) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'conversions') {
+          orderByClause = `SUM(m.conversions) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'revenue') {
+          orderByClause = `SUM(m.revenue) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'ctr') {
+          orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.clicks)::NUMERIC / SUM(m.impressions)) * 100 ELSE 0 END) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'cpm') {
+          orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.spend) / SUM(m.impressions)) * 1000 ELSE 0 END) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'cpc') {
+          orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN SUM(m.spend) / SUM(m.clicks) ELSE 0 END) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'cpa') {
+          orderByClause = `(CASE WHEN SUM(m.conversions) > 0 THEN SUM(m.spend) / SUM(m.conversions) ELSE 0 END) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'cvr') {
+          orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN (SUM(m.conversions)::NUMERIC / SUM(m.clicks)) * 100 ELSE 0 END) ${sanitizedSortOrder}`;
+        } else if (sanitizedSortBy === 'roas') {
+          orderByClause = `(CASE WHEN SUM(m.spend) > 0 THEN SUM(m.revenue) / SUM(m.spend) ELSE 0 END) ${sanitizedSortOrder}`;
         } else {
-          orderByClause = `c.created_at ${sort_order.toUpperCase()}`;
+          orderByClause = `c.created_at ${sanitizedSortOrder}`;
         }
       } else {
-        orderByClause = `c.created_at ${sort_order.toUpperCase()}`;
+        orderByClause = `c.created_at ${sanitizedSortOrder}`;
       }
 
       // Data query with account information and aggregated metrics
