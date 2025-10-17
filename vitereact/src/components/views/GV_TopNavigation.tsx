@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAppStore } from '@/store/main';
@@ -57,6 +57,8 @@ const GV_TopNavigation: React.FC = () => {
   const updatePlatformFilter = useAppStore(state => state.update_platform_filter);
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // API base URL
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -105,10 +107,22 @@ const GV_TopNavigation: React.FC = () => {
   const workspaceSwitchMutation = useMutation({
     mutationFn: async (workspaceId: string) => {
       await switchWorkspace(workspaceId);
+      return workspaceId;
     },
-    onSuccess: () => {
+    onSuccess: (workspaceId) => {
       setWorkspaceSwitcherOpen(false);
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      
+      const currentPath = location.pathname;
+      const pathSegments = currentPath.split('/').filter(Boolean);
+      
+      if (pathSegments.length >= 2 && pathSegments[0] === 'w') {
+        pathSegments[1] = workspaceId;
+        const newPath = '/' + pathSegments.join('/');
+        navigate(newPath, { replace: true });
+      } else {
+        navigate(`/w/${workspaceId}`, { replace: true });
+      }
     }
   });
 
