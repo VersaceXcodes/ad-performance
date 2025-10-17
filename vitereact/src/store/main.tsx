@@ -701,14 +701,15 @@ export const useAppStore = create<AppStore>()(
             current_workspace: {
               id: workspace.id,
               name: workspace.name,
-              role: 'member', // Should be fetched from membership
+              role: 'member',
               created_at: workspace.created_at,
             },
           }));
 
-          // Reconnect WebSocket with new workspace context
           get().disconnect_websocket();
           get().connect_websocket();
+
+          return workspace_id;
 
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || error.message || 'Failed to switch workspace';

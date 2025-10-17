@@ -103,13 +103,12 @@ const GV_TopNavigation: React.FC = () => {
     retry: 1
   });
 
-  // Workspace switching mutation
   const workspaceSwitchMutation = useMutation({
     mutationFn: async (workspaceId: string) => {
       console.log('[Workspace Switch] Starting switch to:', workspaceId);
-      await switchWorkspace(workspaceId);
+      const result = await switchWorkspace(workspaceId);
       console.log('[Workspace Switch] Store updated successfully');
-      return workspaceId;
+      return result || workspaceId;
     },
     onSuccess: (workspaceId) => {
       console.log('[Workspace Switch] onSuccess called with:', workspaceId);
@@ -129,7 +128,7 @@ const GV_TopNavigation: React.FC = () => {
       }
       
       console.log('[Workspace Switch] Navigating to:', newPath);
-      navigate(newPath);
+      navigate(newPath, { replace: true });
       console.log('[Workspace Switch] Navigate called, new location:', window.location.pathname);
     },
     onError: (error) => {
