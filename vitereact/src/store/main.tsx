@@ -903,7 +903,6 @@ export const useAppStore = create<AppStore>()(
       connect_websocket: () => {
         const { authentication_state, current_workspace, socket } = get();
         
-        // Don't connect if not authenticated or already connected
         if (!authentication_state.auth_token || socket?.connected) {
           return;
         }
@@ -915,18 +914,25 @@ export const useAppStore = create<AppStore>()(
               workspace_id: current_workspace?.id,
             },
             transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 3,
+            reconnectionDelay: 1000,
+            timeout: 5000,
           });
 
           newSocket.on('connect', () => {
             set(() => ({ is_connected: true }));
             
-            // Join workspace room if available
             if (current_workspace?.id) {
               newSocket.emit('join_workspace', current_workspace.id);
             }
           });
 
           newSocket.on('disconnect', () => {
+            set(() => ({ is_connected: false }));
+          });
+
+          newSocket.on('connect_error', (error) => {
             set(() => ({ is_connected: false }));
           });
 
@@ -950,7 +956,7 @@ export const useAppStore = create<AppStore>()(
           set({ socket: newSocket });
 
         } catch (error) {
-          console.error('WebSocket connection failed:', error);
+          set(() => ({ is_connected: false }));
         }
       },
 
