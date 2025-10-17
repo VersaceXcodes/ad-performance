@@ -150,25 +150,37 @@ const UV_Overview: React.FC = () => {
   const { data: overviewMetrics, isLoading: isLoadingOverview, error: overviewError } = useQuery({
     queryKey: ['overview-metrics', workspace_id, queryParams],
     queryFn: async () => {
+      console.log('Fetching overview metrics:', {
+        workspace_id,
+        queryParams: queryParams.toString(),
+        url: `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/workspaces/${workspace_id}/metrics/overview?${queryParams}`
+      });
+      
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/workspaces/${workspace_id}/metrics/overview?${queryParams}`,
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
+      
+      console.log('Overview metrics response:', response.data);
       return response.data as OverviewMetrics;
     },
     enabled: !!workspace_id && !!authToken,
     staleTime: 5 * 60 * 1000,
-    select: (data) => ({
-      ...data,
-      spend: Number(data.spend || 0),
-      revenue: Number(data.revenue || 0),
-      roas: Number(data.roas || 0),
-      cpa: Number(data.cpa || 0),
-      ctr: Number(data.ctr || 0),
-      cpm: Number(data.cpm || 0),
-      cvr: Number(data.cvr || 0),
-      mer: Number(data.mer || 0)
-    })
+    select: (data) => {
+      const processed = {
+        ...data,
+        spend: Number(data.spend || 0),
+        revenue: Number(data.revenue || 0),
+        roas: Number(data.roas || 0),
+        cpa: Number(data.cpa || 0),
+        ctr: Number(data.ctr || 0),
+        cpm: Number(data.cpm || 0),
+        cvr: Number(data.cvr || 0),
+        mer: Number(data.mer || 0)
+      };
+      console.log('Processed overview metrics:', processed);
+      return processed;
+    }
   });
 
   const { data: timeSeriesData, isLoading: isLoadingTimeSeries } = useQuery({
@@ -322,8 +334,24 @@ const UV_Overview: React.FC = () => {
     );
   }
 
-  // Empty state (no data)
-  if (overviewMetrics && overviewMetrics.spend === 0 && overviewMetrics.revenue === 0) {
+  // Empty state (no data) - only show if metrics exist but are truly zero
+  // Don't show empty state during loading or if there's an error
+  const hasNoData = overviewMetrics && 
+                    overviewMetrics.spend === 0 && 
+                    overviewMetrics.revenue === 0 && 
+                    overviewMetrics.roas === 0 && 
+                    overviewMetrics.cpa === 0;
+  
+  console.log('Dashboard state check:', {
+    isLoadingOverview,
+    hasError: !!overviewError,
+    hasMetrics: !!overviewMetrics,
+    hasNoData,
+    spend: overviewMetrics?.spend,
+    revenue: overviewMetrics?.revenue
+  });
+  
+  if (!isLoadingOverview && !overviewError && hasNoData) {
     return (
       <>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">

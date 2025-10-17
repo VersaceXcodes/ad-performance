@@ -2627,6 +2627,17 @@ app.get('/api/workspaces/:workspace_id/metrics/overview', authenticateToken, val
 
       const metricsResult = await client.query(metricsQuery, queryParams);
       const currentMetrics = metricsResult.rows[0];
+      
+      console.log('Overview metrics query result:', {
+        workspace_id: req.params.workspace_id,
+        startDate,
+        endDate,
+        queryParams: queryParams.slice(1),
+        rowCount: metricsResult.rowCount,
+        spend: currentMetrics.spend,
+        revenue: currentMetrics.revenue,
+        roas: currentMetrics.roas
+      });
 
       // Calculate MER (Marketing Efficiency Ratio) - total revenue / total spend for period
       const mer = currentMetrics.spend > 0 ? parseFloat((currentMetrics.revenue / currentMetrics.spend).toFixed(2)) : 0;
@@ -2723,16 +2734,16 @@ app.get('/api/workspaces/:workspace_id/metrics/overview', authenticateToken, val
         
         insights.push({
           type: 'trend',
-          message: `${bestPlatform.platform} is your best performing platform with ${bestPlatform.roas.toFixed(2)} ROAS`,
+          message: `${bestPlatform.platform} is your best performing platform with ${parseFloat(bestPlatform.roas).toFixed(2)} ROAS`,
           severity: 'info',
           entity_type: 'platform',
           entity_id: bestPlatform.platform
         });
 
-        if (worstPlatform.roas < 1.0) {
+        if (parseFloat(worstPlatform.roas) < 1.0) {
           insights.push({
             type: 'trend',
-            message: `${worstPlatform.platform} is underperforming with ${worstPlatform.roas.toFixed(2)} ROAS - consider optimization`,
+            message: `${worstPlatform.platform} is underperforming with ${parseFloat(worstPlatform.roas).toFixed(2)} ROAS - consider optimization`,
             severity: 'warning',
             entity_type: 'platform',
             entity_id: worstPlatform.platform

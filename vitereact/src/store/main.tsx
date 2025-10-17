@@ -901,63 +901,8 @@ export const useAppStore = create<AppStore>()(
       // WEBSOCKET ACTIONS
       // ========================
       connect_websocket: () => {
-        const { authentication_state, current_workspace, socket } = get();
-        
-        if (!authentication_state.auth_token || socket?.connected) {
-          return;
-        }
-
-        try {
-          const newSocket = io(getApiBaseUrl(), {
-            auth: {
-              token: authentication_state.auth_token,
-              workspace_id: current_workspace?.id,
-            },
-            transports: ['websocket'],
-            reconnection: true,
-            reconnectionAttempts: 3,
-            reconnectionDelay: 1000,
-            timeout: 5000,
-          });
-
-          newSocket.on('connect', () => {
-            set(() => ({ is_connected: true }));
-            
-            if (current_workspace?.id) {
-              newSocket.emit('join_workspace', current_workspace.id);
-            }
-          });
-
-          newSocket.on('disconnect', () => {
-            set(() => ({ is_connected: false }));
-          });
-
-          newSocket.on('connect_error', (error) => {
-            set(() => ({ is_connected: false }));
-          });
-
-          newSocket.on('upload_progress', (data) => {
-            get().handle_upload_progress(data);
-          });
-
-          newSocket.on('notification', (data) => {
-            get().handle_notification(data);
-          });
-
-          newSocket.on('alert_triggered', (data) => {
-            get().add_alert_notification({
-              type: 'alert',
-              message: data.message,
-              created_at: data.triggered_at,
-              is_read: false,
-            });
-          });
-
-          set({ socket: newSocket });
-
-        } catch (error) {
-          set(() => ({ is_connected: false }));
-        }
+        console.log('WebSocket connection disabled - Socket.IO not implemented on backend');
+        set(() => ({ is_connected: false, socket: null }));
       },
 
       disconnect_websocket: () => {
