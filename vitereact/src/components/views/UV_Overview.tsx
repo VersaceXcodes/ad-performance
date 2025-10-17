@@ -15,6 +15,7 @@ import {
   ChartBarIcon,
   ArrowUpIcon
 } from '@heroicons/react/24/outline';
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // Types matching the OpenAPI schema
 interface OverviewMetrics {
@@ -627,7 +628,7 @@ const UV_Overview: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Chart Placeholder */}
+                  {/* Time Series Chart */}
                   {isLoadingTimeSeries ? (
                     <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
                       <div className="text-center">
@@ -635,15 +636,79 @@ const UV_Overview: React.FC = () => {
                         <p className="text-sm text-gray-600">Loading chart data...</p>
                       </div>
                     </div>
+                  ) : timeSeriesData && timeSeriesData.length > 0 ? (
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={timeSeriesData}
+                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis 
+                            dataKey="date" 
+                            stroke="#6b7280"
+                            style={{ fontSize: '12px' }}
+                          />
+                          <YAxis 
+                            stroke="#6b7280"
+                            style={{ fontSize: '12px' }}
+                          />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: '#ffffff', 
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              padding: '12px'
+                            }}
+                            formatter={(value: any, name: string) => {
+                              const kpi = kpiConfig.find(k => k.key === name);
+                              if (kpi) {
+                                return [formatValue(Number(value), kpi.format, kpi.suffix), kpi.label];
+                              }
+                              return [value, name];
+                            }}
+                          />
+                          <Legend 
+                            wrapperStyle={{ paddingTop: '20px' }}
+                            formatter={(value: string) => {
+                              const kpi = kpiConfig.find(k => k.key === value);
+                              return kpi ? kpi.label : value;
+                            }}
+                          />
+                          {selectedMetrics.includes('spend') && (
+                            <Line type="monotone" dataKey="spend" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                          )}
+                          {selectedMetrics.includes('revenue') && (
+                            <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={false} />
+                          )}
+                          {selectedMetrics.includes('roas') && (
+                            <Line type="monotone" dataKey="roas" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+                          )}
+                          {selectedMetrics.includes('cpa') && (
+                            <Line type="monotone" dataKey="cpa" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                          )}
+                          {selectedMetrics.includes('ctr') && (
+                            <Line type="monotone" dataKey="ctr" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                          )}
+                          {selectedMetrics.includes('cpm') && (
+                            <Line type="monotone" dataKey="cpm" stroke="#6366f1" strokeWidth={2} dot={false} />
+                          )}
+                          {selectedMetrics.includes('cvr') && (
+                            <Line type="monotone" dataKey="cvr" stroke="#10b981" strokeWidth={2} dot={false} />
+                          )}
+                          {selectedMetrics.includes('mer') && (
+                            <Line type="monotone" dataKey="mer" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+                          )}
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
                   ) : (
                     <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
                       <div className="text-center">
                         <ArrowTrendingUpIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">
-                          Interactive time series chart will be displayed here
-                        </p>
+                        <p className="text-sm text-gray-600">No time series data available</p>
                         <p className="text-xs text-gray-500 mt-1">
-                          {timeSeriesData?.length || 0} data points available
+                          Try adjusting your date range or upload more data
                         </p>
                       </div>
                     </div>
@@ -660,66 +725,123 @@ const UV_Overview: React.FC = () => {
                         <p className="text-sm text-gray-600">Loading platform data...</p>
                       </div>
                     </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Platform
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Spend
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Revenue
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              ROAS
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              CTR
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Campaigns
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {platformComparison?.map((platform) => (
-                            <tr key={platform.platform} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex items-center">
-                                  <div className={`w-3 h-3 rounded-full mr-3 ${
-                                    platform.platform === 'facebook' ? 'bg-blue-500' :
-                                    platform.platform === 'tiktok' ? 'bg-black' :
-                                    platform.platform === 'snapchat' ? 'bg-yellow-500' :
-                                    'bg-gray-500'
-                                  }`}></div>
-                                  <span className="text-sm font-medium text-gray-900 capitalize">
-                                    {platform.platform}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {formatCurrency(platform.spend)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {formatCurrency(platform.revenue)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {formatDecimal(platform.roas, 'x')}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {formatPercentage(platform.ctr)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {platform.campaign_count}
-                              </td>
+                  ) : platformComparison && platformComparison.length > 0 ? (
+                    <>
+                      {/* Platform Comparison Bar Chart */}
+                      <div className="h-80 mb-8">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={platformComparison}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <XAxis 
+                              dataKey="platform" 
+                              stroke="#6b7280"
+                              style={{ fontSize: '12px' }}
+                              tickFormatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+                            />
+                            <YAxis 
+                              stroke="#6b7280"
+                              style={{ fontSize: '12px' }}
+                            />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: '#ffffff', 
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '8px',
+                                padding: '12px'
+                              }}
+                              formatter={(value: any, name: string) => {
+                                if (name === 'spend' || name === 'revenue') {
+                                  return [formatCurrency(Number(value)), name.charAt(0).toUpperCase() + name.slice(1)];
+                                } else if (name === 'roas') {
+                                  return [formatDecimal(Number(value), 'x'), 'ROAS'];
+                                } else if (name === 'ctr') {
+                                  return [formatPercentage(Number(value)), 'CTR'];
+                                }
+                                return [value, name];
+                              }}
+                            />
+                            <Legend 
+                              wrapperStyle={{ paddingTop: '20px' }}
+                              formatter={(value: string) => value.charAt(0).toUpperCase() + value.slice(1)}
+                            />
+                            <Bar dataKey="spend" fill="#3b82f6" />
+                            <Bar dataKey="revenue" fill="#10b981" />
+                            <Bar dataKey="roas" fill="#8b5cf6" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* Platform Comparison Table */}
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Platform
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Spend
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Revenue
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ROAS
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                CTR
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Campaigns
+                              </th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {platformComparison.map((platform) => (
+                              <tr key={platform.platform} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center">
+                                    <div className={`w-3 h-3 rounded-full mr-3 ${
+                                      platform.platform === 'facebook' ? 'bg-blue-500' :
+                                      platform.platform === 'tiktok' ? 'bg-black' :
+                                      platform.platform === 'snapchat' ? 'bg-yellow-500' :
+                                      'bg-gray-500'
+                                    }`}></div>
+                                    <span className="text-sm font-medium text-gray-900 capitalize">
+                                      {platform.platform}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {formatCurrency(platform.spend)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {formatCurrency(platform.revenue)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {formatDecimal(platform.roas, 'x')}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {formatPercentage(platform.ctr)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {platform.campaign_count}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-600">No platform data available</p>
+                      </div>
                     </div>
                   )}
                 </div>
