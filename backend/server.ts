@@ -3502,7 +3502,7 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
       const sanitizedSortBy = String(sort_by || 'created_at').toLowerCase().trim().replace(/[^a-z_]/g, '');
       const sanitizedSortOrder = String(sort_order || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
       
-      // Map sort column names to their SELECT list positions
+      // Map sort column names - for aggregated columns, use positional references or expressions
       const columnMap = {
         'id': 'c.id',
         'account_id': 'c.account_id',
@@ -3515,17 +3515,17 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
         'updated_at': 'c.updated_at',
         'platform': 'a.platform',
         'account_name': 'a.account_name',
-        'spend': 'SUM(m.spend)',
-        'impressions': 'SUM(m.impressions)',
-        'clicks': 'SUM(m.clicks)',
-        'conversions': 'SUM(m.conversions)',
-        'revenue': 'SUM(m.revenue)',
-        'ctr': 'SUM(m.clicks)::NUMERIC / NULLIF(SUM(m.impressions), 0)',
-        'cpm': 'SUM(m.spend) / NULLIF(SUM(m.impressions), 0)',
-        'cpc': 'SUM(m.spend) / NULLIF(SUM(m.clicks), 0)',
-        'cpa': 'SUM(m.spend) / NULLIF(SUM(m.conversions), 0)',
-        'cvr': 'SUM(m.conversions)::NUMERIC / NULLIF(SUM(m.clicks), 0)',
-        'roas': 'SUM(m.revenue) / NULLIF(SUM(m.spend), 0)'
+        'spend': 'spend',
+        'impressions': 'impressions',
+        'clicks': 'clicks',
+        'conversions': 'conversions',
+        'revenue': 'revenue',
+        'ctr': 'ctr',
+        'cpm': 'cpm',
+        'cpc': 'cpc',
+        'cpa': 'cpa',
+        'cvr': 'cvr',
+        'roas': 'roas'
       };
 
       const orderByColumn = columnMap[sanitizedSortBy] || 'c.created_at';
