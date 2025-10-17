@@ -3506,7 +3506,32 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
       if (validCampaignColumns.includes(sort_by)) {
         orderByClause = `c.${sort_by} ${sort_order.toUpperCase()}`;
       } else if (validMetricColumns.includes(sort_by)) {
-        orderByClause = `COALESCE(${sort_by}, 0) ${sort_order.toUpperCase()}`;
+        // Use the aggregate expression directly instead of the alias to avoid PostgreSQL errors
+        if (sort_by === 'spend') {
+          orderByClause = `SUM(m.spend) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'impressions') {
+          orderByClause = `SUM(m.impressions) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'clicks') {
+          orderByClause = `SUM(m.clicks) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'conversions') {
+          orderByClause = `SUM(m.conversions) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'revenue') {
+          orderByClause = `SUM(m.revenue) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'ctr') {
+          orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.clicks)::NUMERIC / SUM(m.impressions)) * 100 ELSE 0 END) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'cpm') {
+          orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.spend) / SUM(m.impressions)) * 1000 ELSE 0 END) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'cpc') {
+          orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN SUM(m.spend) / SUM(m.clicks) ELSE 0 END) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'cpa') {
+          orderByClause = `(CASE WHEN SUM(m.conversions) > 0 THEN SUM(m.spend) / SUM(m.conversions) ELSE 0 END) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'cvr') {
+          orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN (SUM(m.conversions)::NUMERIC / SUM(m.clicks)) * 100 ELSE 0 END) ${sort_order.toUpperCase()}`;
+        } else if (sort_by === 'roas') {
+          orderByClause = `(CASE WHEN SUM(m.spend) > 0 THEN SUM(m.revenue) / SUM(m.spend) ELSE 0 END) ${sort_order.toUpperCase()}`;
+        } else {
+          orderByClause = `c.created_at ${sort_order.toUpperCase()}`;
+        }
       } else {
         orderByClause = `c.created_at ${sort_order.toUpperCase()}`;
       }
@@ -3514,7 +3539,15 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
       // Data query with account information and aggregated metrics
       const dataQuery = `
         SELECT 
-          c.*,
+          c.id,
+          c.account_id,
+          c.campaign_id,
+          c.campaign_name,
+          c.status,
+          c.objective,
+          c.buying_type,
+          c.created_at,
+          c.updated_at,
           a.platform,
           a.account_name,
           COALESCE(SUM(m.spend), 0) as spend,
@@ -3550,7 +3583,7 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
         JOIN accounts a ON c.account_id = a.id
         LEFT JOIN metrics_daily m ON c.id = m.campaign_id
         WHERE ${whereConditions.join(' AND ')}
-        GROUP BY c.id, a.platform, a.account_name
+        GROUP BY c.id, c.account_id, c.campaign_id, c.campaign_name, c.status, c.objective, c.buying_type, c.created_at, c.updated_at, a.platform, a.account_name
         ORDER BY ${orderByClause}
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
       `;
