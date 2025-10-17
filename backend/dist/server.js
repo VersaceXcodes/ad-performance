@@ -3082,7 +3082,7 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
                 orderByClause = `c.${sort_by} ${sort_order.toUpperCase()}`;
             }
             else if (validMetricColumns.includes(sort_by)) {
-                orderByClause = `${sort_by} ${sort_order.toUpperCase()} NULLS LAST`;
+                orderByClause = `COALESCE(${sort_by}, 0) ${sort_order.toUpperCase()}`;
             }
             else {
                 orderByClause = `c.created_at ${sort_order.toUpperCase()}`;
