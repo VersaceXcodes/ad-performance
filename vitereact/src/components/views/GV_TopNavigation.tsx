@@ -106,23 +106,35 @@ const GV_TopNavigation: React.FC = () => {
   // Workspace switching mutation
   const workspaceSwitchMutation = useMutation({
     mutationFn: async (workspaceId: string) => {
+      console.log('[Workspace Switch] Starting switch to:', workspaceId);
       await switchWorkspace(workspaceId);
+      console.log('[Workspace Switch] Store updated successfully');
       return workspaceId;
     },
     onSuccess: (workspaceId) => {
+      console.log('[Workspace Switch] onSuccess called with:', workspaceId);
       setWorkspaceSwitcherOpen(false);
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       
       const currentPath = location.pathname;
+      console.log('[Workspace Switch] Current path:', currentPath);
       const pathSegments = currentPath.split('/').filter(Boolean);
       
+      let newPath: string;
       if (pathSegments.length >= 2 && pathSegments[0] === 'w') {
         pathSegments[1] = workspaceId;
-        const newPath = '/' + pathSegments.join('/');
-        navigate(newPath, { replace: true });
+        newPath = '/' + pathSegments.join('/');
       } else {
-        navigate(`/w/${workspaceId}`, { replace: true });
+        newPath = `/w/${workspaceId}`;
       }
+      
+      console.log('[Workspace Switch] Navigating to:', newPath);
+      navigate(newPath);
+      console.log('[Workspace Switch] Navigate called, new location:', window.location.pathname);
+    },
+    onError: (error) => {
+      console.error('[Workspace Switch] Failed to switch workspace:', error);
+      setWorkspaceSwitcherOpen(false);
     }
   });
 

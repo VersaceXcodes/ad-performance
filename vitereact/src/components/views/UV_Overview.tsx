@@ -109,6 +109,11 @@ const UV_Overview: React.FC = () => {
   const [showInsightsPanel, setShowInsightsPanel] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'platforms'>('overview');
 
+  useEffect(() => {
+    console.log('[UV_Overview] Workspace ID from URL params:', workspace_id);
+    console.log('[UV_Overview] Current workspace from store:', currentWorkspace?.id);
+  }, [workspace_id, currentWorkspace]);
+
   // Sync URL params with global state
   useEffect(() => {
     const dateFrom = searchParams.get('date_from');
