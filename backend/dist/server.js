@@ -2709,6 +2709,84 @@ app.get('/api/workspaces/:workspace_id/metrics/daily', authenticateToken, valida
         res.status(500).json(createErrorResponse('Internal server error', error, 'INTERNAL_SERVER_ERROR'));
     }
 });
+/*
+  GET /api/workspaces/{workspace_id}/anomalies
+  Retrieves anomaly detections with filtering
+*/
+app.get('/api/workspaces/:workspace_id/anomalies', authenticateToken, validateWorkspaceAccess, async (req, res) => {
+    try {
+        const { date_preset, is_reviewed, severity, metric_type, limit = 10, offset = 0, sort_by = 'created_at', sort_order = 'desc' } = req.query;
+        const client = await pool.connect();
+        try {
+            let whereConditions = ['workspace_id = $1'];
+            let queryParams = [req.params.workspace_id];
+            let paramIndex = 2;
+            if (is_reviewed !== undefined) {
+                whereConditions.push(`is_reviewed = $${paramIndex}`);
+                queryParams.push(is_reviewed === 'true');
+                paramIndex++;
+            }
+            if (severity) {
+                whereConditions.push(`severity = $${paramIndex}`);
+                queryParams.push(severity);
+                paramIndex++;
+            }
+            if (metric_type) {
+                whereConditions.push(`metric_type = $${paramIndex}`);
+                queryParams.push(metric_type);
+                paramIndex++;
+            }
+            if (date_preset) {
+                let startDate;
+                const now = new Date();
+                switch (date_preset) {
+                    case 'last_7_days':
+                        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        break;
+                    case 'last_30_days':
+                        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        break;
+                    case 'last_90_days':
+                        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                        break;
+                    default:
+                        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                }
+                whereConditions.push(`created_at >= $${paramIndex}`);
+                queryParams.push(startDate.toISOString());
+                paramIndex++;
+            }
+            const countQuery = `SELECT COUNT(*) as total FROM anomaly_detections WHERE ${whereConditions.join(' AND ')}`;
+            const countResult = await client.query(countQuery, queryParams);
+            const total = parseInt(countResult.rows[0].total);
+            const dataQuery = `
+        SELECT * FROM anomaly_detections 
+        WHERE ${whereConditions.join(' AND ')}
+        ORDER BY ${sort_by} ${sort_order.toUpperCase()}
+        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+      `;
+            queryParams.push(limit, offset);
+            const dataResult = await client.query(dataQuery, queryParams);
+            const pagination = {
+                page: Math.floor(offset / limit) + 1,
+                per_page: limit,
+                total: total,
+                total_pages: Math.ceil(total / limit)
+            };
+            res.json({
+                data: dataResult.rows,
+                pagination
+            });
+        }
+        finally {
+            client.release();
+        }
+    }
+    catch (error) {
+        console.error('Get anomalies error:', error);
+        res.status(500).json(createErrorResponse('Internal server error', error, 'INTERNAL_SERVER_ERROR'));
+    }
+});
 // ================================
 // ACCOUNT MANAGEMENT ROUTES
 // ================================
@@ -4706,12 +4784,19 @@ app.get('/api/workspaces/:workspace_id/alert-triggers', authenticateToken, valid
             const countQuery = `SELECT COUNT(*) as total FROM alert_triggers WHERE ${whereConditions.join(' AND ')}`;
             const countResult = await client.query(countQuery, queryParams);
             const total = parseInt(countResult.rows[0].total);
+            // Build WHERE clause with table alias for JOIN query
+            const joinWhereConditions = whereConditions.map(cond => {
+                if (cond.includes('workspace_id')) {
+                    return cond.replace('workspace_id', 'at.workspace_id');
+                }
+                return `at.${cond.split(' ')[0]} ${cond.substring(cond.indexOf(' '))}`;
+            });
             // Data query with alert rule information
             const dataQuery = `
         SELECT at.*, ar.name as alert_rule_name, ar.metric, ar.condition
         FROM alert_triggers at
         JOIN alert_rules ar ON at.alert_rule_id = ar.id
-        WHERE ${whereConditions.join(' AND ')}
+        WHERE ${joinWhereConditions.join(' AND ')}
         ORDER BY at.${sort_by} ${sort_order.toUpperCase()}
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
       `;
