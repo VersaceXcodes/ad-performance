@@ -3079,53 +3079,43 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
             const sanitizedSortOrder = String(sort_order || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
             const validCampaignColumns = ['id', 'campaign_id', 'campaign_name', 'status', 'objective', 'buying_type', 'created_at', 'updated_at'];
             const validMetricColumns = ['spend', 'impressions', 'clicks', 'conversions', 'revenue', 'ctr', 'cpm', 'cpc', 'cpa', 'cvr', 'roas'];
-            let orderByClause;
+            const columnMap = {
+                'id': 1,
+                'account_id': 2,
+                'campaign_id': 3,
+                'campaign_name': 4,
+                'status': 5,
+                'objective': 6,
+                'buying_type': 7,
+                'created_at': 8,
+                'updated_at': 9,
+                'platform': 10,
+                'account_name': 11,
+                'spend': 12,
+                'impressions': 13,
+                'clicks': 14,
+                'conversions': 15,
+                'revenue': 16,
+                'ctr': 17,
+                'cpm': 18,
+                'cpc': 19,
+                'cpa': 20,
+                'cvr': 21,
+                'roas': 22
+            };
+            let orderByColumn;
             if (validCampaignColumns.includes(sanitizedSortBy)) {
-                orderByClause = `c.${sanitizedSortBy} ${sanitizedSortOrder}`;
+                const columnPosition = columnMap[sanitizedSortBy];
+                orderByColumn = columnPosition ? columnPosition.toString() : '8';
             }
             else if (validMetricColumns.includes(sanitizedSortBy)) {
-                const nullsClause = sanitizedSortOrder === 'DESC' ? ' NULLS LAST' : ' NULLS FIRST';
-                switch (sanitizedSortBy) {
-                    case 'spend':
-                        orderByClause = `COALESCE(SUM(m.spend), 0) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'impressions':
-                        orderByClause = `COALESCE(SUM(m.impressions), 0) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'clicks':
-                        orderByClause = `COALESCE(SUM(m.clicks), 0) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'conversions':
-                        orderByClause = `COALESCE(SUM(m.conversions), 0) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'revenue':
-                        orderByClause = `COALESCE(SUM(m.revenue), 0) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'ctr':
-                        orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.clicks)::NUMERIC / SUM(m.impressions)) * 100 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'cpm':
-                        orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.spend) / SUM(m.impressions)) * 1000 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'cpc':
-                        orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN SUM(m.spend) / SUM(m.clicks) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'cpa':
-                        orderByClause = `(CASE WHEN SUM(m.conversions) > 0 THEN SUM(m.spend) / SUM(m.conversions) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'cvr':
-                        orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN (SUM(m.conversions)::NUMERIC / SUM(m.clicks)) * 100 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    case 'roas':
-                        orderByClause = `(CASE WHEN SUM(m.spend) > 0 THEN SUM(m.revenue) / SUM(m.spend) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-                        break;
-                    default:
-                        orderByClause = `c.created_at ${sanitizedSortOrder}`;
-                }
+                const columnPosition = columnMap[sanitizedSortBy];
+                orderByColumn = columnPosition ? columnPosition.toString() : '8';
             }
             else {
-                orderByClause = `c.created_at ${sanitizedSortOrder}`;
+                orderByColumn = '8';
             }
+            const orderByClause = `${orderByColumn} ${sanitizedSortOrder}`;
             // Data query with account information and aggregated metrics
             const dataQuery = `
         SELECT 
