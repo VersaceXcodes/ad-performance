@@ -3074,13 +3074,60 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
       `;
             const countResult = await client.query(countQuery, queryParams);
             const total = parseInt(countResult.rows[0].total);
-            // Data query with account information
+            // Determine valid columns for sorting
+            const validCampaignColumns = ['id', 'campaign_id', 'campaign_name', 'status', 'objective', 'buying_type', 'created_at', 'updated_at'];
+            const validMetricColumns = ['spend', 'impressions', 'clicks', 'conversions', 'revenue', 'ctr', 'cpm', 'cpc', 'cpa', 'cvr', 'roas'];
+            let orderByClause;
+            if (validCampaignColumns.includes(sort_by)) {
+                orderByClause = `c.${sort_by} ${sort_order.toUpperCase()}`;
+            }
+            else if (validMetricColumns.includes(sort_by)) {
+                orderByClause = `${sort_by} ${sort_order.toUpperCase()} NULLS LAST`;
+            }
+            else {
+                orderByClause = `c.created_at ${sort_order.toUpperCase()}`;
+            }
+            // Data query with account information and aggregated metrics
             const dataQuery = `
-        SELECT c.*, a.platform, a.account_name
+        SELECT 
+          c.*,
+          a.platform,
+          a.account_name,
+          COALESCE(SUM(m.spend), 0) as spend,
+          COALESCE(SUM(m.impressions), 0) as impressions,
+          COALESCE(SUM(m.clicks), 0) as clicks,
+          COALESCE(SUM(m.conversions), 0) as conversions,
+          COALESCE(SUM(m.revenue), 0) as revenue,
+          CASE 
+            WHEN SUM(m.impressions) > 0 THEN ROUND((SUM(m.clicks)::NUMERIC / SUM(m.impressions)) * 100, 2)
+            ELSE 0 
+          END as ctr,
+          CASE 
+            WHEN SUM(m.impressions) > 0 THEN ROUND((SUM(m.spend) / SUM(m.impressions)) * 1000, 2)
+            ELSE 0 
+          END as cpm,
+          CASE 
+            WHEN SUM(m.clicks) > 0 THEN ROUND(SUM(m.spend) / SUM(m.clicks), 2)
+            ELSE 0 
+          END as cpc,
+          CASE 
+            WHEN SUM(m.conversions) > 0 THEN ROUND(SUM(m.spend) / SUM(m.conversions), 2)
+            ELSE 0 
+          END as cpa,
+          CASE 
+            WHEN SUM(m.clicks) > 0 THEN ROUND((SUM(m.conversions)::NUMERIC / SUM(m.clicks)) * 100, 2)
+            ELSE 0 
+          END as cvr,
+          CASE 
+            WHEN SUM(m.spend) > 0 THEN ROUND(SUM(m.revenue) / SUM(m.spend), 2)
+            ELSE 0 
+          END as roas
         FROM campaigns c
         JOIN accounts a ON c.account_id = a.id
+        LEFT JOIN metrics_daily m ON c.id = m.campaign_id
         WHERE ${whereConditions.join(' AND ')}
-        ORDER BY c.${sort_by} ${sort_order.toUpperCase()}
+        GROUP BY c.id, a.platform, a.account_name
+        ORDER BY ${orderByClause}
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
       `;
             queryParams.push(pageSize, pageOffset);
