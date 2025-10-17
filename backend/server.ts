@@ -3509,34 +3509,44 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
       if (validCampaignColumns.includes(sanitizedSortBy)) {
         orderByClause = `c.${sanitizedSortBy} ${sanitizedSortOrder}`;
       } else if (validMetricColumns.includes(sanitizedSortBy)) {
-        // Use the aggregate expression directly with COALESCE to handle NULLs properly
-        // Add NULLS LAST for DESC ordering to ensure zero values appear at the end
         const nullsClause = sanitizedSortOrder === 'DESC' ? ' NULLS LAST' : ' NULLS FIRST';
         
-        if (sanitizedSortBy === 'spend') {
-          orderByClause = `COALESCE(SUM(m.spend), 0) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'impressions') {
-          orderByClause = `COALESCE(SUM(m.impressions), 0) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'clicks') {
-          orderByClause = `COALESCE(SUM(m.clicks), 0) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'conversions') {
-          orderByClause = `COALESCE(SUM(m.conversions), 0) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'revenue') {
-          orderByClause = `COALESCE(SUM(m.revenue), 0) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'ctr') {
-          orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.clicks)::NUMERIC / SUM(m.impressions)) * 100 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'cpm') {
-          orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.spend) / SUM(m.impressions)) * 1000 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'cpc') {
-          orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN SUM(m.spend) / SUM(m.clicks) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'cpa') {
-          orderByClause = `(CASE WHEN SUM(m.conversions) > 0 THEN SUM(m.spend) / SUM(m.conversions) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'cvr') {
-          orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN (SUM(m.conversions)::NUMERIC / SUM(m.clicks)) * 100 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-        } else if (sanitizedSortBy === 'roas') {
-          orderByClause = `(CASE WHEN SUM(m.spend) > 0 THEN SUM(m.revenue) / SUM(m.spend) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
-        } else {
-          orderByClause = `c.created_at ${sanitizedSortOrder}`;
+        switch (sanitizedSortBy) {
+          case 'spend':
+            orderByClause = `COALESCE(SUM(m.spend), 0) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'impressions':
+            orderByClause = `COALESCE(SUM(m.impressions), 0) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'clicks':
+            orderByClause = `COALESCE(SUM(m.clicks), 0) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'conversions':
+            orderByClause = `COALESCE(SUM(m.conversions), 0) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'revenue':
+            orderByClause = `COALESCE(SUM(m.revenue), 0) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'ctr':
+            orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.clicks)::NUMERIC / SUM(m.impressions)) * 100 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'cpm':
+            orderByClause = `(CASE WHEN SUM(m.impressions) > 0 THEN (SUM(m.spend) / SUM(m.impressions)) * 1000 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'cpc':
+            orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN SUM(m.spend) / SUM(m.clicks) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'cpa':
+            orderByClause = `(CASE WHEN SUM(m.conversions) > 0 THEN SUM(m.spend) / SUM(m.conversions) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'cvr':
+            orderByClause = `(CASE WHEN SUM(m.clicks) > 0 THEN (SUM(m.conversions)::NUMERIC / SUM(m.clicks)) * 100 ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          case 'roas':
+            orderByClause = `(CASE WHEN SUM(m.spend) > 0 THEN SUM(m.revenue) / SUM(m.spend) ELSE 0 END) ${sanitizedSortOrder}${nullsClause}`;
+            break;
+          default:
+            orderByClause = `c.created_at ${sanitizedSortOrder}`;
         }
       } else {
         orderByClause = `c.created_at ${sanitizedSortOrder}`;
