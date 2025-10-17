@@ -3077,44 +3077,32 @@ app.get('/api/workspaces/:workspace_id/campaigns', authenticateToken, validateWo
             // Determine valid columns for sorting - sanitize sort_by parameter
             const sanitizedSortBy = String(sort_by || 'created_at').toLowerCase().trim().replace(/[^a-z_]/g, '');
             const sanitizedSortOrder = String(sort_order || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-            const validCampaignColumns = ['id', 'campaign_id', 'campaign_name', 'status', 'objective', 'buying_type', 'created_at', 'updated_at'];
-            const validMetricColumns = ['spend', 'impressions', 'clicks', 'conversions', 'revenue', 'ctr', 'cpm', 'cpc', 'cpa', 'cvr', 'roas'];
+            // Map sort column names to their SELECT list positions
             const columnMap = {
-                'id': 1,
-                'account_id': 2,
-                'campaign_id': 3,
-                'campaign_name': 4,
-                'status': 5,
-                'objective': 6,
-                'buying_type': 7,
-                'created_at': 8,
-                'updated_at': 9,
-                'platform': 10,
-                'account_name': 11,
-                'spend': 12,
-                'impressions': 13,
-                'clicks': 14,
-                'conversions': 15,
-                'revenue': 16,
-                'ctr': 17,
-                'cpm': 18,
-                'cpc': 19,
-                'cpa': 20,
-                'cvr': 21,
-                'roas': 22
+                'id': 'c.id',
+                'account_id': 'c.account_id',
+                'campaign_id': 'c.campaign_id',
+                'campaign_name': 'c.campaign_name',
+                'status': 'c.status',
+                'objective': 'c.objective',
+                'buying_type': 'c.buying_type',
+                'created_at': 'c.created_at',
+                'updated_at': 'c.updated_at',
+                'platform': 'a.platform',
+                'account_name': 'a.account_name',
+                'spend': 'SUM(m.spend)',
+                'impressions': 'SUM(m.impressions)',
+                'clicks': 'SUM(m.clicks)',
+                'conversions': 'SUM(m.conversions)',
+                'revenue': 'SUM(m.revenue)',
+                'ctr': 'SUM(m.clicks)::NUMERIC / NULLIF(SUM(m.impressions), 0)',
+                'cpm': 'SUM(m.spend) / NULLIF(SUM(m.impressions), 0)',
+                'cpc': 'SUM(m.spend) / NULLIF(SUM(m.clicks), 0)',
+                'cpa': 'SUM(m.spend) / NULLIF(SUM(m.conversions), 0)',
+                'cvr': 'SUM(m.conversions)::NUMERIC / NULLIF(SUM(m.clicks), 0)',
+                'roas': 'SUM(m.revenue) / NULLIF(SUM(m.spend), 0)'
             };
-            let orderByColumn;
-            if (validCampaignColumns.includes(sanitizedSortBy)) {
-                const columnPosition = columnMap[sanitizedSortBy];
-                orderByColumn = columnPosition ? columnPosition.toString() : '8';
-            }
-            else if (validMetricColumns.includes(sanitizedSortBy)) {
-                const columnPosition = columnMap[sanitizedSortBy];
-                orderByColumn = columnPosition ? columnPosition.toString() : '8';
-            }
-            else {
-                orderByColumn = '8';
-            }
+            const orderByColumn = columnMap[sanitizedSortBy] || 'c.created_at';
             const orderByClause = `${orderByColumn} ${sanitizedSortOrder}`;
             // Data query with account information and aggregated metrics
             const dataQuery = `
