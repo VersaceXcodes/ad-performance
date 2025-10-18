@@ -493,32 +493,36 @@ const UV_UploadWizard: React.FC = () => {
                       <p className="text-lg font-medium text-gray-900">Drop your files here</p>
                       <p className="text-gray-600">or click to browse</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      aria-label="Choose files to upload"
-                      data-testid="file-upload-button"
-                      id="file-upload-trigger-button"
-                    >
-                      Choose Files
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      accept=".csv,.xlsx"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files.length > 0) {
-                          handleFileSelect(e.target.files);
-                        }
-                      }}
-                      className="hidden"
-                      aria-label="File upload input"
-                      data-testid="file-upload-input"
-                      id="file-upload-input"
-                      name="file"
-                    />
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        aria-label="Choose files to upload"
+                        data-testid="file-upload-button"
+                        id="file-upload-trigger-button"
+                      >
+                        Choose Files
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        accept=".csv,.xlsx"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            handleFileSelect(e.target.files);
+                          }
+                        }}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        aria-label="File upload input"
+                        data-testid="file-upload-input"
+                        id="file-upload-input"
+                        name="file"
+                        title="Upload file"
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    </div>
                   </div>
                   <p className="mt-4 text-sm text-gray-500">
                     Supports CSV and XLSX files up to 50MB
