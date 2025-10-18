@@ -969,6 +969,77 @@ app.get('/api/test/validate', async (req, res) => {
   }
 });
 
+// Browser testing file upload guidance endpoint
+app.get('/api/test/file-upload-guide', (req, res) => {
+  try {
+    const guide = {
+      success: true,
+      timestamp: new Date().toISOString(),
+      message: 'File upload testing guide for browser automation',
+      issue: 'Browser automation tools cannot access local file paths directly',
+      solution: {
+        description: 'Use the test upload endpoint that creates sample data programmatically',
+        endpoint: 'POST /api/workspaces/{workspace_id}/uploads/test',
+        method: 'POST',
+        authentication: 'Required - Bearer token in Authorization header',
+        request_body: {
+          test_mode: 'browser-testing',
+          platform: 'facebook | google | tiktok | snapchat',
+          filename: 'test-data.csv (optional)'
+        },
+        example_request: {
+          url: 'https://123ad-performance.launchpulse.ai/api/workspaces/workspace_001/uploads/test',
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer YOUR_AUTH_TOKEN',
+            'Content-Type': 'application/json'
+          },
+          body: {
+            test_mode: 'browser-testing',
+            platform: 'facebook',
+            filename: 'test-data.csv'
+          }
+        },
+        response_example: {
+          id: 'upload_test_123',
+          workspace_id: 'workspace_001',
+          status: 'processing',
+          platform: 'facebook',
+          original_filename: 'test-data.csv',
+          test_mode: true,
+          message: 'Test upload created successfully for browser testing'
+        }
+      },
+      limitations: {
+        file_input_interaction: 'Browser automation cannot set file input values with file paths',
+        security_restriction: 'File inputs require actual File objects from user interaction or programmatic creation',
+        workaround: 'Use the /uploads/test endpoint which creates sample CSV data programmatically'
+      },
+      alternative_testing_approaches: [
+        'Use the test endpoint to create uploads with sample data',
+        'Test the upload UI flow without actual file selection',
+        'Verify error messages and validation work correctly',
+        'Test upload history and status displays',
+        'Verify upload progress tracking and notifications'
+      ],
+      additional_notes: [
+        'The test endpoint creates a minimal CSV file with sample data',
+        'Upload processing is mocked - jobs will show as processing/completed',
+        'Test uploads are created in the same database as regular uploads',
+        'Use workspace_001 for testing which has pre-seeded data',
+        'Check /api/workspaces/{workspace_id}/uploads to see upload history'
+      ]
+    };
+
+    res.setHeader('X-Browser-Test', 'file-upload-guide');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.json(guide);
+  } catch (error) {
+    console.error('File upload guide error:', error);
+    res.status(500).json(createErrorResponse('File upload guide failed', error, 'FILE_UPLOAD_GUIDE_ERROR'));
+  }
+});
+
 // Comprehensive browser connectivity test endpoint with NaN protection
 app.get('/api/test/connectivity', (req, res) => {
   try {
@@ -4697,6 +4768,84 @@ app.post('/api/workspaces/:workspace_id/uploads', authenticateToken, validateWor
     }
   } catch (error) {
     console.error('Create upload error:', error);
+    res.status(500).json(createErrorResponse('Internal server error', error, 'INTERNAL_SERVER_ERROR'));
+  }
+});
+
+/*
+  POST /api/workspaces/{workspace_id}/uploads/test
+  Test endpoint for browser automation tools to simulate file upload
+*/
+app.post('/api/workspaces/:workspace_id/uploads/test', authenticateToken, validateWorkspaceAccess, async (req, res) => {
+  try {
+    const { platform, filename, test_mode } = req.body;
+
+    if (!platform) {
+      return res.status(400).json(createErrorResponse('Platform is required', null, 'PLATFORM_REQUIRED'));
+    }
+
+    if (test_mode !== 'browser-testing') {
+      return res.status(400).json(createErrorResponse('This endpoint is only for browser testing', null, 'TEST_MODE_REQUIRED'));
+    }
+
+    const validPlatforms = ['facebook', 'google', 'tiktok', 'snapchat', 'linkedin', 'twitter'];
+    if (!validPlatforms.includes(platform)) {
+      return res.status(400).json(createErrorResponse('Invalid platform', null, 'INVALID_PLATFORM'));
+    }
+
+    const client = await pool.connect();
+    try {
+      const uploadId = uuidv4();
+      const now = new Date().toISOString();
+      const testFilename = filename || 'test-data.csv';
+      const testFileSize = 1024;
+
+      const sampleCSVData = 'campaign_name,impressions,clicks,spend,conversions\nTest Campaign,10000,500,250.50,25\n';
+      const testFilePath = path.join(storageDir, `test_${Date.now()}_${testFilename}`);
+      fs.writeFileSync(testFilePath, sampleCSVData);
+
+      const result = await client.query(`
+        INSERT INTO upload_jobs (
+          id, workspace_id, user_id, filename, original_filename, file_size, 
+          platform, status, progress, rows_processed, rows_total, rows_success, rows_error,
+          mapping_template_id, date_from, date_to, created_at, updated_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+        RETURNING *
+      `, [
+        uploadId, req.params.workspace_id, req.user.id, path.basename(testFilePath), testFilename,
+        testFileSize, platform, 'queued', 0, 0, 0, 0, 0, null,
+        null, null, now, now
+      ]);
+
+      scheduleBackgroundJob({
+        job_type: 'process_upload',
+        job_data: {
+          upload_id: uploadId,
+          file_path: testFilePath,
+          platform,
+          mapping_template_id: null
+        }
+      });
+
+      await client.query(`
+        UPDATE upload_jobs 
+        SET status = 'processing', started_at = $1, updated_at = $2
+        WHERE id = $3
+      `, [now, now, uploadId]);
+
+      res.status(201).json({
+        ...result.rows[0],
+        status: 'processing',
+        started_at: now,
+        test_mode: true,
+        message: 'Test upload created successfully for browser testing'
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Create test upload error:', error);
     res.status(500).json(createErrorResponse('Internal server error', error, 'INTERNAL_SERVER_ERROR'));
   }
 });
