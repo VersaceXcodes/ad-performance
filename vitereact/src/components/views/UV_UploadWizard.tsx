@@ -101,6 +101,22 @@ const UV_UploadWizard: React.FC = () => {
     }
   }, [searchParams]);
 
+  // Browser testing helper - expose file selection method globally
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__testHelpers = {
+        ...(window as any).__testHelpers,
+        selectTestFile: (filename: string = 'test-data.csv', content: string = 'campaign_name,impressions,clicks\nTest,1000,50') => {
+          const blob = new Blob([content], { type: 'text/csv' });
+          const file = new File([blob], filename, { type: 'text/csv' });
+          handleFileSelect([file]);
+        },
+        getCurrentStep: () => wizardStep,
+        hasValidFiles: () => selectedFiles.length > 0 && selectedFiles[0].validation_status === 'valid'
+      };
+    }
+  }, [handleFileSelect, wizardStep, selectedFiles]);
+
   // API Base URL
   const getApiBaseUrl = () => import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
@@ -465,6 +481,8 @@ const UV_UploadWizard: React.FC = () => {
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
+                  data-testid="file-drop-zone"
+                  data-has-files={selectedFiles.length > 0}
                 >
                   <div className="space-y-4">
                     <div className="flex justify-center">
@@ -482,6 +500,7 @@ const UV_UploadWizard: React.FC = () => {
                       className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       aria-label="Choose files to upload"
                       data-testid="file-upload-button"
+                      id="file-upload-trigger-button"
                     >
                       Choose Files
                     </button>
@@ -498,6 +517,8 @@ const UV_UploadWizard: React.FC = () => {
                       className="hidden"
                       aria-label="File upload input"
                       data-testid="file-upload-input"
+                      id="file-upload-input"
+                      name="file"
                     />
                   </div>
                   <p className="mt-4 text-sm text-gray-500">
@@ -562,6 +583,8 @@ const UV_UploadWizard: React.FC = () => {
                     aria-label="Continue to platform selection"
                     aria-disabled={!canProceedToStep(2)}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    id="continue-to-platform-button"
+                    data-testid="continue-button"
                   >
                     Continue
                   </button>

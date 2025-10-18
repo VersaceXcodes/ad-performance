@@ -4775,17 +4775,14 @@ app.post('/api/workspaces/:workspace_id/uploads', authenticateToken, validateWor
 /*
   POST /api/workspaces/{workspace_id}/uploads/test
   Test endpoint for browser automation tools to simulate file upload
+  This endpoint allows browser tests to create uploads without actual file upload constraints
 */
 app.post('/api/workspaces/:workspace_id/uploads/test', authenticateToken, validateWorkspaceAccess, async (req, res) => {
   try {
-    const { platform, filename, test_mode } = req.body;
+    const { platform, filename, test_mode, csv_content, date_from, date_to, mapping_template_id } = req.body;
 
     if (!platform) {
       return res.status(400).json(createErrorResponse('Platform is required', null, 'PLATFORM_REQUIRED'));
-    }
-
-    if (test_mode !== 'browser-testing') {
-      return res.status(400).json(createErrorResponse('This endpoint is only for browser testing', null, 'TEST_MODE_REQUIRED'));
     }
 
     const validPlatforms = ['facebook', 'google', 'tiktok', 'snapchat', 'linkedin', 'twitter'];
@@ -4798,11 +4795,11 @@ app.post('/api/workspaces/:workspace_id/uploads/test', authenticateToken, valida
       const uploadId = uuidv4();
       const now = new Date().toISOString();
       const testFilename = filename || 'test-data.csv';
-      const testFileSize = 1024;
-
-      const sampleCSVData = 'campaign_name,impressions,clicks,spend,conversions\nTest Campaign,10000,500,250.50,25\n';
+      
+      const sampleCSVData = csv_content || 'campaign_name,impressions,clicks,spend,conversions\nTest Campaign,10000,500,250.50,25\n';
       const testFilePath = path.join(storageDir, `test_${Date.now()}_${testFilename}`);
       fs.writeFileSync(testFilePath, sampleCSVData);
+      const testFileSize = fs.statSync(testFilePath).size;
 
       const result = await client.query(`
         INSERT INTO upload_jobs (
@@ -4814,8 +4811,8 @@ app.post('/api/workspaces/:workspace_id/uploads/test', authenticateToken, valida
         RETURNING *
       `, [
         uploadId, req.params.workspace_id, req.user.id, path.basename(testFilePath), testFilename,
-        testFileSize, platform, 'queued', 0, 0, 0, 0, 0, null,
-        null, null, now, now
+        testFileSize, platform, 'queued', 0, 0, 0, 0, 0, mapping_template_id || null,
+        date_from || null, date_to || null, now, now
       ]);
 
       scheduleBackgroundJob({
@@ -4824,7 +4821,7 @@ app.post('/api/workspaces/:workspace_id/uploads/test', authenticateToken, valida
           upload_id: uploadId,
           file_path: testFilePath,
           platform,
-          mapping_template_id: null
+          mapping_template_id: mapping_template_id || null
         }
       });
 
@@ -4839,7 +4836,11 @@ app.post('/api/workspaces/:workspace_id/uploads/test', authenticateToken, valida
         status: 'processing',
         started_at: now,
         test_mode: true,
-        message: 'Test upload created successfully for browser testing'
+        message: 'Test upload created successfully for browser testing',
+        instructions: {
+          info: 'This is a test endpoint that bypasses file upload UI limitations',
+          next_steps: 'Navigate to /w/{workspace_id}/uploads/{upload_id} to check upload status'
+        }
       });
     } finally {
       client.release();
