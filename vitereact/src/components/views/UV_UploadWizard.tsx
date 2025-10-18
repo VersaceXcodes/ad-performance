@@ -481,6 +481,7 @@ const UV_UploadWizard: React.FC = () => {
                       onClick={() => fileInputRef.current?.click()}
                       className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       aria-label="Choose files to upload"
+                      data-testid="file-upload-button"
                     >
                       Choose Files
                     </button>
@@ -495,7 +496,8 @@ const UV_UploadWizard: React.FC = () => {
                         }
                       }}
                       className="hidden"
-                      aria-hidden="true"
+                      aria-label="File upload input"
+                      data-testid="file-upload-input"
                     />
                   </div>
                   <p className="mt-4 text-sm text-gray-500">
@@ -554,8 +556,11 @@ const UV_UploadWizard: React.FC = () => {
 
                 <div className="flex justify-end mt-8">
                   <button
+                    type="button"
                     onClick={() => updateStep(2)}
                     disabled={!canProceedToStep(2)}
+                    aria-label="Continue to platform selection"
+                    aria-disabled={!canProceedToStep(2)}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Continue
@@ -609,14 +614,19 @@ const UV_UploadWizard: React.FC = () => {
 
                 <div className="flex justify-between mt-8">
                   <button
+                    type="button"
                     onClick={() => updateStep(1)}
+                    aria-label="Go back to file selection"
                     className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                   >
                     Back
                   </button>
                   <button
+                    type="button"
                     onClick={() => updateStep(3)}
                     disabled={!canProceedToStep(3)}
+                    aria-label="Continue to configuration"
+                    aria-disabled={!canProceedToStep(3)}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Continue
@@ -718,14 +728,19 @@ const UV_UploadWizard: React.FC = () => {
 
                 <div className="flex justify-between mt-8">
                   <button
+                    type="button"
                     onClick={() => updateStep(2)}
+                    aria-label="Go back to platform selection"
                     className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                   >
                     Back
                   </button>
                   <button
+                    type="button"
                     onClick={() => createUploadMutation.mutate()}
                     disabled={createUploadMutation.isPending}
+                    aria-label="Start upload process"
+                    aria-disabled={createUploadMutation.isPending}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {createUploadMutation.isPending ? 'Starting Upload...' : 'Start Upload'}
