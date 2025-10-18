@@ -291,6 +291,16 @@ const UV_UploadWizard: React.FC = () => {
   // File handlers
   const handleFileSelect = useCallback((files: FileList | File[]) => {
     const fileArray = Array.from(files);
+    
+    if (fileArray.length === 0) {
+      addToastNotification({
+        type: 'error',
+        message: 'No files selected',
+        auto_dismiss: true,
+      });
+      return;
+    }
+    
     const validatedFiles: FileWithValidation[] = fileArray.map(file => {
       const validation = validateFile(file);
       return {
@@ -303,7 +313,16 @@ const UV_UploadWizard: React.FC = () => {
     });
 
     setSelectedFiles(validatedFiles);
-  }, []);
+    
+    const invalidFiles = validatedFiles.filter(f => f.validation_status === 'invalid');
+    if (invalidFiles.length > 0) {
+      addToastNotification({
+        type: 'warning',
+        message: `${invalidFiles.length} file(s) failed validation`,
+        auto_dismiss: true,
+      });
+    }
+  }, [addToastNotification]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -318,8 +337,18 @@ const UV_UploadWizard: React.FC = () => {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    handleFileSelect(e.dataTransfer.files);
-  }, [handleFileSelect]);
+    
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files);
+    } else {
+      addToastNotification({
+        type: 'error',
+        message: 'No files were dropped',
+        auto_dismiss: true,
+      });
+    }
+  }, [handleFileSelect, addToastNotification]);
 
   // Navigation helpers
   const updateStep = (step: number) => {
@@ -451,6 +480,7 @@ const UV_UploadWizard: React.FC = () => {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      aria-label="Choose files to upload"
                     >
                       Choose Files
                     </button>
@@ -459,8 +489,13 @@ const UV_UploadWizard: React.FC = () => {
                       type="file"
                       multiple
                       accept=".csv,.xlsx"
-                      onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          handleFileSelect(e.target.files);
+                        }
+                      }}
                       className="hidden"
+                      aria-hidden="true"
                     />
                   </div>
                   <p className="mt-4 text-sm text-gray-500">
