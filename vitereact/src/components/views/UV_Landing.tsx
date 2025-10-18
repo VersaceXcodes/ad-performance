@@ -308,10 +308,10 @@ const UV_Landing: React.FC = () => {
       </div>
 
       {/* Social Proof Section */}
-      <div className="py-12 bg-white">
+      <div className="py-12 bg-white" data-testid="social-proof-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl" data-testid="social-proof-heading">
               Trusted by marketing teams worldwide
             </h2>
             <p className="mt-4 max-w-2xl text-xl text-gray-600 lg:mx-auto leading-relaxed">
@@ -319,20 +319,31 @@ const UV_Landing: React.FC = () => {
             </p>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-10" data-testid="testimonials-container">
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-              {featuredTestimonials.map((testimonial) => (
-                <div key={testimonial.name} className="bg-gray-50 rounded-xl p-6 shadow-lg border border-gray-100">
-                  <p className="text-gray-900 leading-relaxed">"{testimonial.testimonial}"</p>
+              {featuredTestimonials.map((testimonial, index) => (
+                <div 
+                  key={testimonial.name} 
+                  className="bg-gray-50 rounded-xl p-6 shadow-lg border border-gray-100"
+                  data-testid={`testimonial-${index}`}
+                >
+                  <p className="text-gray-900 leading-relaxed" data-testid={`testimonial-quote-${index}`}>
+                    "{testimonial.testimonial}"
+                  </p>
                   <div className="mt-6 flex items-center">
                     <img
                       className="h-12 w-12 rounded-full"
                       src={testimonial.avatar_url}
                       alt={testimonial.name}
+                      data-testid={`testimonial-avatar-${index}`}
                     />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-900">{testimonial.name}</p>
-                      <p className="text-sm text-gray-600">{testimonial.company}</p>
+                      <p className="text-sm font-medium text-gray-900" data-testid={`testimonial-name-${index}`}>
+                        {testimonial.name}
+                      </p>
+                      <p className="text-sm text-gray-600" data-testid={`testimonial-company-${index}`}>
+                        {testimonial.company}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -340,17 +351,17 @@ const UV_Landing: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-10 text-center">
+          <div className="mt-10 text-center" data-testid="social-proof-stats">
             <div className="flex justify-center items-center space-x-8">
-              <div className="text-center">
+              <div className="text-center" data-testid="stat-active-users">
                 <p className="text-3xl font-bold text-blue-600">500+</p>
                 <p className="text-sm text-gray-600">Active Users</p>
               </div>
-              <div className="text-center">
+              <div className="text-center" data-testid="stat-ad-spend">
                 <p className="text-3xl font-bold text-blue-600">10M+</p>
                 <p className="text-sm text-gray-600">Ad Spend Analyzed</p>
               </div>
-              <div className="text-center">
+              <div className="text-center" data-testid="stat-uptime">
                 <p className="text-3xl font-bold text-blue-600">99.9%</p>
                 <p className="text-sm text-gray-600">Uptime</p>
               </div>
