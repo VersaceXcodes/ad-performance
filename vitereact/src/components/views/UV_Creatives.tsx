@@ -139,6 +139,9 @@ const UV_Creatives: React.FC = () => {
   const [selectedCreative, setSelectedCreative] = useState<CreativePerformance | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCreatives, setSelectedCreatives] = useState<Set<string>>(new Set());
+  const [isComparisonMode, setIsComparisonMode] = useState(false);
+  const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
 
   // Zustand store selectors
   const authToken = useAppStore(state => state.authentication_state.auth_token);
@@ -218,6 +221,35 @@ const UV_Creatives: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const toggleCreativeSelection = (creativeId: string) => {
+    const newSelection = new Set(selectedCreatives);
+    if (newSelection.has(creativeId)) {
+      newSelection.delete(creativeId);
+    } else {
+      newSelection.add(creativeId);
+    }
+    setSelectedCreatives(newSelection);
+  };
+
+  const openComparisonModal = () => {
+    if (selectedCreatives.size >= 2) {
+      setIsComparisonModalOpen(true);
+    }
+  };
+
+  const closeComparisonModal = () => {
+    setIsComparisonModalOpen(false);
+  };
+
+  const clearSelection = () => {
+    setSelectedCreatives(new Set());
+    setIsComparisonMode(false);
+  };
+
+  const selectedCreativeData = useMemo(() => {
+    return filteredCreatives.filter(c => selectedCreatives.has(c.id));
+  }, [filteredCreatives, selectedCreatives]);
+
   // Filter creatives based on performance filter
   const filteredCreatives = useMemo(() => {
     if (!creativesData?.data) return [];
@@ -272,6 +304,19 @@ const UV_Creatives: React.FC = () => {
                   </p>
                 </div>
                 <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setIsComparisonMode(!isComparisonMode)}
+                    className={`inline-flex items-center px-4 py-2 border shadow-sm text-sm font-medium rounded-lg transition-colors ${
+                      isComparisonMode
+                        ? 'border-blue-600 text-blue-600 bg-blue-50 hover:bg-blue-100'
+                        : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                    }`}
+                  >
+                    <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    {isComparisonMode ? 'Exit Compare Mode' : 'Compare Creatives'}
+                  </button>
                   <Link
                     to={`/w/${workspace_id}/campaigns`}
                     className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
@@ -323,6 +368,32 @@ const UV_Creatives: React.FC = () => {
                 </div>
 
                 <div className="flex items-center space-x-4">
+                  {isComparisonMode && selectedCreatives.size > 0 && (
+                    <>
+                      <div className="flex items-center space-x-2 bg-blue-50 px-4 py-2 rounded-lg">
+                        <span className="text-sm font-medium text-blue-800">
+                          {selectedCreatives.size} selected
+                        </span>
+                        <button
+                          onClick={clearSelection}
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <button
+                        onClick={openComparisonModal}
+                        disabled={selectedCreatives.size < 2}
+                        className={`inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white transition-colors ${
+                          selectedCreatives.size >= 2
+                            ? 'bg-blue-600 hover:bg-blue-700'
+                            : 'bg-gray-300 cursor-not-allowed'
+                        }`}
+                      >
+                        Compare ({selectedCreatives.size})
+                      </button>
+                    </>
+                  )}
                   <div className="relative">
                     <input
                       type="text"
@@ -408,9 +479,31 @@ const UV_Creatives: React.FC = () => {
                 return (
                   <div
                     key={creative.id}
-                    onClick={() => openCreativeModal(creative)}
-                    className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-200 cursor-pointer group"
+                    onClick={(e) => {
+                      if (isComparisonMode) {
+                        e.stopPropagation();
+                        toggleCreativeSelection(creative.id);
+                      } else {
+                        openCreativeModal(creative);
+                      }
+                    }}
+                    className={`bg-white rounded-xl shadow-lg border overflow-hidden hover:shadow-xl transition-all duration-200 cursor-pointer group relative ${
+                      selectedCreatives.has(creative.id)
+                        ? 'border-blue-500 ring-2 ring-blue-500'
+                        : 'border-gray-200'
+                    }`}
                   >
+                    {isComparisonMode && (
+                      <div className="absolute top-2 left-2 z-10">
+                        <input
+                          type="checkbox"
+                          checked={selectedCreatives.has(creative.id)}
+                          onChange={() => toggleCreativeSelection(creative.id)}
+                          className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    )}
                     {/* Creative Thumbnail */}
                     <div className="relative h-48 bg-gray-100">
                       {creative.creative_thumb_url ? (
@@ -710,6 +803,245 @@ const UV_Creatives: React.FC = () => {
                 >
                   View Campaigns
                 </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Creative Comparison Modal */}
+        {isComparisonModalOpen && selectedCreativeData.length >= 2 && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Creative Comparison ({selectedCreativeData.length} creatives)
+                </h2>
+                <button
+                  onClick={closeComparisonModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="p-6">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">
+                          Metric
+                        </th>
+                        {selectedCreativeData.map((creative) => (
+                          <th key={creative.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-gray-900 normal-case truncate" title={creative.creative_name}>
+                                {creative.creative_name}
+                              </span>
+                              <span className="text-xs text-gray-500 mt-1">
+                                {creative.platforms.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')}
+                              </span>
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
+                          Preview
+                        </td>
+                        {selectedCreativeData.map((creative) => (
+                          <td key={creative.id} className="px-6 py-4">
+                            <div className="h-32 w-full bg-gray-100 rounded-lg overflow-hidden">
+                              {creative.creative_thumb_url ? (
+                                <img
+                                  src={creative.creative_thumb_url}
+                                  alt={creative.creative_name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-gray-50">
+                          Total Spend
+                        </td>
+                        {selectedCreativeData.map((creative) => {
+                          const maxSpend = Math.max(...selectedCreativeData.map(c => c.total_spend));
+                          const isBest = creative.total_spend === maxSpend;
+                          return (
+                            <td key={creative.id} className={`px-6 py-4 whitespace-nowrap text-sm ${isBest ? 'font-bold text-blue-600' : 'text-gray-900'}`}>
+                              {formatCurrency(creative.total_spend)}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
+                          Revenue
+                        </td>
+                        {selectedCreativeData.map((creative) => {
+                          const maxRevenue = Math.max(...selectedCreativeData.map(c => c.total_revenue));
+                          const isBest = creative.total_revenue === maxRevenue;
+                          return (
+                            <td key={creative.id} className={`px-6 py-4 whitespace-nowrap text-sm ${isBest ? 'font-bold text-green-600' : 'text-gray-900'}`}>
+                              {formatCurrency(creative.total_revenue)}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-gray-50">
+                          ROAS
+                        </td>
+                        {selectedCreativeData.map((creative) => {
+                          const maxRoas = Math.max(...selectedCreativeData.map(c => c.avg_roas || 0));
+                          const isBest = creative.avg_roas === maxRoas;
+                          return (
+                            <td key={creative.id} className={`px-6 py-4 whitespace-nowrap text-sm ${isBest ? 'font-bold text-green-600' : getPerformanceColor(creative.avg_roas)}`}>
+                              {creative.avg_roas ? `${creative.avg_roas.toFixed(2)}x` : 'N/A'}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
+                          CPA
+                        </td>
+                        {selectedCreativeData.map((creative) => {
+                          const minCpa = Math.min(...selectedCreativeData.map(c => c.avg_cpa || Infinity));
+                          const isBest = creative.avg_cpa === minCpa;
+                          return (
+                            <td key={creative.id} className={`px-6 py-4 whitespace-nowrap text-sm ${isBest ? 'font-bold text-green-600' : 'text-gray-900'}`}>
+                              {creative.avg_cpa ? formatCurrency(creative.avg_cpa) : 'N/A'}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-gray-50">
+                          CTR
+                        </td>
+                        {selectedCreativeData.map((creative) => {
+                          const maxCtr = Math.max(...selectedCreativeData.map(c => c.avg_ctr || 0));
+                          const isBest = creative.avg_ctr === maxCtr;
+                          return (
+                            <td key={creative.id} className={`px-6 py-4 whitespace-nowrap text-sm ${isBest ? 'font-bold text-green-600' : 'text-gray-900'}`}>
+                              {formatPercentage(creative.avg_ctr)}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
+                          CVR
+                        </td>
+                        {selectedCreativeData.map((creative) => {
+                          const maxCvr = Math.max(...selectedCreativeData.map(c => c.avg_cvr || 0));
+                          const isBest = creative.avg_cvr === maxCvr;
+                          return (
+                            <td key={creative.id} className={`px-6 py-4 whitespace-nowrap text-sm ${isBest ? 'font-bold text-green-600' : 'text-gray-900'}`}>
+                              {formatPercentage(creative.avg_cvr)}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-gray-50">
+                          Impressions
+                        </td>
+                        {selectedCreativeData.map((creative) => (
+                          <td key={creative.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatNumber(creative.total_impressions)}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
+                          Clicks
+                        </td>
+                        {selectedCreativeData.map((creative) => (
+                          <td key={creative.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatNumber(creative.total_clicks)}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-gray-50">
+                          Conversions
+                        </td>
+                        {selectedCreativeData.map((creative) => (
+                          <td key={creative.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatNumber(creative.total_conversions)}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
+                          Campaigns
+                        </td>
+                        {selectedCreativeData.map((creative) => (
+                          <td key={creative.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {creative.campaign_count}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-gray-50">
+                          Ad Format
+                        </td>
+                        {selectedCreativeData.map((creative) => (
+                          <td key={creative.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {creative.ad_format?.replace('_', ' ') || 'N/A'}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white">
+                          First Seen
+                        </td>
+                        {selectedCreativeData.map((creative) => (
+                          <td key={creative.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(creative.first_seen_date).toLocaleDateString()}
+                          </td>
+                        ))}
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-gray-50">
+                          Last Seen
+                        </td>
+                        {selectedCreativeData.map((creative) => (
+                          <td key={creative.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(creative.last_seen_date).toLocaleDateString()}
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 bg-gray-50 px-6 py-4 flex justify-between items-center border-t border-gray-200">
+                <p className="text-sm text-gray-600">
+                  Best performers are highlighted in <span className="font-bold text-green-600">green</span>
+                </p>
+                <button
+                  onClick={closeComparisonModal}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
