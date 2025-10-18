@@ -101,22 +101,6 @@ const UV_UploadWizard: React.FC = () => {
     }
   }, [searchParams]);
 
-  // Browser testing helper - expose file selection method globally
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).__testHelpers = {
-        ...(window as any).__testHelpers,
-        selectTestFile: (filename: string = 'test-data.csv', content: string = 'campaign_name,impressions,clicks\nTest,1000,50') => {
-          const blob = new Blob([content], { type: 'text/csv' });
-          const file = new File([blob], filename, { type: 'text/csv' });
-          handleFileSelect([file]);
-        },
-        getCurrentStep: () => wizardStep,
-        hasValidFiles: () => selectedFiles.length > 0 && selectedFiles[0].validation_status === 'valid'
-      };
-    }
-  }, [handleFileSelect, wizardStep, selectedFiles]);
-
   // API Base URL
   const getApiBaseUrl = () => import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
@@ -392,6 +376,21 @@ const UV_UploadWizard: React.FC = () => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__testHelpers = {
+        ...(window as any).__testHelpers,
+        selectTestFile: (filename: string = 'test-data.csv', content: string = 'campaign_name,impressions,clicks\nTest,1000,50') => {
+          const blob = new Blob([content], { type: 'text/csv' });
+          const file = new File([blob], filename, { type: 'text/csv' });
+          handleFileSelect([file]);
+        },
+        getCurrentStep: () => wizardStep,
+        hasValidFiles: () => selectedFiles.length > 0 && selectedFiles[0].validation_status === 'valid'
+      };
+    }
+  }, [handleFileSelect, wizardStep, selectedFiles]);
 
   return (
     <>
