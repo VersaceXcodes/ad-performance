@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAppStore } from '@/store/main';
@@ -118,6 +118,7 @@ const UV_Campaigns: React.FC = () => {
   const { workspace_id, campaign_id } = useParams<{ workspace_id: string; campaign_id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Global state selectors - individual selectors to prevent infinite loops
   const authToken = useAppStore(state => state.authentication_state.auth_token);
@@ -340,19 +341,35 @@ const UV_Campaigns: React.FC = () => {
     const isExpanded = expandedCampaigns.has(campaign.id);
     const isSelected = selectedItems.has(campaign.id);
 
+    const handleRowClick = (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+        return;
+      }
+      navigate(`/w/${workspace_id}/campaigns/${campaign.id}`);
+    };
+
     return (
       <>
-        <tr className={`border-b border-gray-200 hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`}>
+        <tr 
+          className={`border-b border-gray-200 hover:bg-gray-50 cursor-pointer ${isSelected ? 'bg-blue-50' : ''}`}
+          onClick={handleRowClick}
+        >
           <td className="px-6 py-4 whitespace-nowrap text-sm">
             <div className="flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
               <input
                 type="checkbox"
                 checked={isSelected}
-                onChange={() => toggleItemSelection(campaign.id)}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  toggleItemSelection(campaign.id);
+                }}
                 className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
               />
               <button
-                onClick={() => toggleCampaignExpansion(campaign.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleCampaignExpansion(campaign.id);
+                }}
                 className="ml-2 p-1 text-gray-400 hover:text-gray-600"
               >
                 {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -398,7 +415,12 @@ const UV_Campaigns: React.FC = () => {
             {Number(campaign.roas).toFixed(2)}x
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <button className="text-gray-400 hover:text-gray-600">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="text-gray-400 hover:text-gray-600"
+            >
               <MoreHorizontal className="w-5 h-5" />
             </button>
           </td>
