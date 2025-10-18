@@ -58,6 +58,38 @@ const PLATFORMS = [
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = ['.csv', '.xlsx'];
 
+/**
+ * Upload Wizard Component
+ * 
+ * Browser Testing Support:
+ * This component exposes test helpers via window.__testHelpers for automated testing:
+ * 
+ * - selectTestFile(filename, content): Programmatically add a test file
+ * - selectPlatform(platform): Select a data platform ('facebook', 'tiktok', 'snapchat')
+ * - proceedToStep(step): Navigate to a specific wizard step
+ * - startUpload(): Initiate the upload process
+ * - getCurrentStep(): Get current wizard step number
+ * - hasValidFiles(): Check if valid files are selected
+ * - getSelectedPlatform(): Get currently selected platform
+ * - canContinue(): Check if can proceed to next step
+ * - getUploadState(): Get complete upload state object
+ * 
+ * Example test automation:
+ * ```javascript
+ * // Step 1: Select file
+ * window.__testHelpers.selectTestFile('test-data.csv', 'campaign_name,impressions,clicks\nTest,1000,50');
+ * 
+ * // Step 2: Select platform
+ * window.__testHelpers.selectPlatform('facebook');
+ * 
+ * // Step 3: Proceed through wizard
+ * window.__testHelpers.proceedToStep(2); // Platform selection
+ * window.__testHelpers.proceedToStep(3); // Configuration
+ * 
+ * // Step 4: Start upload
+ * await window.__testHelpers.startUpload();
+ * ```
+ */
 const UV_UploadWizard: React.FC = () => {
   const { workspace_id } = useParams<{ workspace_id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -381,16 +413,50 @@ const UV_UploadWizard: React.FC = () => {
     if (typeof window !== 'undefined') {
       (window as any).__testHelpers = {
         ...(window as any).__testHelpers,
-        selectTestFile: (filename: string = 'test-data.csv', content: string = 'campaign_name,impressions,clicks\nTest,1000,50') => {
+        selectTestFile: (filename: string = 'test-data.csv', content: string = 'campaign_name,impressions,clicks\nTest Campaign,1000,50\nAnother Campaign,2000,100') => {
           const blob = new Blob([content], { type: 'text/csv' });
           const file = new File([blob], filename, { type: 'text/csv' });
           handleFileSelect([file]);
+          return true;
+        },
+        selectPlatform: (platform: string) => {
+          if (!platform) return false;
+          setPlatformSelection(platform);
+          return true;
+        },
+        proceedToStep: (step: number) => {
+          if (canProceedToStep(step)) {
+            updateStep(step);
+            return true;
+          }
+          return false;
+        },
+        startUpload: async () => {
+          if (canProceedToStep(4)) {
+            try {
+              await createUploadMutation.mutateAsync();
+              return true;
+            } catch (error) {
+              console.error('Test helper upload error:', error);
+              return false;
+            }
+          }
+          return false;
         },
         getCurrentStep: () => wizardStep,
-        hasValidFiles: () => selectedFiles.length > 0 && selectedFiles[0].validation_status === 'valid'
+        hasValidFiles: () => selectedFiles.length > 0 && selectedFiles[0].validation_status === 'valid',
+        getSelectedPlatform: () => platformSelection,
+        canContinue: () => canProceedToStep(wizardStep + 1),
+        getUploadState: () => ({
+          step: wizardStep,
+          hasFiles: selectedFiles.length > 0,
+          platform: platformSelection,
+          uploadJob: uploadJob,
+          progress: uploadProgress
+        })
       };
     }
-  }, [handleFileSelect, wizardStep, selectedFiles]);
+  }, [handleFileSelect, wizardStep, selectedFiles, platformSelection, uploadJob, uploadProgress, canProceedToStep, updateStep, createUploadMutation]);
 
   return (
     <>
@@ -520,7 +586,9 @@ const UV_UploadWizard: React.FC = () => {
                         id="file-upload-input"
                         name="file"
                         title="Upload file"
-                        style={{ width: '100%', height: '100%' }}
+                        data-automation-id="file-input"
+                        data-step="1"
+                        style={{ width: '100%', height: '100%', zIndex: 10 }}
                       />
                     </div>
                   </div>
