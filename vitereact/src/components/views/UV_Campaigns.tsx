@@ -58,32 +58,50 @@ interface Ad {
   updated_at: string;
 }
 
-interface MetricsData {
-  spend: number;
-  impressions: number;
-  clicks: number;
-  conversions: number;
-  revenue: number;
-  ctr: number;
-  cpm: number;
-  cpc: number;
-  cpa: number;
-  cvr: number;
-  roas: number;
-}
-
 interface CampaignWithMetrics extends Campaign {
-  metrics: MetricsData;
+  platform: string;
+  account_name: string;
+  spend: number | string;
+  impressions: number | string;
+  clicks: number | string;
+  conversions: number | string;
+  revenue: number | string;
+  ctr: number | string;
+  cpm: number | string;
+  cpc: number | string;
+  cpa: number | string;
+  cvr: number | string;
+  roas: number | string;
   adsets?: AdSetWithMetrics[];
 }
 
 interface AdSetWithMetrics extends AdSet {
-  metrics: MetricsData;
+  spend: number | string;
+  impressions: number | string;
+  clicks: number | string;
+  conversions: number | string;
+  revenue: number | string;
+  ctr: number | string;
+  cpm: number | string;
+  cpc: number | string;
+  cpa: number | string;
+  cvr: number | string;
+  roas: number | string;
   ads?: AdWithMetrics[];
 }
 
 interface AdWithMetrics extends Ad {
-  metrics: MetricsData;
+  spend: number | string;
+  impressions: number | string;
+  clicks: number | string;
+  conversions: number | string;
+  revenue: number | string;
+  ctr: number | string;
+  cpm: number | string;
+  cpc: number | string;
+  cpa: number | string;
+  cvr: number | string;
+  roas: number | string;
 }
 
 interface CampaignsResponse {
@@ -353,31 +371,31 @@ const UV_Campaigns: React.FC = () => {
             </span>
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {formatCurrency(campaign.metrics.spend)}
+            {formatCurrency(Number(campaign.spend))}
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {campaign.metrics.impressions.toLocaleString()}
+            {Number(campaign.impressions).toLocaleString()}
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {campaign.metrics.clicks.toLocaleString()}
+            {Number(campaign.clicks).toLocaleString()}
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {campaign.metrics.conversions.toLocaleString()}
+            {Number(campaign.conversions).toLocaleString()}
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {formatCurrency(campaign.metrics.revenue)}
+            {formatCurrency(Number(campaign.revenue))}
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
             <div className="flex items-center">
-              {formatPercentage(campaign.metrics.ctr)}
-              {getTrendIndicator(campaign.metrics.ctr, 2.5)}
+              {formatPercentage(Number(campaign.ctr))}
+              {getTrendIndicator(Number(campaign.ctr), 2.5)}
             </div>
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {formatCurrency(campaign.metrics.cpm)}
+            {formatCurrency(Number(campaign.cpm))}
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {campaign.metrics.roas.toFixed(2)}x
+            {Number(campaign.roas).toFixed(2)}x
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
             <button className="text-gray-400 hover:text-gray-600">
